@@ -45,9 +45,35 @@ form.addEventListener("submit", function(e){
 
     if(valid){
 
-        alert("Login Successful!");
+        // alert("Login Successful!");
+        fetch("http://127.0.0.1:8000/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email,
+                password
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
 
-        // Backend API call will be added later
+            // Store JWT
+            localStorage.setItem("token", data.access_token);
+
+            alert("Login Successful!");
+
+            console.log(data);
+
+            // Redirect later
+            // window.location.href = "../dashboard/dashboard.html";
+
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Login Failed");
+        });
 
     }
 
