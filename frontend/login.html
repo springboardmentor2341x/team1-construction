@@ -33,7 +33,10 @@
                 Remember Me
             </label>
 
-            <a href="#">Forgot Password?</a>
+            <div class="links">
+                <a href="#" id="changePasswordLink">Change Password</a>
+                <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+            </div>
         </div>
 
         <button type="submit">Login</button>
@@ -45,6 +48,67 @@
 
     </form>
 
+</div>
+
+<div class="modal-backdrop hidden" id="passwordModal">
+    <div class="modal-card">
+        <button class="close-btn" type="button" id="closePasswordModal" aria-label="Close">×</button>
+        <h3 id="modalTitle">Forgot Password</h3>
+        <p id="modalSubtitle">Enter your email to receive an OTP.</p>
+
+        <div class="step active" id="stepEmail">
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="recoverEmail" placeholder="Enter your email">
+                <small id="recoverEmailError"></small>
+            </div>
+            <button type="button" id="sendOtpBtn">Send OTP</button>
+        </div>
+
+        <div class="step" id="stepOtp">
+            <div class="input-group">
+                <label>Enter OTP</label>
+                <input type="text" id="otpCode" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit OTP">
+                <small id="otpError"></small>
+                <p class="helper-text" id="otpHelper">Demo OTP: 123456</p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="secondary" id="backToEmailBtn">Back</button>
+                <button type="button" id="verifyOtpBtn">Verify OTP</button>
+            </div>
+        </div>
+
+        <div class="step" id="stepReset">
+            <div class="input-group" id="currentPasswordGroup">
+                <label>Current Password</label>
+                <input type="password" id="currentPassword" placeholder="Enter current password">
+                <small id="currentPasswordError"></small>
+            </div>
+
+            <div class="input-group">
+                <label>New Password</label>
+                <input type="password" id="newPassword" placeholder="Enter new password">
+                <small id="newPasswordError"></small>
+            </div>
+
+            <div class="input-group">
+                <label>Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                <small id="confirmPasswordError"></small>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="secondary" id="backToOtpBtn">Back</button>
+                <button type="button" id="resetPasswordBtn">Reset Password</button>
+            </div>
+        </div>
+
+        <div class="step success-step" id="stepSuccess">
+            <h4>Password Updated</h4>
+            <p>Your password has been updated successfully.</p>
+            <button type="button" id="doneBtn">Done</button>
+        </div>
+    </div>
 </div>
 
 <script src="login.js"></script>
