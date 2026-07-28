@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuildTrack | User Profile</title>
+
+    <link rel="stylesheet" href="Profile.css">
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+
+        <div class="logo">
+
+            <i class="fa-solid fa-building"></i>
+            <h2>BuildTrack</h2>
+
+        </div>
+
+        <div class="header-right">
+
+            <button id="editBtn">
+                <i class="fa-solid fa-user-pen"></i>
+                Edit Profile
+            </button>
+
+        </div>
+    </header>
+    
+        <div class="profile-card">
+            
+            <h2 id="displayName"></h2>
+            <span class="role" id="role"></span>
+            <p class="small muted" id="employeeId"></p>
+            <div class="card" style="margin-top:18px;">
+                <div class="info">
+                    <label>Email</label>
+                    <p id="email"></p>
+                </div>
+                <div class="info">
+                    <label>Mobile</label>
+                    <p id="phone"></p>
+                </div>
+                <div class="info">
+                    <label>Address</label>
+                    <p id="address"></p>
+                </div>
+                <div class="info">
+                    <label>Department</label>
+                    <p id="department"></p>
+                </div>
+                <div class="buttons" style="margin-top:12px;">
+                    <button id="editBtn" class="save">Edit Profile</button>
+                    <button type="button" class="change-password cancel">Change Password</button>
+                    <button type="button" class="logout cancel">Logout</button>
+                </div>
+            </div>
+        </div>
+
+    
+    <div id="toast">
+        Profile Loaded Successfully
+    </div>
+
+    
+    <div id="loader">
+
+        <div class="spinner"></div>
+
+    </div>
+
+    <script src="profile.js"></script>
+
+</body>
+</html>

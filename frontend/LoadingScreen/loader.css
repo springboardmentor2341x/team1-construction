@@ -1,0 +1,10 @@
+:root{
+	--loader-bg: rgba(255,255,255,.85);
+	--loader-color: #f59e0b;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Arial,Helvetica,sans-serif}
+
+#loader{height:100%;}
+
