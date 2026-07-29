@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Manager Dashboard</title>
+  <link rel="stylesheet" href="project-manager.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div>
+        <div class="brand">BuildTrack</div>
+        <p class="brand-sub">Project Manager Portal</p>
+      </div>
+
+      <nav class="nav-links">
+        <a class="active" href="#">Dashboard</a>
+        <a href="#">My Projects</a>
+        <a href="#">Project Milestones</a>
+        <a href="#">Site Progress</a>
+        <a href="#">Resource Allocation</a>
+        <a href="#">Workforce</a>
+        <a href="#">Procurement Requests</a>
+        <a href="#">Budget Tracking</a>
+        <a href="#">Reports</a>
+        <a href="#">Notifications</a>
+        <a href="#">Profile</a>
+      </nav>
+    </aside>
+
+    <main class="main-panel">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Construction Command Center</p>
+          <h1>Project Manager Dashboard</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="ghost-btn">+ New Report</button>
+          <div class="avatar">PM</div>
+        </div>
+      </header>
+
+      <section class="hero-card">
+        <div>
+          <p class="eyebrow">Live Overview</p>
+          <h2>Project manager workspace</h2>
+          <p>Use this area to track project activity and upcoming work items.</p>
+        </div>
+      </section>
+
+      <section class="stats-grid">
+        <article class="stat-card">
+          <p>Active Projects</p>
+          <h3>0</h3>
+          <span>No data yet</span>
+        </article>
+        <article class="stat-card">
+          <p>Pending Tasks</p>
+          <h3>0</h3>
+          <span>Waiting for updates</span>
+        </article>
+        <article class="stat-card">
+          <p>Assigned Workers</p>
+          <h3>0</h3>
+          <span>No assignments</span>
+        </article>
+        <article class="stat-card">
+          <p>Budget Status</p>
+          <h3>0</h3>
+          <span>Pending entry</span>
+        </article>
+      </section>
+
+      <section class="content-grid">
+        <article class="card">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">Project Summary</p>
+              <h3>Overview</h3>
+            </div>
+          </div>
+          <p class="empty-state">Project details will appear here once data is added.</p>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">Task Management</p>
+              <h3>Upcoming work</h3>
+            </div>
+          </div>
+          <p class="empty-state">No task items available yet.</p>
+        </article>
+      </section>
+
+      <section class="content-grid">
+        <article class="card">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">Milestones</p>
+              <h3>Scheduled checkpoints</h3>
+            </div>
+          </div>
+          <p class="empty-state">Milestone data will be listed here.</p>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">Resources</p>
+              <h3>Team allocation</h3>
+            </div>
+          </div>
+          <p class="empty-state">Resource information will be added soon.</p>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="assignmentModal">
+    <div class="modal-card">
+      <button class="close-btn" id="closeModal" aria-label="Close">×</button>
+      <h3 id="modalTitle">Assignment</h3>
+      <p id="modalBody">Select the right team member for this task.</p>
+      <div class="modal-actions">
+        <button class="action-btn" id="confirmAssignment">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="project-manager.js"></script>
+</body>
+</html>

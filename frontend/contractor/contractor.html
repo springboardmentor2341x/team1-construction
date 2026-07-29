@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contractor Dashboard</title>
+    <link rel="stylesheet" href="contractor.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div>
+          <div class="brand">BuildTrack</div>
+          <p class="brand-sub">Contractor Portal</p>
+        </div>
+
+        <nav class="nav-links">
+          <a class="active" href="#">Dashboard</a>
+          <a href="#">Assigned Projects</a>
+          <a href="#">Assigned Workers</a>
+          <a href="#">Daily Work Status</a>
+          <a href="#">Material Requests</a>
+          <a href="#">Reports</a>
+          <a href="#">Notifications</a>
+          <a href="#">Profile</a>
+        </nav>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Site Operations Center</p>
+            <h1>Contractor Dashboard</h1>
+          </div>
+          <div class="topbar-actions">
+            <button class="ghost-btn" id="openAssignment">+ New Update</button>
+            <div class="avatar">CT</div>
+          </div>
+        </header>
+
+        <section class="hero-card">
+          <div>
+            <p class="eyebrow">Live Overview</p>
+            <h2>Manage your assigned work with clarity</h2>
+            <p>Track site activity, workers, materials, and daily progress from one place.</p>
+          </div>
+        </section>
+
+        <section class="stats-grid">
+          <article class="stat-card">
+            <p>Active Sites</p>
+            <h3>3</h3>
+            <span>In progress</span>
+          </article>
+          <article class="stat-card">
+            <p>Pending Tasks</p>
+            <h3>7</h3>
+            <span>Needs follow-up</span>
+          </article>
+          <article class="stat-card">
+            <p>Material Requests</p>
+            <h3>2</h3>
+            <span>Awaiting approval</span>
+          </article>
+          <article class="stat-card">
+            <p>Work Status</p>
+            <h3>88%</h3>
+            <span>On track</span>
+          </article>
+        </section>
+
+        <section class="content-grid">
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Project Summary</p>
+                <h3>Assigned projects</h3>
+              </div>
+            </div>
+            <p class="empty-state">Current site projects and progress updates will appear here.</p>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Task Management</p>
+                <h3>Daily work list</h3>
+              </div>
+            </div>
+            <p class="empty-state">Checklist and daily task items will be managed here.</p>
+          </article>
+        </section>
+
+        <section class="content-grid">
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Milestones</p>
+                <h3>Site checkpoints</h3>
+              </div>
+            </div>
+            <p class="empty-state">Important work milestones and deadlines will be listed here.</p>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Resources</p>
+                <h3>Team and materials</h3>
+              </div>
+            </div>
+            <p class="empty-state">Assigned workers and material needs will be shown here.</p>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <div class="modal-backdrop hidden" id="assignmentModal">
+      <div class="modal-card">
+        <button class="close-btn" id="closeModal" aria-label="Close">×</button>
+        <h3 id="modalTitle">Site Update</h3>
+        <p id="modalBody">Add a new progress note or material request for the active site.</p>
+        <div class="modal-actions">
+          <button class="action-btn" id="confirmAssignment">Save Update</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="contractor.js"></script>
+  </body>
+</html>
