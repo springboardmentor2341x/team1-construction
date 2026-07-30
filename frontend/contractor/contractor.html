@@ -15,14 +15,14 @@
         </div>
 
         <nav class="nav-links">
-          <a class="active" href="#">Dashboard</a>
-          <a href="#">Assigned Projects</a>
-          <a href="#">Assigned Workers</a>
-          <a href="#">Daily Work Status</a>
-          <a href="#">Material Requests</a>
-          <a href="#">Reports</a>
-          <a href="#">Notifications</a>
-          <a href="#">Profile</a>
+          <a class="active" href="#" data-page="dashboard">Dashboard</a>
+          <a href="#" data-page="assigned-projects">Assigned Projects</a>
+          <a href="#" data-page="assigned-workers">Assigned Workers</a>
+          <a href="#" data-page="daily-work-status">Daily Work Status</a>
+          <a href="#" data-page="material-requests">Material Requests</a>
+          <a href="#" data-page="reports">Reports</a>
+          <a href="#" data-page="notifications">Notifications</a>
+          <a href="#" data-page="profile">Profile</a>
         </nav>
       </aside>
 
@@ -41,76 +41,44 @@
         <section class="hero-card">
           <div>
             <p class="eyebrow">Live Overview</p>
-            <h2>Manage your assigned work with clarity</h2>
-            <p>Track site activity, workers, materials, and daily progress from one place.</p>
+            <h2 id="pageTitle">Manage your assigned work with clarity</h2>
+            <p id="pageDescription">Track site activity, workers, materials, and daily progress from one place.</p>
           </div>
         </section>
 
-        <section class="stats-grid">
-          <article class="stat-card">
-            <p>Active Sites</p>
-            <h3>3</h3>
-            <span>In progress</span>
-          </article>
-          <article class="stat-card">
-            <p>Pending Tasks</p>
-            <h3>7</h3>
-            <span>Needs follow-up</span>
-          </article>
-          <article class="stat-card">
-            <p>Material Requests</p>
-            <h3>2</h3>
-            <span>Awaiting approval</span>
-          </article>
-          <article class="stat-card">
-            <p>Work Status</p>
-            <h3>88%</h3>
-            <span>On track</span>
-          </article>
+        <section id="dashboard-view" class="page-section">
+          <div class="section-grid">
+            <section class="stats-grid" id="dashboard-stats"></section>
+            <section class="content-grid" id="dashboard-cards"></section>
+          </div>
         </section>
 
-        <section class="content-grid">
-          <article class="card">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">Project Summary</p>
-                <h3>Assigned projects</h3>
-              </div>
-            </div>
-            <p class="empty-state">Current site projects and progress updates will appear here.</p>
-          </article>
-
-          <article class="card">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">Task Management</p>
-                <h3>Daily work list</h3>
-              </div>
-            </div>
-            <p class="empty-state">Checklist and daily task items will be managed here.</p>
-          </article>
+        <section id="assigned-projects-view" class="page-section hidden">
+          <div class="section-grid" id="assigned-projects-cards"></div>
         </section>
 
-        <section class="content-grid">
-          <article class="card">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">Milestones</p>
-                <h3>Site checkpoints</h3>
-              </div>
-            </div>
-            <p class="empty-state">Important work milestones and deadlines will be listed here.</p>
-          </article>
+        <section id="assigned-workers-view" class="page-section hidden">
+          <div class="section-grid" id="assigned-workers-cards"></div>
+        </section>
 
-          <article class="card">
-            <div class="card-head">
-              <div>
-                <p class="eyebrow">Resources</p>
-                <h3>Team and materials</h3>
-              </div>
-            </div>
-            <p class="empty-state">Assigned workers and material needs will be shown here.</p>
-          </article>
+        <section id="daily-work-status-view" class="page-section hidden">
+          <div class="section-grid" id="daily-work-status-cards"></div>
+        </section>
+
+        <section id="material-requests-view" class="page-section hidden">
+          <div class="section-grid" id="material-requests-cards"></div>
+        </section>
+
+        <section id="reports-view" class="page-section hidden">
+          <div class="section-grid" id="reports-cards"></div>
+        </section>
+
+        <section id="notifications-view" class="page-section hidden">
+          <div class="section-grid" id="notifications-cards"></div>
+        </section>
+
+        <section id="profile-view" class="page-section hidden">
+          <div class="section-grid" id="profile-cards"></div>
         </section>
       </main>
     </div>

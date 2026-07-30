@@ -15,17 +15,17 @@
       </div>
 
       <nav class="nav-links">
-        <a class="active" href="#">Dashboard</a>
-        <a href="#">My Projects</a>
-        <a href="#">Project Milestones</a>
-        <a href="#">Site Progress</a>
-        <a href="#">Resource Allocation</a>
-        <a href="#">Workforce</a>
-        <a href="#">Procurement Requests</a>
-        <a href="#">Budget Tracking</a>
-        <a href="#">Reports</a>
-        <a href="#">Notifications</a>
-        <a href="#">Profile</a>
+        <a class="active" href="#" data-page="dashboard">Dashboard</a>
+        <a href="#" data-page="my-projects">My Projects</a>
+        <a href="#" data-page="project-milestones">Project Milestones</a>
+        <a href="#" data-page="site-progress">Site Progress</a>
+        <a href="#" data-page="resource-allocation">Resource Allocation</a>
+        <a href="#" data-page="workforce">Workforce</a>
+        <a href="#" data-page="procurement-requests">Procurement Requests</a>
+        <a href="#" data-page="budget-tracking">Budget Tracking</a>
+        <a href="#" data-page="reports">Reports</a>
+        <a href="#" data-page="notifications">Notifications</a>
+        <a href="#" data-page="profile">Profile</a>
       </nav>
     </aside>
 
@@ -44,76 +44,56 @@
       <section class="hero-card">
         <div>
           <p class="eyebrow">Live Overview</p>
-          <h2>Project manager workspace</h2>
-          <p>Use this area to track project activity and upcoming work items.</p>
+          <h2 id="pageTitle">Project manager workspace</h2>
+          <p id="pageDescription">Use this area to track project activity and upcoming work items.</p>
         </div>
       </section>
 
-      <section class="stats-grid">
-        <article class="stat-card">
-          <p>Active Projects</p>
-          <h3>0</h3>
-          <span>No data yet</span>
-        </article>
-        <article class="stat-card">
-          <p>Pending Tasks</p>
-          <h3>0</h3>
-          <span>Waiting for updates</span>
-        </article>
-        <article class="stat-card">
-          <p>Assigned Workers</p>
-          <h3>0</h3>
-          <span>No assignments</span>
-        </article>
-        <article class="stat-card">
-          <p>Budget Status</p>
-          <h3>0</h3>
-          <span>Pending entry</span>
-        </article>
+      <section id="dashboard-view" class="page-section">
+        <div class="section-grid">
+          <section class="stats-grid" id="dashboard-stats"></section>
+          <section class="content-grid" id="dashboard-cards"></section>
+        </div>
       </section>
 
-      <section class="content-grid">
-        <article class="card">
-          <div class="card-head">
-            <div>
-              <p class="eyebrow">Project Summary</p>
-              <h3>Overview</h3>
-            </div>
-          </div>
-          <p class="empty-state">Project details will appear here once data is added.</p>
-        </article>
-
-        <article class="card">
-          <div class="card-head">
-            <div>
-              <p class="eyebrow">Task Management</p>
-              <h3>Upcoming work</h3>
-            </div>
-          </div>
-          <p class="empty-state">No task items available yet.</p>
-        </article>
+      <section id="my-projects-view" class="page-section hidden">
+        <div class="section-grid" id="my-projects-cards"></div>
       </section>
 
-      <section class="content-grid">
-        <article class="card">
-          <div class="card-head">
-            <div>
-              <p class="eyebrow">Milestones</p>
-              <h3>Scheduled checkpoints</h3>
-            </div>
-          </div>
-          <p class="empty-state">Milestone data will be listed here.</p>
-        </article>
+      <section id="project-milestones-view" class="page-section hidden">
+        <div class="section-grid" id="project-milestones-cards"></div>
+      </section>
 
-        <article class="card">
-          <div class="card-head">
-            <div>
-              <p class="eyebrow">Resources</p>
-              <h3>Team allocation</h3>
-            </div>
-          </div>
-          <p class="empty-state">Resource information will be added soon.</p>
-        </article>
+      <section id="site-progress-view" class="page-section hidden">
+        <div class="section-grid" id="site-progress-cards"></div>
+      </section>
+
+      <section id="resource-allocation-view" class="page-section hidden">
+        <div class="section-grid" id="resource-allocation-cards"></div>
+      </section>
+
+      <section id="workforce-view" class="page-section hidden">
+        <div class="section-grid" id="workforce-cards"></div>
+      </section>
+
+      <section id="procurement-requests-view" class="page-section hidden">
+        <div class="section-grid" id="procurement-requests-cards"></div>
+      </section>
+
+      <section id="budget-tracking-view" class="page-section hidden">
+        <div class="section-grid" id="budget-tracking-cards"></div>
+      </section>
+
+      <section id="reports-view" class="page-section hidden">
+        <div class="section-grid" id="reports-cards"></div>
+      </section>
+
+      <section id="notifications-view" class="page-section hidden">
+        <div class="section-grid" id="notifications-cards"></div>
+      </section>
+
+      <section id="profile-view" class="page-section hidden">
+        <div class="section-grid" id="profile-cards"></div>
       </section>
     </main>
   </div>
