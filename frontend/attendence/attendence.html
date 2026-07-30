@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Attendence | BuildTrack</title>
+
+    <link rel="stylesheet" href="attendence.css">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h2>BuildTrack</h2>
+
+            <p>Worker</p>
+
+        </div>
+
+        <ul>
+
+            <li>
+                <a href="../dashboard/dashboard.html">
+                    <i class="fa-solid fa-house"></i>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="../mytasks/mytasks.html">
+                    <i class="fa-solid fa-list-check"></i>
+                    My Tasks
+                </a>
+            </li>
+
+            <li class="active">
+                <a href="../attendence/attendence.html">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    Attendence
+                </a>
+            </li>
+
+            <li>
+                <a href="../shiftschedule/shiftschedule.html">
+                    <i class="fa-solid fa-clock"></i>
+                    Shift Schedule
+                </a>
+            </li>
+
+            <li>
+                <a href="../profile/profile.html">
+                    <i class="fa-solid fa-user"></i>
+                    Profile
+                </a>
+            </li>
+
+            <li>
+                <a href="../login/login.html">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main Content -->
+
+    <main class="main-content">
+
+        <div class="header">
+
+            <h1>Attendence</h1>
+
+            <p>View and manage your attendance records.</p>
+
+        </div>
+
+        <!-- Attendance Form -->
+
+        <div class="form-container">
+
+            <form id="attendenceForm">
+
+                <div class="row">
+
+                    <div class="input-box">
+
+                        <label>Date</label>
+
+                        <input type="date">
+
+                    </div>
+
+                    <div class="input-box">
+
+                        <label>Shift</label>
+
+                        <select>
+
+                            <option>Morning</option>
+
+                            <option>Evening</option>
+
+                            <option>Night</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="input-box">
+
+                        <label>Check In</label>
+
+                        <input type="time">
+
+                    </div>
+
+                    <div class="input-box">
+
+                        <label>Check Out</label>
+
+                        <input type="time">
+
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="input-box">
+
+                        <label>Status</label>
+
+                        <select>
+
+                            <option>Present</option>
+
+                            <option>Absent</option>
+
+                            <option>Leave</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="button-group">
+
+                    <button type="reset" class="reset-btn">
+
+                        Reset
+
+                    </button>
+
+                    <button type="submit" class="save-btn">
+
+                        Save Attendance
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <!-- Attendance History -->
+
+        <div class="table-container">
+
+            <h2>Attendance History</h2>
+
+            <table>
+
+                <tr>
+
+                    <th>Date</th>
+
+                    <th>Shift</th>
+
+                    <th>Check In</th>
+
+                    <th>Check Out</th>
+
+                    <th>Status</th>
+
+                </tr>
+
+                <tr>
+
+                    <td>01 Aug 2026</td>
+
+                    <td>Morning</td>
+
+                    <td>09:00 AM</td>
+
+                    <td>06:00 PM</td>
+
+                    <td class="present">Present</td>
+
+                </tr>
+
+                <tr>
+
+                    <td>02 Aug 2026</td>
+
+                    <td>Morning</td>
+
+                    <td>09:15 AM</td>
+
+                    <td>06:05 PM</td>
+
+                    <td class="present">Present</td>
+
+                </tr>
+
+                <tr>
+
+                    <td>03 Aug 2026</td>
+
+                    <td>Morning</td>
+
+                    <td>-</td>
+
+                    <td>-</td>
+
+                    <td class="leave">Leave</td>
+
+                </tr>
+
+            </table>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="attendence.js"></script>
+
+</body>
+
+</html>

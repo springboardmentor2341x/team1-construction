@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Project | BuildTrack</title>
+
+    <link rel="stylesheet" href="projectcreation.css">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h2>BuildTrack</h2>
+
+            <p>Administrator</p>
+
+        </div>
+
+        <ul>
+
+            <li class="active">
+                <a href="projectcreation.html">
+                    <i class="fa-solid fa-folder-plus"></i>
+                    Create Project
+                </a>
+            </li>
+
+            <li>
+                <a href="projectlist.html">
+                    <i class="fa-solid fa-list"></i>
+                    Project List
+                </a>
+            </li>
+
+            <li>
+                <a href="projectdetails.html">
+                    <i class="fa-solid fa-folder-open"></i>
+                    Project Details
+                </a>
+            </li>
+
+            <li>
+                <a href="projectupdate.html">
+                    <i class="fa-solid fa-pen"></i>
+                    Update Project
+                </a>
+            </li>
+
+            <li>
+                <a href="projectschedule.html">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Project Schedule
+                </a>
+            </li>
+
+            <li>
+                <a href="milestonemanagement.html">
+                    <i class="fa-solid fa-flag-checkered"></i>
+                    Milestones
+                </a>
+            </li>
+
+            <li>
+                <a href="projectstatus.html">
+                    <i class="fa-solid fa-chart-line"></i>
+                    Project Status
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main -->
+
+    <main class="main-content">
+
+        <div class="header">
+
+            <h1>Create New Project</h1>
+
+            <p>Register a new construction project into BuildTrack.</p>
+
+        </div>
+
+        <div class="form-container">
+
+            <form id="projectForm">
+
+                <div class="row">
+
+                    <div class="input-box">
+
+                        <label>Project Name</label>
+
+                        <input type="text" placeholder="Enter Project Name">
+
+                    </div>
+
+                    <div class="input-box">
+
+                        <label>Project Code</label>
+
+                        <input type="text" placeholder="BT-001">
+
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="input-box">
+
+                        <label>Project Category</label>
+
+                        <select>
+
+                            <option>Residential</option>
+                            <option>Commercial</option>
+                            <option>Industrial</option>
+                            <option>Infrastructure</option>
+                            <option>Government</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="input-box">
+
+                        <label>Client Name</label>
+
+                        <input type="text" placeholder="Client Name">
+
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="input-box">
+
+                        <label>Project Location</label>
+
+                        <input type="text" placeholder="City, State">
+
+                    </div>
+
+                    <div class="input-box">
+
+                        <label>Estimated Budget</label>
+
+                        <input type="number" placeholder="5000000">
+
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="input-box">
+
+                        <label>Start Date</label>
+
+                        <input type="date">
+
+                    </div>
+
+                    <div class="input-box">
+
+                        <label>Expected Completion Date</label>
+
+                        <input type="date">
+
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="input-box">
+
+                        <label>Priority</label>
+
+                        <select>
+
+                            <option>Low</option>
+                            <option>Medium</option>
+                            <option>High</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="input-box">
+
+                        <label>Initial Status</label>
+
+                        <select>
+
+                            <option>Planning</option>
+                            <option>In Progress</option>
+                            <option>On Hold</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="input-box">
+
+                    <label>Assign Project Manager</label>
+
+                    <select>
+
+                        <option>Select Project Manager</option>
+
+                        <option>Rahul Sharma</option>
+
+                        <option>Priya Patil</option>
+
+                        <option>Amit Verma</option>
+
+                    </select>
+
+                </div>
+
+                <div class="input-box">
+
+                    <label>Project Description</label>
+
+                    <textarea rows="5"
+                        placeholder="Write project description..."></textarea>
+
+                </div>
+
+                <div class="button-group">
+
+                    <button type="reset" class="reset-btn">
+
+                        Reset
+
+                    </button>
+
+                    <button type="submit" class="save-btn">
+
+                        Create Project
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="projectcreation.js"></script>
+
+</body>
+
+</html>

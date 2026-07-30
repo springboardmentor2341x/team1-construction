@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Milestone Management | BuildTrack</title>
+
+<link rel="stylesheet" href="milestonemanagement.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- Sidebar -->
+
+<aside class="sidebar">
+
+<div class="logo">
+
+<h2>BuildTrack</h2>
+
+<p>Administrator</p>
+
+</div>
+
+<ul>
+
+<li><a href="projectcreation.html"><i class="fa-solid fa-folder-plus"></i>Create Project</a></li>
+
+<li><a href="projectlist.html"><i class="fa-solid fa-list"></i>Project List</a></li>
+
+<li><a href="projectdetails.html"><i class="fa-solid fa-folder-open"></i>Project Details</a></li>
+
+<li><a href="projectupdate.html"><i class="fa-solid fa-pen"></i>Update Project</a></li>
+
+<li><a href="projectschedule.html"><i class="fa-solid fa-calendar-days"></i>Project Schedule</a></li>
+
+<li class="active"><a href="milestonemanagement.html"><i class="fa-solid fa-flag-checkered"></i>Milestones</a></li>
+
+<li><a href="projectstatus.html"><i class="fa-solid fa-chart-line"></i>Project Status</a></li>
+
+</ul>
+
+</aside>
+
+<!-- Main -->
+
+<main class="main-content">
+
+<div class="header">
+
+<h1>Milestone Management</h1>
+
+<p>Manage project milestones and monitor progress.</p>
+
+</div>
+
+<div class="form-container">
+
+<form id="milestoneForm">
+
+<div class="row">
+
+<div class="input-box">
+
+<label>Project Name</label>
+
+<input type="text" placeholder="Apartment Tower">
+
+</div>
+
+<div class="input-box">
+
+<label>Milestone Name</label>
+
+<input type="text" placeholder="Foundation Completed">
+
+</div>
+
+</div>
+
+<div class="row">
+
+<div class="input-box">
+
+<label>Planned Completion Date</label>
+
+<input type="date">
+
+</div>
+
+<div class="input-box">
+
+<label>Actual Completion Date</label>
+
+<input type="date">
+
+</div>
+
+</div>
+
+<div class="row">
+
+<div class="input-box">
+
+<label>Status</label>
+
+<select>
+
+<option>Pending</option>
+<option>In Progress</option>
+<option>Completed</option>
+
+</select>
+
+</div>
+
+<div class="input-box">
+
+<label>Completion Percentage</label>
+
+<input type="number" min="0" max="100" placeholder="0-100">
+
+</div>
+
+</div>
+
+<div class="input-box">
+
+<label>Remarks</label>
+
+<textarea rows="5" placeholder="Enter remarks..."></textarea>
+
+</div>
+
+<div class="button-group">
+
+<button type="reset" class="reset-btn">
+
+Reset
+
+</button>
+
+<button type="submit" class="save-btn">
+
+Save Milestone
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+<!-- Milestone Table -->
+
+<div class="table-container">
+
+<h2>Milestone Records</h2>
+
+<table>
+
+<tr>
+
+<th>Milestone</th>
+<th>Planned Date</th>
+<th>Actual Date</th>
+<th>Status</th>
+<th>Progress</th>
+
+</tr>
+
+<tr>
+
+<td>Foundation</td>
+<td>10 Aug 2026</td>
+<td>09 Aug 2026</td>
+<td>Completed</td>
+<td>100%</td>
+
+</tr>
+
+<tr>
+
+<td>Structural Work</td>
+<td>25 Oct 2026</td>
+<td>-</td>
+<td>In Progress</td>
+<td>65%</td>
+
+</tr>
+
+<tr>
+
+<td>Electrical Work</td>
+<td>20 Dec 2026</td>
+<td>-</td>
+<td>Pending</td>
+<td>0%</td>
+
+</tr>
+
+</table>
+
+</div>
+
+</main>
+
+</div>
+
+<script src="milestonemanagement.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Worker Dashboard | BuildTrack</title>
+
+    <link rel="stylesheet" href="workerdashboard.css">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h2>BuildTrack</h2>
+
+            <p>Worker</p>
+
+        </div>
+
+        <ul>
+
+            <li class="active">
+                <a href="workerdashboard.html">
+                    <i class="fa-solid fa-house"></i>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="../mytasks/mytasks.html">
+                    <i class="fa-solid fa-list-check"></i>
+                    My Tasks
+                </a>
+            </li>
+
+            <li>
+                <a href="../attendence/attendence.html">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    Attendance
+                </a>
+            </li>
+
+            <li>
+                <a href="../shiftschedule/shiftschedule.html">
+                    <i class="fa-solid fa-clock"></i>
+                    Shift Schedule
+                </a>
+            </li>
+            <li>
+    <a href="../dailyworkupdate/dailyworkupdate.html">
+        <i class="fa-solid fa-pen-to-square"></i>
+        Daily Work Update
+    </a>
+</li>
+
+<li>
+    <a href="../notifications/notifications.html">
+        <i class="fa-solid fa-bell"></i>
+        Notifications
+    </a>
+</li>
+            <li>
+                <a href="../profile/profile.html">
+                    <i class="fa-solid fa-user"></i>
+                    Profile
+                </a>
+            </li>
+
+            <li>
+                <a href="../login/login.html">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main Content -->
+
+    <main class="main-content">
+
+        <div class="header">
+
+            <h1>Worker Dashboard</h1>
+
+            <p>Welcome to your BuildTrack dashboard.</p>
+
+        </div>
+
+        <!-- Dashboard Cards -->
+
+        <div class="cards">
+
+            <div class="card">
+
+                <i class="fa-solid fa-list-check"></i>
+
+                <h3>Assigned Tasks</h3>
+
+                <h2>12</h2>
+
+            </div>
+
+            <div class="card">
+
+                <i class="fa-solid fa-calendar-check"></i>
+
+                <h3>Attendance</h3>
+
+                <h2>96%</h2>
+
+            </div>
+
+            <div class="card">
+
+                <i class="fa-solid fa-clock"></i>
+
+                <h3>Today's Shift</h3>
+
+                <h2>Morning</h2>
+
+            </div>
+
+            <div class="card">
+
+                <i class="fa-solid fa-user"></i>
+
+                <h3>Profile Status</h3>
+
+                <h2>Active</h2>
+
+            </div>
+
+        </div>
+
+        <!-- Recent Tasks -->
+
+        <div class="table-container">
+
+            <h2>Recent Assigned Tasks</h2>
+
+            <table>
+
+                <tr>
+                    <th>Task ID</th>
+                    <th>Task Name</th>
+                    <th>Deadline</th>
+                    <th>Status</th>
+                </tr>
+
+                <tr>
+                    <td>T101</td>
+                    <td>Foundation Work</td>
+                    <td>10 Aug 2026</td>
+                    <td>In Progress</td>
+                </tr>
+
+                <tr>
+                    <td>T102</td>
+                    <td>Concrete Mixing</td>
+                    <td>15 Aug 2026</td>
+                    <td>Pending</td>
+                </tr>
+
+                <tr>
+                    <td>T103</td>
+                    <td>Brick Work</td>
+                    <td>22 Aug 2026</td>
+                    <td>Completed</td>
+                </tr>
+
+            </table>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="workerdashboard.js"></script>
+
+</body>
+</html>

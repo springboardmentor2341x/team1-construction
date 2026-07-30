@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Daily Work Update | BuildTrack</title>
+
+    <link rel="stylesheet" href="dailyworkupdate.css">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <h2>BuildTrack</h2>
+            <p>Worker</p>
+        </div>
+
+        <ul>
+
+            <li>
+                <a href="../workerdashboard/workerdashboard.html">
+                    <i class="fa-solid fa-house"></i>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="../mytask/mytask.html">
+                    <i class="fa-solid fa-list-check"></i>
+                    My Tasks
+                </a>
+            </li>
+
+            <li>
+                <a href="../attendence/attendence.html">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    Attendance
+                </a>
+            </li>
+
+            <li>
+                <a href="../shiftschedule/shiftschedule.html">
+                    <i class="fa-solid fa-clock"></i>
+                    Shift Schedule
+                </a>
+            </li>
+
+            <li class="active">
+                <a href="dailyworkupdate.html">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    Daily Work Update
+                </a>
+            </li>
+
+            <li>
+                <a href="../notifications/notifications.html">
+                    <i class="fa-solid fa-bell"></i>
+                    Notifications
+                </a>
+            </li>
+
+            <li>
+                <a href="../ProfilePage/Profile.html">
+                    <i class="fa-solid fa-user"></i>
+                    Profile
+                </a>
+            </li>
+
+            <li>
+                <a href="../login/login.html">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main Content -->
+
+    <main class="main-content">
+
+        <div class="header">
+
+            <h1>Daily Work Update</h1>
+
+            <p>Submit today's work progress.</p>
+
+        </div>
+
+        <!-- Today's Task -->
+
+        <div class="task-card">
+
+            <h2>Today's Assigned Task</h2>
+
+            <p><strong>Project :</strong> Apartment Tower</p>
+
+            <p><strong>Task :</strong> Brick Wall Construction</p>
+
+            <p><strong>Supervisor :</strong> Rahul Patil</p>
+
+            <p><strong>Status :</strong> In Progress</p>
+
+        </div>
+
+        <!-- Update Form -->
+
+        <div class="update-form">
+
+            <h2>Submit Daily Update</h2>
+
+            <form id="dailyWorkForm">
+
+                <label>Work Description</label>
+
+                <textarea
+                    id="workDescription"
+                    rows="5"
+                    placeholder="Describe today's completed work..."></textarea>
+
+                <label>Hours Worked</label>
+
+                <input
+                    type="number"
+                    id="hoursWorked"
+                    placeholder="Enter total hours">
+
+                <label>Progress (%)</label>
+
+                <input
+                    type="range"
+                    id="progress"
+                    min="0"
+                    max="100"
+                    value="50">
+
+                <span id="progressValue">50%</span>
+
+                <label>Upload Work Photo</label>
+
+                <input
+                    type="file"
+                    id="workPhoto"
+                    accept="image/*">
+
+                <button type="submit">
+
+                    <i class="fa-solid fa-paper-plane"></i>
+
+                    Submit Update
+
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- Previous Updates -->
+
+        <div class="history">
+
+            <h2>Previous Updates</h2>
+
+            <table>
+
+                <tr>
+
+                    <th>Date</th>
+
+                    <th>Task</th>
+
+                    <th>Hours</th>
+
+                    <th>Progress</th>
+
+                    <th>Status</th>
+
+                </tr>
+
+                <tr>
+
+                    <td>29 Jul 2026</td>
+
+                    <td>Foundation Work</td>
+
+                    <td>8 hrs</td>
+
+                    <td>100%</td>
+
+                    <td>Completed</td>
+
+                </tr>
+
+                <tr>
+
+                    <td>28 Jul 2026</td>
+
+                    <td>Concrete Mixing</td>
+
+                    <td>7 hrs</td>
+
+                    <td>85%</td>
+
+                    <td>Completed</td>
+
+                </tr>
+
+                <tr>
+
+                    <td>27 Jul 2026</td>
+
+                    <td>Material Loading</td>
+
+                    <td>6 hrs</td>
+
+                    <td>70%</td>
+
+                    <td>Completed</td>
+
+                </tr>
+
+            </table>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="dailyworkupdate.js"></script>
+
+</body>
+
+</html>
