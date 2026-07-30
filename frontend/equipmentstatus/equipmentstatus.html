@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Equipment Status</title>
+
+    <link rel="stylesheet" href="equipmentstatus.css">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h2>BuildTrack</h2>
+
+            <p>Site Engineer</p>
+
+        </div>
+
+        <ul>
+
+            <li>
+                <a href="../SiteEngineerDashboard/dashboard.html">
+                    <i class="fa-solid fa-house"></i>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="../DailyProgress/dailyprogress.html">
+                    <i class="fa-solid fa-chart-line"></i>
+                    Daily Progress
+                </a>
+            </li>
+
+            <li>
+                <a href="../WeeklyReports/weeklyreports.html">
+                    <i class="fa-solid fa-calendar-week"></i>
+                    Weekly Reports
+                </a>
+            </li>
+
+            <li>
+                <a href="../ActivityLogs/activitylogs.html">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    Activity Logs
+                </a>
+            </li>
+
+            <li class="active">
+                <a href="equipmentstatus.html">
+                    <i class="fa-solid fa-truck"></i>
+                    Equipment Status
+                </a>
+            </li>
+
+            <li>
+                <a href="../ResourceAvailability/resourceavailability.html">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    Resource Availability
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main Content -->
+
+    <main class="main-content">
+
+        <header>
+
+            <h1>Equipment Status</h1>
+
+            <p>Monitor construction equipment availability and maintenance.</p>
+
+        </header>
+
+        <!-- Cards -->
+
+        <section class="cards">
+
+            <div class="card">
+                <h3>Total Equipment</h3>
+                <h2>52</h2>
+            </div>
+
+            <div class="card">
+                <h3>Available</h3>
+                <h2>39</h2>
+            </div>
+
+            <div class="card">
+                <h3>In Use</h3>
+                <h2>10</h2>
+            </div>
+
+            <div class="card">
+                <h3>Maintenance</h3>
+                <h2>03</h2>
+            </div>
+
+        </section>
+
+        <!-- Search -->
+
+        <section class="search-box">
+
+            <input type="text" placeholder="Search Equipment">
+
+            <select>
+
+                <option>All Status</option>
+                <option>Available</option>
+                <option>In Use</option>
+                <option>Maintenance</option>
+
+            </select>
+
+            <button>
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                Search
+
+            </button>
+
+        </section>
+
+        <!-- Equipment Table -->
+
+        <section class="table-section">
+
+            <h2>Equipment List</h2>
+
+            <table>
+
+                <tr>
+
+                    <th>Equipment</th>
+                    <th>Project</th>
+                    <th>Condition</th>
+                    <th>Status</th>
+                    <th>Last Service</th>
+
+                </tr>
+
+                <tr>
+
+                    <td>Excavator</td>
+                    <td>Apartment Tower</td>
+                    <td>Excellent</td>
+                    <td>Available</td>
+                    <td>15 Jul 2026</td>
+
+                </tr>
+
+                <tr>
+
+                    <td>Concrete Mixer</td>
+                    <td>Shopping Mall</td>
+                    <td>Good</td>
+                    <td>In Use</td>
+                    <td>10 Jul 2026</td>
+
+                </tr>
+
+                <tr>
+
+                    <td>Crane</td>
+                    <td>Office Complex</td>
+                    <td>Maintenance</td>
+                    <td>Unavailable</td>
+                    <td>25 Jul 2026</td>
+
+                </tr>
+
+                <tr>
+
+                    <td>Bulldozer</td>
+                    <td>Hospital Building</td>
+                    <td>Good</td>
+                    <td>Available</td>
+                    <td>18 Jul 2026</td>
+
+                </tr>
+
+            </table>
+
+        </section>
+
+        <!-- Maintenance Alerts -->
+
+        <section class="alerts">
+
+            <h2>Maintenance Alerts</h2>
+
+            <ul>
+
+                <li>⚠ Crane maintenance scheduled for tomorrow.</li>
+
+                <li>⚠ Excavator oil replacement due next week.</li>
+
+                <li>✔ Concrete Mixer inspection completed.</li>
+
+            </ul>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="equipmentstatus.js"></script>
+
+</body>
+
+</html>

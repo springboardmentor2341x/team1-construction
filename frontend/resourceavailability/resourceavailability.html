@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resource Availability</title>
+
+<link rel="stylesheet" href="resourceavailability.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- Sidebar -->
+
+<aside class="sidebar">
+
+<div class="logo">
+<h2>BuildTrack</h2>
+<p>Site Engineer</p>
+</div>
+
+<ul>
+
+<li>
+<a href="../SiteEngineerDashboard/dashboard.html">
+<i class="fa-solid fa-house"></i>
+Dashboard
+</a>
+</li>
+
+<li>
+<a href="../DailyProgress/dailyprogress.html">
+<i class="fa-solid fa-chart-line"></i>
+Daily Progress
+</a>
+</li>
+
+<li>
+<a href="../WeeklyReports/weeklyreports.html">
+<i class="fa-solid fa-calendar-week"></i>
+Weekly Reports
+</a>
+</li>
+
+<li>
+<a href="../ActivityLogs/activitylogs.html">
+<i class="fa-solid fa-clock-rotate-left"></i>
+Activity Logs
+</a>
+</li>
+
+<li>
+<a href="../EquipmentStatus/equipmentstatus.html">
+<i class="fa-solid fa-truck"></i>
+Equipment Status
+</a>
+</li>
+
+<li class="active">
+<a href="resourceavailability.html">
+<i class="fa-solid fa-boxes-stacked"></i>
+Resource Availability
+</a>
+</li>
+
+</ul>
+
+</aside>
+
+<!-- Main -->
+
+<main class="main-content">
+
+<header>
+
+<h1>Resource Availability</h1>
+
+<p>Track available construction resources.</p>
+
+</header>
+
+<!-- Cards -->
+
+<section class="cards">
+
+<div class="card">
+<h3>Total Resources</h3>
+<h2>185</h2>
+</div>
+
+<div class="card">
+<h3>Available</h3>
+<h2>143</h2>
+</div>
+
+<div class="card">
+<h3>Allocated</h3>
+<h2>32</h2>
+</div>
+
+<div class="card">
+<h3>Low Stock</h3>
+<h2>10</h2>
+</div>
+
+</section>
+
+<!-- Search -->
+
+<section class="search-box">
+
+<input type="text" placeholder="Search Resource">
+
+<select>
+
+<option>All Categories</option>
+
+<option>Material</option>
+
+<option>Equipment</option>
+
+<option>Tools</option>
+
+</select>
+
+<button>
+
+<i class="fa-solid fa-magnifying-glass"></i>
+
+Search
+
+</button>
+
+</section>
+
+<!-- Table -->
+
+<section class="table-section">
+
+<h2>Available Resources</h2>
+
+<table>
+
+<tr>
+
+<th>Resource</th>
+
+<th>Category</th>
+
+<th>Quantity</th>
+
+<th>Status</th>
+
+<th>Assigned Project</th>
+
+</tr>
+
+<tr>
+
+<td>Cement Bags</td>
+
+<td>Material</td>
+
+<td>500</td>
+
+<td>Available</td>
+
+<td>Apartment Tower</td>
+
+</tr>
+
+<tr>
+
+<td>Steel Rods</td>
+
+<td>Material</td>
+
+<td>220</td>
+
+<td>Low Stock</td>
+
+<td>Shopping Mall</td>
+
+</tr>
+
+<tr>
+
+<td>Excavator</td>
+
+<td>Equipment</td>
+
+<td>5</td>
+
+<td>Allocated</td>
+
+<td>Office Complex</td>
+
+</tr>
+
+<tr>
+
+<td>Safety Helmets</td>
+
+<td>Tools</td>
+
+<td>150</td>
+
+<td>Available</td>
+
+<td>Hospital Building</td>
+
+</tr>
+
+</table>
+
+</section>
+
+<!-- Alerts -->
+
+<section class="alerts">
+
+<h2>Resource Alerts</h2>
+
+<ul>
+
+<li>⚠ Cement stock is reducing rapidly.</li>
+
+<li>⚠ Steel rods need replenishment.</li>
+
+<li>✔ Safety equipment is sufficient.</li>
+
+<li>✔ Excavator allocated successfully.</li>
+
+</ul>
+
+</section>
+
+</main>
+
+</div>
+
+<script src="resourceavailability.js"></script>
+
+</body>
+
+</html>
