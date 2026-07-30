@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Client Reports</title>
+
+    <link rel="stylesheet" href="reports.css">
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <h2>🏗 Client</h2>
+
+        <ul>
+
+            <li>
+                <i class="fa-solid fa-house"></i>
+                <a href="../client-dashboard/client-dashboard.html">
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-chart-line"></i>
+                <a href="../client-project-progress/client-project-progress.html">
+    Project Progress
+</a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-flag-checkered"></i>
+                <a href="../milestones/milestones.html">
+                    Milestones
+                </a>
+            </li>
+
+            <li class="active">
+                <i class="fa-solid fa-file-lines"></i>
+                Reports
+            </li>
+
+            <li>
+                <i class="fa-solid fa-folder-open"></i>
+                <a href="../documents/documents.html">
+                    Documents
+                </a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-bell"></i>
+                <a href="../notifications/notifications.html">
+                    Notifications
+                </a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-user"></i>
+                <a href="../profile/profile.html">
+                    Profile
+                </a>
+            </li>
+
+            <li onclick="logout()">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <a href="../../login.html">
+                Logout</a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main Content -->
+
+    <main class="main">
+
+        <header>
+
+            <h1>Project Reports</h1>
+
+            <div class="profile">
+                Welcome, Client 👋
+            </div>
+
+        </header>
+
+        <!-- Summary Cards -->
+
+        <section class="cards">
+
+            <div class="card">
+
+                <h3>Total Reports</h3>
+
+                <h2>18</h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>Monthly Reports</h3>
+
+                <h2>8</h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>Weekly Reports</h3>
+
+                <h2>10</h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>Latest Report</h3>
+
+                <h2>July 2026</h2>
+
+            </div>
+
+        </section>
+
+        <!-- Search -->
+
+        <section class="search-box">
+
+            <input
+                type="text"
+                id="searchReport"
+                placeholder="Search reports...">
+
+        </section>
+
+        <!-- Reports Table -->
+
+        <section class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Report ID</th>
+
+                        <th>Report Name</th>
+
+                        <th>Date</th>
+
+                        <th>Status</th>
+
+                        <th>Download</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="reportTable">
+
+                    <tr>
+
+                        <td>R001</td>
+
+                        <td>Monthly Progress Report - January</td>
+
+                        <td>31-Jan-2026</td>
+
+                        <td>Available</td>
+
+                        <td>
+                            <button class="download-btn">
+                                Download
+                            </button>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>R002</td>
+
+                        <td>Monthly Progress Report - February</td>
+
+                        <td>28-Feb-2026</td>
+
+                        <td>Available</td>
+
+                        <td>
+                            <button class="download-btn">
+                                Download
+                            </button>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>R003</td>
+
+                        <td>Weekly Site Report - Week 10</td>
+
+                        <td>10-Mar-2026</td>
+
+                        <td>Available</td>
+
+                        <td>
+                            <button class="download-btn">
+                                Download
+                            </button>
+                        </td>
+
+                    </tr>
+                                        <tr>
+
+                        <td>R004</td>
+
+                        <td>Monthly Progress Report - April</td>
+
+                        <td>30-Apr-2026</td>
+
+                        <td>Available</td>
+
+                        <td>
+                            <button class="download-btn">
+                                Download
+                            </button>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>R005</td>
+
+                        <td>Weekly Site Report - Week 18</td>
+
+                        <td>08-May-2026</td>
+
+                        <td>Available</td>
+
+                        <td>
+                            <button class="download-btn">
+                                Download
+                            </button>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>R006</td>
+
+                        <td>Monthly Progress Report - June</td>
+
+                        <td>30-Jun-2026</td>
+
+                        <td>Available</td>
+
+                        <td>
+                            <button class="download-btn">
+                                Download
+                            </button>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>R007</td>
+
+                        <td>Monthly Progress Report - July</td>
+
+                        <td>31-Jul-2026</td>
+
+                        <td>Available</td>
+
+                        <td>
+                            <button class="download-btn">
+                                Download
+                            </button>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+        <!-- Recent Reports -->
+
+        <section class="recent-reports">
+
+            <h2>Recent Reports</h2>
+
+            <ul>
+
+                <li>📄 July 2026 Monthly Progress Report Uploaded</li>
+
+                <li>📊 Week 18 Site Report Published</li>
+
+                <li>🏗 Structural Inspection Report Available</li>
+
+                <li>📋 Safety Audit Report Generated</li>
+
+                <li>📑 Material Usage Report Updated</li>
+
+            </ul>
+
+        </section>
+
+        <!-- Project Statistics -->
+
+        <section class="statistics">
+
+            <div class="stat-card">
+
+                <h3>Overall Progress</h3>
+
+                <h2>82%</h2>
+
+            </div>
+
+            <div class="stat-card">
+
+                <h3>Completed Milestones</h3>
+
+                <h2>14 / 18</h2>
+
+            </div>
+
+            <div class="stat-card">
+
+                <h3>Reports Downloaded</h3>
+
+                <h2>26</h2>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="reports.js"></script>
+
+</body>
+
+</html>

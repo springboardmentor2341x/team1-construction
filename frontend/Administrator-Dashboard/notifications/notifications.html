@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Notifications</title>
+
+    <link rel="stylesheet" href="notifications.css">
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<link rel="stylesheet" href="../common/theme.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <h2>🏗 Admin</h2>
+
+        <ul>
+
+            <li>
+                <i class="fa-solid fa-house"></i>
+                <a href="../admin dashboard/admin.html">Dashboard</a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-users"></i>
+                <a href="../user-management/user-management.html">
+                    User Management
+                </a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-building"></i>
+                <a href="../project-management/project-management.html">
+                    Project Management
+                </a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-user-group"></i>
+                <a href="../workforce-management/workforce-management.html">
+                    Workforce Management
+                </a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-truck"></i>
+                <a href="../resource-management/resource-management.html">
+                    Resource Management
+                </a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-box"></i>
+                <a href="../material-inventory/material-inventory.html">
+                    Material & Inventory
+                </a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-cart-shopping"></i>
+                <a href="../procurement/procurement.html">
+                    Procurement
+                </a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-wallet"></i>
+                <a href="../budget-management/budget-management.html">
+                    Budget Management
+                </a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-chart-line"></i>
+                <a href="../reports/reports.html">
+                    Reports
+                </a>
+            </li>
+
+            <li class="active">
+                <i class="fa-solid fa-bell"></i>
+                Notifications
+            </li>
+
+            <li onclick="logout()">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <a href="../../login.html">
+                Logout</a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main Content -->
+
+    <main class="main">
+
+        <header>
+
+            <h1>Notifications</h1>
+
+            <div class="profile">
+                Welcome, Admin 👋
+            </div>
+
+        </header>
+
+        <!-- Summary Cards -->
+
+        <section class="cards">
+
+            <div class="card">
+
+                <h3>Total Notifications</h3>
+
+                <h2>36</h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>Unread</h3>
+
+                <h2>8</h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>High Priority</h3>
+
+                <h2>3</h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>Today's Alerts</h3>
+
+                <h2>12</h2>
+
+            </div>
+
+        </section>
+
+        <!-- Search -->
+
+        <section class="search-section">
+
+            <input
+                type="text"
+                id="searchNotification"
+                placeholder="Search notifications...">
+
+        </section>
+
+        <!-- Notifications Table -->
+
+        <section class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Notification</th>
+
+                        <th>Priority</th>
+
+                        <th>Date</th>
+
+                        <th>Status</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="notificationTable">
+
+                    <tr>
+
+                        <td>N001</td>
+
+                        <td>New project has been created.</td>
+
+                        <td>
+                            <span class="high">High</span>
+                        </td>
+
+                        <td>30-Jul-2026</td>
+
+                        <td>Unread</td>
+
+                        <td>
+                            <button class="read-btn">
+                                Mark Read
+                            </button>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>N002</td>
+
+                        <td>Budget exceeded by 5%.</td>
+
+                        <td>
+                            <span class="high">High</span>
+                        </td>
+
+                        <td>29-Jul-2026</td>
+
+                        <td>Unread</td>
+
+                        <td>
+                            <button class="read-btn">
+                                Mark Read
+                            </button>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>N003</td>
+
+                        <td>Material request approved.</td>
+
+                        <td>
+                            <span class="medium">Medium</span>
+                        </td>
+
+                        <td>29-Jul-2026</td>
+
+                        <td>Read</td>
+
+                        <td>
+                            <button class="read-btn">
+                               View
+                            </button>
+                        </td>
+
+                    </tr>
+                                        <tr>
+
+                        <td>N004</td>
+
+                        <td>New worker registered successfully.</td>
+
+                        <td>
+                            <span class="low">Low</span>
+                        </td>
+
+                        <td>28-Jul-2026</td>
+
+                        <td>Read</td>
+
+                        <td>
+                            <button class="read-btn">
+                                View
+                            </button>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>N005</td>
+
+                        <td>Procurement request pending approval.</td>
+
+                        <td>
+                            <span class="medium">Medium</span>
+                        </td>
+
+                        <td>28-Jul-2026</td>
+
+                        <td>Unread</td>
+
+                        <td>
+                            <button class="read-btn">
+                                Mark Read
+                            </button>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>N006</td>
+
+                        <td>Project milestone completed.</td>
+
+                        <td>
+                            <span class="low">Low</span>
+                        </td>
+
+                        <td>27-Jul-2026</td>
+
+                        <td>Read</td>
+
+                        <td>
+                            <button class="read-btn">
+                                View
+                            </button>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+        <!-- Recent Notifications -->
+
+        <section class="recent-notifications">
+
+            <h2>Recent Activities</h2>
+
+            <ul>
+
+                <li>🔔 New construction project has been assigned.</li>
+
+                <li>📦 Material inventory updated successfully.</li>
+
+                <li>💰 Budget report generated.</li>
+
+                <li>👷 New workforce member added.</li>
+
+                <li>📊 Monthly project report submitted.</li>
+
+            </ul>
+
+        </section>
+
+        <!-- Quick Actions -->
+
+        <section class="actions">
+
+            <button class="mark-all-btn">
+                <i class="fa-solid fa-check-double"></i>
+                Mark All Read
+            </button>
+
+            <button class="clear-btn">
+                <i class="fa-solid fa-trash"></i>
+                Clear Notifications
+            </button>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="notifications.js"></script>
+<script src="../common/theme.js"></script>
+</body>
+
+</html>

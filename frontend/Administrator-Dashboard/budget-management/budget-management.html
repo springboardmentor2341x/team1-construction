@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Budget Management</title>
+
+    <link rel="stylesheet" href="budget-management.css">
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<link rel="stylesheet" href="../common/theme.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <h2>🏗 Admin</h2>
+
+        <ul>
+
+            <li>
+                <i class="fa-solid fa-house"></i>
+                <a href="../admin dashboard/admin.html">Dashboard</a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-users"></i>
+                <a href="../user-management/user-management.html">User Management</a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-building"></i>
+                <a href="../project-management/project-management.html">Project Management</a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-user-group"></i>
+                <a href="../workforce-management/workforce-management.html">Workforce Management</a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-truck"></i>
+                <a href="../resource-management/resource-management.html">Resource Management</a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-box"></i>
+                <a href="../material-inventory/material-inventory.html">Material & Inventory</a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-cart-shopping"></i>
+                <a href="../procurement/procurement.html">Procurement</a>
+            </li>
+
+            <li class="active">
+                <i class="fa-solid fa-wallet"></i>
+                Budget Management
+            </li>
+
+            <li>
+                <i class="fa-solid fa-chart-line"></i>
+                <a href="../reports/reports.html">
+                Reports</a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-bell"></i>
+                <a href="../notifications/notifications.html">
+                Notifications</a>
+            </li>
+
+            <li onclick="logout()">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <a href="../../login.html">
+                Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main -->
+
+    <main class="main">
+
+        <header>
+
+            <h1>Budget Management</h1>
+
+            <div class="profile">
+
+                Welcome, Admin 👋
+
+            </div>
+
+        </header>
+
+        <!-- Cards -->
+
+        <section class="cards">
+
+            <div class="card">
+
+                <h3>Total Budget</h3>
+
+                <h2>$2,500,000</h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>Spent</h3>
+
+                <h2>$1,780,000</h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>Remaining</h3>
+
+                <h2>$720,000</h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>Budget Usage</h3>
+
+                <h2>71%</h2>
+
+            </div>
+
+        </section>
+
+        <!-- Search -->
+
+        <section class="search-section">
+
+            <input
+                type="text"
+                id="searchBudget"
+                placeholder="Search Project...">
+
+        </section>
+
+        <!-- Budget Table -->
+
+        <section class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Project</th>
+
+                        <th>Total Budget</th>
+
+                        <th>Spent</th>
+
+                        <th>Remaining</th>
+
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="budgetTable">
+
+                    <tr>
+
+                        <td>B001</td>
+
+                        <td>Commercial Building</td>
+
+                        <td>$900,000</td>
+
+                        <td>$650,000</td>
+
+                        <td>$250,000</td>
+
+                        <td>On Track</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>B002</td>
+
+                        <td>Residential Apartment</td>
+
+                        <td>$700,000</td>
+
+                        <td>$560,000</td>
+
+                        <td>$140,000</td>
+
+                        <td>On Track</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>B003</td>
+
+                        <td>Road Development</td>
+
+                        <td>$900,000</td>
+
+                        <td>$570,000</td>
+
+                        <td>$330,000</td>
+
+                        <td>Under Budget</td>
+
+                    </tr>
+                                        <tr>
+
+                        <td>B004</td>
+
+                        <td>Bridge Construction</td>
+
+                        <td>$450,000</td>
+
+                        <td>$300,000</td>
+
+                        <td>$150,000</td>
+
+                        <td>On Track</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>B005</td>
+
+                        <td>Shopping Mall</td>
+
+                        <td>$1,200,000</td>
+
+                        <td>$1,050,000</td>
+
+                        <td>$150,000</td>
+
+                        <td>Near Limit</td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+        <!-- Budget Summary -->
+
+        <section class="summary">
+
+            <div class="summary-card">
+
+                <h2>Budget Summary</h2>
+
+                <p><strong>Total Projects:</strong> 5</p>
+
+                <p><strong>Total Budget:</strong> $4,150,000</p>
+
+                <p><strong>Total Spent:</strong> $3,130,000</p>
+
+                <p><strong>Total Remaining:</strong> $1,020,000</p>
+
+                <p><strong>Average Utilization:</strong> 75%</p>
+
+            </div>
+
+            <div class="summary-card">
+
+                <h2>Budget Alerts</h2>
+
+                <ul>
+
+                    <li>⚠ Shopping Mall budget is nearing the limit.</li>
+
+                    <li>✅ Commercial Building spending is on track.</li>
+
+                    <li>✅ Residential Apartment has sufficient funds.</li>
+
+                    <li>💰 Road Development is under budget.</li>
+
+                </ul>
+
+            </div>
+
+        </section>
+
+        <!-- Recent Transactions -->
+
+        <section class="transactions">
+
+            <h2>Recent Budget Transactions</h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Date</th>
+
+                        <th>Project</th>
+
+                        <th>Description</th>
+
+                        <th>Amount</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+
+                        <td>28-Jul-2026</td>
+
+                        <td>Commercial Building</td>
+
+                        <td>Material Purchase</td>
+
+                        <td>$15,000</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>26-Jul-2026</td>
+
+                        <td>Road Development</td>
+
+                        <td>Equipment Rental</td>
+
+                        <td>$8,500</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>24-Jul-2026</td>
+
+                        <td>Residential Apartment</td>
+
+                        <td>Worker Payment</td>
+
+                        <td>$12,000</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>22-Jul-2026</td>
+
+                        <td>Shopping Mall</td>
+
+                        <td>Steel Procurement</td>
+
+                        <td>$22,500</td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="budget-management.js"></script>
+<script src="../common/theme.js"></script>
+
+</body>
+
+</html>

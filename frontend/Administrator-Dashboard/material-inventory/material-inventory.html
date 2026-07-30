@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Material & Inventory</title>
+
+<link rel="stylesheet" href="material-inventory.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<link rel="stylesheet" href="../common/theme.css">
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<!-- Sidebar -->
+
+<aside class="sidebar">
+
+<h2>🏗 Admin</h2>
+
+
+<ul>
+
+
+<li>
+
+<i class="fa-solid fa-house"></i>
+
+<a href="../admin dashboard/admin.html">
+Dashboard
+</a>
+
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-users"></i>
+
+<a href="../user-management/user-management.html">
+User Management
+</a>
+
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-building"></i>
+
+<a href="../project-management/project-management.html">
+Project Management
+</a>
+
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-truck"></i>
+
+<a href="../resource-management/resource-management.html">
+Resource Management
+</a>
+
+</li>
+
+
+
+<li class="active">
+
+<i class="fa-solid fa-box"></i>
+
+Material & Inventory
+
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-chart-line"></i>
+<a href="../reports/reports.html">
+Reports
+</a>
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-bell"></i>
+<a href="../notifications/notifications.html">
+Notifications
+</a>
+</li>
+
+<li>
+
+<i class="fa-solid fa-right-from-bracket"></i>
+<a href="../../login.html">
+Logout
+</a>
+</li>
+
+
+
+</ul>
+
+
+</aside>
+
+
+
+
+
+<!-- Main -->
+
+
+<main class="main">
+
+
+<header>
+
+<h1>Material & Inventory</h1>
+
+<div>
+Welcome Admin 👋
+</div>
+
+</header>
+
+
+
+
+
+
+<section class="top-section">
+
+
+<button class="add-btn">
+
+<i class="fa-solid fa-plus"></i>
+<a href="add-material/add-material.html">Add Material</a>
+
+</button>
+
+
+
+<div class="filters">
+
+
+<input type="text"
+id="searchMaterial"
+placeholder="Search material...">
+
+
+
+<select id="categoryFilter">
+
+
+<option value="All">
+All Categories
+</option>
+
+
+<option value="Construction">
+Construction
+</option>
+
+
+<option value="Electrical">
+Electrical
+</option>
+
+
+<option value="Plumbing">
+Plumbing
+</option>
+
+
+<option value="Safety">
+Safety Equipment
+</option>
+
+
+</select>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+<section class="table-box">
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+<th>ID</th>
+
+<th>Material Name</th>
+
+<th>Category</th>
+
+<th>Quantity</th>
+
+<th>Unit</th>
+
+<th>Stock Status</th>
+
+<th>Action</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+
+<tbody id="materialTable">
+
+
+
+<tr>
+
+<td>1</td>
+
+<td>Cement</td>
+
+<td>Construction</td>
+
+<td>500</td>
+
+<td>Bags</td>
+
+<td>
+
+<span class="available">
+Available
+</span>
+
+</td>
+
+
+<td>
+
+<button class="update">
+Update
+</button>
+
+
+<button class="edit">
+Edit
+</button>
+
+
+<button class="delete">
+Delete
+</button>
+
+
+</td>
+
+
+</tr>
+
+
+
+
+
+<tr>
+
+<td>2</td>
+
+<td>Steel Rods</td>
+
+<td>Construction</td>
+
+<td>120</td>
+
+<td>Pieces</td>
+
+<td>
+
+<span class="low">
+Low Stock
+</span>
+
+</td>
+
+
+<td>
+
+<button class="update">
+Update
+</button>
+
+
+<button class="edit">
+Edit
+</button>
+
+
+<button class="delete">
+Delete
+</button>
+
+
+</td>
+
+
+</tr>
+
+
+
+
+
+<tr>
+
+<td>3</td>
+
+<td>Safety Helmet</td>
+
+<td>Safety</td>
+
+<td>250</td>
+
+<td>Pieces</td>
+
+<td>
+
+<span class="available">
+Available
+</span>
+
+</td>
+
+
+<td>
+
+<button class="update">
+Update
+</button>
+
+
+<button class="edit">
+Edit
+</button>
+
+
+<button class="delete">
+Delete
+</button>
+
+
+</td>
+
+
+</tr>
+
+
+
+</tbody>
+
+
+</table>
+
+
+</section>
+
+
+
+</main>
+
+
+</div>
+
+
+
+<script src="material-inventory.js"></script>
+
+<script src="../common/theme.js"></script>
+</body>
+
+</html>

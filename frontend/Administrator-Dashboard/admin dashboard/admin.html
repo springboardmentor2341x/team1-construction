@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construction Admin Dashboard</title>
+
+    <link rel="stylesheet" href="admin.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<link rel="stylesheet" href="../common/theme.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <h2>🏗 Admin</h2>
+
+        <ul>
+
+            <li class="active"><i class="fa-solid fa-house"></i> Dashboard</li>
+
+            <li>
+                <i class="fa-solid fa-users"></i>
+                <a href="../user-management/user-management.html">
+                    User Management
+                </a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-building"></i>
+
+                <a href="../project-management/project-management.html">
+                    Project Management
+                </a>
+
+            </li>
+
+            <li>
+
+                <i class="fa-solid fa-user-group"></i>
+
+                <a href="../workforce-management/workforce-management.html">
+                    Workforce Management
+                </a>
+
+            </li>
+
+            <li>
+
+                <i class="fa-solid fa-truck"></i>
+
+                <a href="../resource-management/resource-management.html">
+                    Resource Management
+                </a>
+
+            </li>
+            <li>
+
+                <i class="fa-solid fa-box"></i>
+
+                    <a href="../material-inventory/material-inventory.html">
+                        Material & Inventory
+                    </a>
+
+            </li>
+
+            <li>
+
+                <i class="fa-solid fa-cart-shopping"></i>
+
+                <a href="../procurement/procurement.html">
+                    Procurement
+                </a>
+
+            </li>
+            <li><i class="fa-solid fa-wallet"></i>
+                <a href="../budget-management/budget-management.html">
+                    Budget Management
+                </a>
+            </li>
+
+            <li><i class="fa-solid fa-chart-line"></i>
+                <a href="../reports/reports.html">
+                    Reports
+            </a>
+            </li>
+
+            <li><i class="fa-solid fa-bell"></i>
+                <a href="../notifications/notifications.html">
+                Notifications
+                </a>
+            </li>
+
+            <li><i class="fa-solid fa-chart-pie"></i>
+                <a href="../analytics/analytics.html">
+                Analytics</a>
+            </li>
+
+            <li><i class="fa-solid fa-gear"></i> 
+                <a href="../settings/settings.html">
+                Settings
+                </a>    
+            </li>
+            <li>
+                <i class="fa-solid fa-user"></i>
+                <a href="../profile/profile.html">Profile</a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <a href="../../login.html">Logout</a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main -->
+
+    <main class="main">
+
+        <header>
+
+            <h1>Administrator Dashboard</h1>
+
+            <div class="profile">
+                Welcome, Admin 👋
+            </div>
+
+        </header>
+
+        <!-- Cards -->
+
+        <section class="cards">
+
+            <div class="card">
+                <h3>Total Projects</h3>
+                <h2>35</h2>
+            </div>
+
+            <div class="card">
+                <h3>Active Projects</h3>
+                <h2>18</h2>
+            </div>
+
+            <div class="card">
+                <h3>Total Users</h3>
+                <h2>126</h2>
+            </div>
+
+            <div class="card">
+                <h3>Active Workers</h3>
+                <h2>540</h2>
+            </div>
+
+            <div class="card">
+                <h3>Procurement Requests</h3>
+                <h2>24</h2>
+            </div>
+
+            <div class="card">
+                <h3>Budget Utilization</h3>
+                <h2>72%</h2>
+            </div>
+
+        </section>
+
+        <!-- Dashboard Content -->
+
+        <section class="dashboard">
+
+            <!-- Recent Activities -->
+
+            <div class="box">
+
+                <h2>Recent Activities</h2>
+
+                <ul>
+
+                    <li>✔ New project created</li>
+
+                    <li>✔ Material request approved</li>
+
+                    <li>✔ New worker assigned</li>
+
+                    <li>✔ Budget updated</li>
+
+                    <li>✔ Procurement completed</li>
+
+                </ul>
+
+            </div>
+
+            <!-- Notifications -->
+
+            <div class="box">
+
+                <h2>Notifications</h2>
+
+                <ul>
+
+                    <li>🔔 Cement stock running low</li>
+
+                    <li>🔔 2 Projects delayed</li>
+
+                    <li>🔔 Budget exceeded by 5%</li>
+
+                    <li>🔔 New User Registered</li>
+
+                </ul>
+
+            </div>
+
+        </section>
+
+        <!-- Project Status -->
+
+        <section class="chart">
+
+            <h2>Project Status</h2>
+
+            <div class="progress">
+
+                <label>Completed (80%)</label>
+
+                <div class="bar">
+                    <div class="fill complete"></div>
+                </div>
+
+            </div>
+
+            <div class="progress">
+
+                <label>Ongoing (60%)</label>
+
+                <div class="bar">
+                    <div class="fill ongoing"></div>
+                </div>
+
+            </div>
+
+            <div class="progress">
+
+                <label>Pending (30%)</label>
+
+                <div class="bar">
+                    <div class="fill pending"></div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="admin.js"></script>
+<script src="../common/theme.js"></script>
+</body>
+</html>

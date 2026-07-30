@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+
+    <link rel="stylesheet" href="user-management.css">
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <link rel="stylesheet" href="../common/theme.css">
+</head>
+
+<body>
+
+
+<div class="container">
+
+
+<!-- Sidebar -->
+
+<aside class="sidebar">
+
+    <h2>🏗 Admin</h2>
+
+    <ul>
+
+        <li>
+    <i class="fa-solid fa-house"></i>
+    <a href="../admin dashboard/admin.html">Dashboard</a>
+</li>
+
+
+        <li class="active">
+            <i class="fa-solid fa-users"></i>
+            User Management
+        </li>
+
+
+        <li>
+    <i class="fa-solid fa-building"></i>
+    <a href="../project-management/project-management.html">Project Management</a>
+</li>
+
+
+        <li>
+            <i class="fa-solid fa-chart-line"></i>
+            <a href="../reports/reports.html">
+            Reports
+            </a>
+        </li>
+
+
+        <li>
+            <i class="fa-solid fa-bell"></i>
+            <a href="../notifications/notifications.html">
+            Notifications</a>
+        </li>
+
+
+        <li>
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <a href="../../login.html">
+            Logout</a>
+        </li>
+
+
+    </ul>
+
+
+</aside>
+
+
+
+
+<!-- Main Content -->
+
+<main class="main">
+
+
+<header>
+
+<h1>User Management</h1>
+
+<div>
+Welcome Admin 👋
+</div>
+
+</header>
+
+
+
+<section class="top-section">
+
+
+<button class="add-btn">
+<i class="fa-solid fa-user-plus"></i>
+<a href="add-user/add-user.html">Add user</a>
+
+</button>
+
+
+
+<div class="filters">
+
+
+<input type="text"
+id="search"
+placeholder="Search users...">
+
+
+<select id="roleFilter">
+
+<option value="All">
+All Roles
+</option>
+
+<option value="Admin">
+Admin
+</option>
+
+<option value="Project Manager">
+Project Manager
+</option>
+
+<option value="Engineer">
+Engineer
+</option>
+
+<option value="Worker">
+Worker
+</option>
+
+<option value="Client">
+Client
+</option>
+
+
+</select>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+<section class="table-container">
+
+
+<table>
+
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+<th>Name</th>
+<th>Email</th>
+<th>Role</th>
+<th>Status</th>
+<th>Action</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody id="userTable">
+
+
+<tr>
+
+<td>1</td>
+<td>Rahul Sharma</td>
+<td>rahul@gmail.com</td>
+<td>Project Manager</td>
+<td>
+<span class="active-status">
+Active
+</span>
+</td>
+
+<td>
+
+<button class="edit">
+Edit
+</button>
+
+
+<button class="delete">
+Delete
+</button>
+
+</td>
+
+
+</tr>
+
+
+
+<tr>
+
+<td>2</td>
+<td>Priya Singh</td>
+<td>priya@gmail.com</td>
+<td>Client</td>
+
+<td>
+
+<span class="active-status">
+Active
+</span>
+
+</td>
+
+
+<td>
+
+<button class="edit">
+Edit
+</button>
+
+
+<button class="delete">
+Delete
+</button>
+
+
+</td>
+
+
+</tr>
+
+
+
+<tr>
+
+<td>3</td>
+<td>Arjun Kumar</td>
+<td>arjun@gmail.com</td>
+<td>Worker</td>
+
+<td>
+
+<span class="inactive-status">
+Inactive
+</span>
+
+</td>
+
+
+<td>
+
+<button class="edit">
+Edit
+</button>
+
+
+<button class="delete">
+Delete
+</button>
+
+
+</td>
+
+
+</tr>
+
+
+</tbody>
+
+
+</table>
+
+
+</section>
+
+
+</main>
+
+
+
+</div>
+
+
+<script src="user-management.js"></script>
+<script src="../common/theme.js"></script>
+</body>
+</html>
