@@ -83,6 +83,7 @@ document.getElementById("registerForm").addEventListener("submit",function(e){
     const role = document.getElementById("role").value.trim();
     const password = document.getElementById("password").value.trim();
     const confirmPassword = document.getElementById("confirmPassword").value.trim();
+    const address = document.getElementById("address").value.trim();
 
     if (password !== confirmPassword) {
         alert("Passwords do not match");
@@ -96,7 +97,8 @@ document.getElementById("registerForm").addEventListener("submit",function(e){
         role: role || "Client",
         department: department,
         employee_id: employee_id,
-        mobile: mobile
+        mobile: mobile,
+        address: address
     };
 
     fetch("http://127.0.0.1:8000/auth/register", {

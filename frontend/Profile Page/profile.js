@@ -4,14 +4,79 @@ window.addEventListener("load", () => {
 
     loader.classList.add("active");
 
-    setTimeout(() => {
+    // Fetch profile from backend
+    const token = localStorage.getItem("token");
 
-        loader.classList.remove("active");
-        showToast("Profile Loaded Successfully");
-
-    }, 1000);
+    if (token) {
+        fetch("http://127.0.0.1:8000/auth/me", {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.id) {
+                // Store full profile in localStorage
+                const profile = {
+                    name: data.name,
+                    email: data.email,
+                    role: data.role,
+                    department: data.department,
+                    phone: data.mobile,
+                    address: data.address,
+                    employeeId: data.employee_id,
+                    userId: data.employee_id
+                };
+                localStorage.setItem("profile", JSON.stringify(profile));
+                renderProfile(profile);
+            } else {
+                // Fallback to localStorage
+                const localProfile = JSON.parse(localStorage.getItem("profile"));
+                if (localProfile) renderProfile(localProfile);
+            }
+            setTimeout(() => {
+                loader.classList.remove("active");
+                showToast("Profile Loaded Successfully");
+            }, 500);
+        })
+        .catch(() => {
+            // Fallback to localStorage
+            const localProfile = JSON.parse(localStorage.getItem("profile"));
+            if (localProfile) renderProfile(localProfile);
+            setTimeout(() => {
+                loader.classList.remove("active");
+                showToast("Profile Loaded Successfully");
+            }, 500);
+        });
+    } else {
+        const localProfile = JSON.parse(localStorage.getItem("profile"));
+        if (localProfile) renderProfile(localProfile);
+        setTimeout(() => {
+            loader.classList.remove("active");
+            showToast("Profile Loaded Successfully");
+        }, 500);
+    }
 
 });
+
+function renderProfile(profile) {
+    setText("displayName", profile.name);
+    setText("name", profile.name);
+    setText("email", profile.email);
+    setText("phone", profile.phone);
+    setText("department", profile.department);
+    setText("role", profile.role || profile.department);
+    setText("address", profile.address);
+    setText("employeeId", profile.employeeId || profile.userId || "");
+    setText("userId", profile.userId || profile.employeeId || "");
+    setText("accountRole", profile.role || profile.department);
+
+    // Profile photo
+    const img = document.getElementById('profilePhoto');
+    if (img && profile.photo) img.src = profile.photo;
+}
 
 function showToast(message) {
 
@@ -29,44 +94,10 @@ function showToast(message) {
 
 }
 
-const profile = JSON.parse(localStorage.getItem("profile"));
-
 function setText(id, value){
     const el = document.getElementById(id);
     if(!el) return;
     el.innerText = value || "";
-}
-
-if(profile){
-    setText("displayName", profile.name);
-    setText("name", profile.name);
-    setText("email", profile.email);
-    setText("phone", profile.phone);
-    setText("dob", profile.dob);
-    setText("gender", profile.gender);
-    setText("department", profile.department);
-    setText("role", profile.role || profile.department);
-    setText("address", profile.address);
-    setText("city", profile.city);
-    setText("state", profile.state);
-    setText("pincode", profile.pincode);
-
-    setText("userId", profile.userId);
-    setText("accountRole", profile.role || profile.department);
-    setText("accountStatus", profile.accountStatus);
-    setText("joinedOn", profile.joinedOn);
-
-}
-if(profile){
-    setText("displayName", profile.name);
-    setText("role", profile.role || profile.department);
-    setText("employeeId", profile.userId || profile.employeeId || "");
-    setText("email", profile.email);
-    setText("phone", profile.phone);
-    setText("address", profile.address);
-    setText("department", profile.department);
-    const img = document.getElementById('profilePhoto');
-    if(img && profile.photo) img.src = profile.photo;
 }
 
 document.querySelectorAll('#editBtn').forEach(btn => {
@@ -87,11 +118,14 @@ document.querySelector(".logout").addEventListener("click", () => {
 
     if(confirmLogout){
 
+        localStorage.removeItem("token");
+        localStorage.removeItem("profile");
+
         showToast("Logout Successful");
 
         setTimeout(() => {
 
-            window.location.href = "login.html";
+            window.location.href = "../login/login.html";
 
         },1000);
 

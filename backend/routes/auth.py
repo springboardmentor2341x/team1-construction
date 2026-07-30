@@ -86,12 +86,13 @@ def register(
         role=request.role,
         department=request.department,
         employee_id=request.employee_id,
-        mobile=request.mobile
+        mobile=request.mobile,
+        address=request.address
     )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return {"message": "User registered successfully"}
+    return {"message": "User registered successfully", "user_id": new_user.id}
 
 
 @router.get("/me")
@@ -109,6 +110,37 @@ def current_user(
 
         "role": user.role,
 
-        "department": user.department
+        "department": user.department,
 
+        "mobile": user.mobile,
+
+        "address": user.address,
+
+        "employee_id": user.employee_id
+
+    }
+
+
+@router.put("/profile")
+def update_profile(
+    profile: dict,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    allowed_fields = ["full_name", "mobile", "address", "department", "employee_id"]
+    for key, value in profile.items():
+        if key in allowed_fields and value is not None:
+            setattr(user, key, value)
+    db.commit()
+    db.refresh(user)
+    return {
+        "message": "Profile updated successfully",
+        "id": user.id,
+        "name": user.full_name,
+        "email": user.email,
+        "role": user.role,
+        "department": user.department,
+        "mobile": user.mobile,
+        "address": user.address,
+        "employee_id": user.employee_id
     }

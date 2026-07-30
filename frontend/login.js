@@ -59,20 +59,32 @@ form.addEventListener("submit", function(e){
         .then(response => response.json())
         .then(data => {
 
-            // Store JWT
-            localStorage.setItem("token", data.access_token);
+            if (data.access_token) {
+                // Store JWT
+                localStorage.setItem("token", data.access_token);
 
-            alert("Login Successful!");
+                // Store basic profile
+                const profile = {
+                    name: data.full_name,
+                    role: data.role,
+                    email: email
+                };
+                localStorage.setItem("profile", JSON.stringify(profile));
 
-            console.log(data);
+                alert("Login Successful!");
 
-            // Redirect later
-            // window.location.href = "../dashboard/dashboard.html";
+                console.log(data);
+
+                // Redirect to profile page
+                window.location.href = "Profile Page/Profile.html";
+            } else {
+                alert("Login Failed: " + (data.detail || "Unknown error"));
+            }
 
         })
         .catch(err => {
             console.error(err);
-            alert("Login Failed");
+            alert("Login Failed - Cannot connect to backend server.");
         });
 
     }

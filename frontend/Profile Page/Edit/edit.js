@@ -3,30 +3,16 @@ const profileForm = document.getElementById("profileForm");
 const nameInput = document.getElementById("name");
 const emailInput = document.getElementById("email");
 const phoneInput = document.getElementById("phone");
-const dobInput = document.getElementById("dob");
-const genderInput = document.getElementById("gender");
-const profileForm = document.getElementById("profileForm");
-
-const nameInput = document.getElementById("name");
-const emailInput = document.getElementById("email");
-const phoneInput = document.getElementById("phone");
-const dobInput = document.getElementById("dob");
-const genderInput = document.getElementById("gender");
 const departmentInput = document.getElementById("department");
 const addressInput = document.getElementById("address");
-const profileForm = document.getElementById("profileForm");
+const roleInput = document.getElementById("role");
+const employeeIdInput = document.getElementById("employeeId");
+const roleDetail1Input = document.getElementById("roleDetail1");
+const roleDetail2Input = document.getElementById("roleDetail2");
 
 const photoFileInput = document.getElementById("photoFile");
 const photoPreview = document.getElementById("photoPreview");
 let selectedPhotoDataUrl = null;
-const nameInput = document.getElementById("name");
-const roleInput = document.getElementById("role");
-const employeeIdInput = document.getElementById("employeeId");
-const emailInput = document.getElementById("email");
-const phoneInput = document.getElementById("phone");
-const addressInput = document.getElementById("address");
-const roleDetail1Input = document.getElementById("roleDetail1");
-const roleDetail2Input = document.getElementById("roleDetail2");
 
 const toast = document.getElementById("toast");
 const loader = document.getElementById("loader");
@@ -40,7 +26,7 @@ window.addEventListener('load', ()=>{
     }
     nameInput.value = profileData.name || "";
     roleInput.value = profileData.role || profileData.department || "Project Manager";
-    employeeIdInput.value = profileData.userId || profileData.employeeId || "";
+    employeeIdInput.value = profileData.employeeId || profileData.userId || "";
     emailInput.value = profileData.email || "";
     phoneInput.value = profileData.phone || "";
     addressInput.value = profileData.address || "";
@@ -72,8 +58,8 @@ profileForm.addEventListener('submit', (e)=>{
         photo: selectedPhotoDataUrl || existing.photo,
         name: nameInput.value,
         role: roleInput.value,
-        userId: employeeIdInput.value,
         employeeId: employeeIdInput.value,
+        userId: employeeIdInput.value,
         email: emailInput.value,
         phone: phoneInput.value,
         address: addressInput.value,
@@ -81,12 +67,49 @@ profileForm.addEventListener('submit', (e)=>{
         roleDetail2: roleDetail2Input.value
     });
 
-    setTimeout(()=>{
+    // Save to backend API
+    const token = localStorage.getItem("token");
+    if (token) {
+        fetch("http://127.0.0.1:8000/auth/profile", {
+            method: "PUT",
+            headers: {
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                full_name: nameInput.value,
+                mobile: phoneInput.value,
+                address: addressInput.value,
+                department: roleDetail1Input.value || roleInput.value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Profile saved to backend:", data);
+            // Update profile in localStorage with fresh data from backend
+            profileData.name = data.name || profileData.name;
+            profileData.phone = data.mobile || profileData.phone;
+            profileData.address = data.address || profileData.address;
+            profileData.department = data.department || profileData.department;
+            localStorage.setItem('profile', JSON.stringify(profileData));
+            hideLoader();
+            showToast('Profile Updated Successfully');
+            setTimeout(()=>{ window.location.href = '../Profile.html'; }, 800);
+        })
+        .catch(err => {
+            console.error("Backend save failed, saving locally:", err);
+            localStorage.setItem('profile', JSON.stringify(profileData));
+            hideLoader();
+            showToast('Profile Updated Locally');
+            setTimeout(()=>{ window.location.href = '../Profile.html'; }, 800);
+        });
+    } else {
+        // No token, just save locally
         localStorage.setItem('profile', JSON.stringify(profileData));
         hideLoader();
         showToast('Profile Updated Successfully');
         setTimeout(()=>{ window.location.href = '../Profile.html'; }, 800);
-    }, 600);
+    }
 });
 
 function showToast(message){

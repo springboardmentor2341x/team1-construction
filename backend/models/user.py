@@ -22,6 +22,8 @@ class User(Base):
 
     mobile = Column(String)
 
+    address = Column(String)
+
     profile_image = Column(String)
 
     is_active = Column(Boolean, default=True)

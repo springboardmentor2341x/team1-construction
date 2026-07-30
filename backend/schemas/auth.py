@@ -14,6 +14,7 @@ class RegisterRequest(BaseModel):
     department: str | None = None
     employee_id: str | None = None
     mobile: str | None = None
+    address: str | None = None
 
 
 class TokenResponse(BaseModel):
