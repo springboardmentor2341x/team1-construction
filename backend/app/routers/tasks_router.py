@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies.database import get_db
 from app.models.task import TaskModel
@@ -31,6 +31,10 @@ class TaskRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+class TaskUpdate(BaseModel):
+    status: Optional[str] = None
+    progress: Optional[int] = None
 
 class DocumentRead(BaseModel):
     id: str
@@ -87,6 +91,27 @@ def create_task(req: TaskCreate, db: Session = Depends(get_db)):
         status=new_task.status,
         dueDate=new_task.due_date,
         location=new_task.location
+    )
+
+@tasks_router.patch("/{task_id}", response_model=TaskRead)
+def update_task_status(task_id: str, req: TaskUpdate, db: Session = Depends(get_db)):
+    task = db.query(TaskModel).filter(TaskModel.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    if req.status is not None:
+        task.status = req.status
+    db.commit()
+    db.refresh(task)
+    return TaskRead(
+        id=task.id,
+        title=task.title,
+        description=task.description,
+        project=task.project,
+        assignedTo=task.assigned_to,
+        priority=task.priority,
+        status=task.status,
+        dueDate=task.due_date,
+        location=task.location
     )
 
 @documents_router.get("", response_model=List[DocumentRead])

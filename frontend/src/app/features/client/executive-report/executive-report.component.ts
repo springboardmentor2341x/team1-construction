@@ -6,6 +6,9 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
 import { ProjectService } from '../../../core/services/project.service';
+import { MilestoneService } from '../../../core/services/milestone.service';
+import { Project } from '../../../core/models/project.model';
+import { Milestone } from '../../../core/models/milestone.model';
 
 @Component({
   selector: 'app-executive-report',
@@ -70,7 +73,7 @@ import { ProjectService } from '../../../core/services/project.service';
                     <div class="col-6"><i class="bi bi-calendar-check me-1"></i>End: {{ p.expectedCompletionDate }}</div>
                   </div>
                   <div class="d-flex justify-content-between small mb-1">
-                    <span class="text-muted">Budget Utilization</span>
+                    <span class="text-muted">Budget</span>
                     <span class="fw-semibold">\${{ p.estimatedBudget | number }}</span>
                   </div>
                   <div class="progress" style="height:6px">
@@ -94,19 +97,20 @@ import { ProjectService } from '../../../core/services/project.service';
                 </thead>
                 <tbody>
                   <tr *ngFor="let m of milestones">
-                    <td class="fw-semibold">{{ m.name }}</td>
-                    <td class="text-muted">{{ m.project }}</td>
+                    <td class="fw-semibold">{{ m.milestoneName }}</td>
+                    <td class="text-muted">{{ projectName(m.projectId) }}</td>
                     <td>{{ m.plannedDate }}</td>
                     <td>
                       <div class="d-flex align-items-center gap-2">
                         <div class="progress" style="width:60px;height:6px">
-                          <div class="progress-bar bg-warning" [style.width]="m.pct + '%'"></div>
+                          <div class="progress-bar bg-warning" [style.width]="m.completionPercentage + '%'"></div>
                         </div>
-                        <span>{{ m.pct }}%</span>
+                        <span>{{ m.completionPercentage }}%</span>
                       </div>
                     </td>
                     <td><span class="badge rounded-pill" [ngClass]="getMilestoneBadge(m.status)">{{ m.status }}</span></td>
                   </tr>
+                  <tr *ngIf="milestones.length === 0"><td colspan="5" class="text-center py-4 text-muted">No milestones available.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -118,34 +122,60 @@ import { ProjectService } from '../../../core/services/project.service';
   `
 })
 export class ExecutiveReportComponent implements OnInit {
-  projects = signal<any[]>([]);
+  projects = signal<Project[]>([]);
+  milestones: Milestone[] = [];
 
   kpis = [
     { label: 'Active Projects', value: '—', colorClass: 'text-primary', icon: 'bi-building', bgClass: 'bg-primary-subtle text-primary' },
-    { label: 'Overall Progress', value: '62%', colorClass: 'text-warning', icon: 'bi-graph-up-arrow', bgClass: 'bg-warning-subtle text-warning' },
-    { label: 'Budget Utilized', value: '$117M', colorClass: 'text-success', icon: 'bi-cash-stack', bgClass: 'bg-success-subtle text-success' },
-    { label: 'Milestones Done', value: '1/5', colorClass: 'text-info', icon: 'bi-flag-fill', bgClass: 'bg-info-subtle text-info' }
+    { label: 'Overall Progress', value: '0%', colorClass: 'text-warning', icon: 'bi-graph-up-arrow', bgClass: 'bg-warning-subtle text-warning' },
+    { label: 'Budget Utilized', value: '$0', colorClass: 'text-success', icon: 'bi-cash-stack', bgClass: 'bg-success-subtle text-success' },
+    { label: 'Milestones Done', value: '0/0', colorClass: 'text-info', icon: 'bi-flag-fill', bgClass: 'bg-info-subtle text-info' }
   ];
 
-  milestones = [
-    { name: 'Substructure Land Survey', project: 'Skyline Metropolis Tower', plannedDate: '2026-02-15', pct: 100, status: 'Completed' },
-    { name: 'Basement Level 3 Slab Pour', project: 'Skyline Metropolis Tower', plannedDate: '2026-04-10', pct: 75, status: 'In Progress' },
-    { name: 'Podium Structure Completion', project: 'Skyline Metropolis Tower', plannedDate: '2026-07-30', pct: 20, status: 'In Progress' },
-    { name: 'Structural Steel Topping Off', project: 'Skyline Metropolis Tower', plannedDate: '2027-01-15', pct: 0, status: 'Pending' }
-  ];
-
-  constructor(private projectService: ProjectService) {}
+  constructor(
+    private projectService: ProjectService,
+    private milestoneService: MilestoneService
+  ) {}
 
   ngOnInit(): void {
     this.projectService.getProjects().subscribe(data => {
       this.projects.set(data);
-      this.kpis[0].value = data.filter(p => p.status === 'In Progress').length.toString();
+      const active = data.filter(p => p.status === 'In Progress').length;
+      const totalBudget = data.reduce((sum, p) => sum + (p.estimatedBudget || 0), 0);
+      this.kpis[0].value = active.toString();
+      this.kpis[2].value = '$' + totalBudget.toLocaleString();
+      if (data.length) {
+        this.milestoneService.getMilestonesByProject(data[0].id).subscribe(ms => {
+          this.milestones = ms;
+          const done = ms.filter(m => m.status === 'Completed').length;
+          this.kpis[3].value = `${done}/${ms.length}`;
+          this.kpis[1].value = ms.length ? Math.round(ms.reduce((s, m) => s + (m.completionPercentage || 0), 0) / ms.length) + '%' : '0%';
+        });
+      }
     });
   }
 
-  getStatusBadge = (s: string) => ({ 'In Progress': 'bg-success', 'Planning': 'bg-primary', 'On Hold': 'bg-warning text-dark', 'Completed': 'bg-info text-dark', 'Closed': 'bg-secondary' }[s] || 'bg-secondary');
+  projectName(id: string): string {
+    return this.projects().find(p => p.id === id)?.projectName || '—';
+  }
+
+getStatusBadge = (s: string) => ({ 'In Progress': 'bg-success', 'Planning': 'bg-primary', 'On Hold': 'bg-warning text-dark', 'Completed': 'bg-info text-dark', 'Closed': 'bg-secondary' }[s] || 'bg-secondary');
   getMilestoneBadge = (s: string) => ({ 'Completed': 'bg-success', 'In Progress': 'bg-warning text-dark', 'Pending': 'bg-primary', 'Delayed': 'bg-danger' }[s] || 'bg-secondary');
-  getProgressPct = (s: string) => ({ 'In Progress': '60%', 'Planning': '10%', 'Completed': '100%', 'On Hold': '30%' }[s] || '0%');
+
+  getProgressPct(status: string): string {
+    // Derive progress from real milestone completion data when available.
+    if (this.milestones.length) {
+      const completed = this.milestones.filter(m => m.status === 'Completed').length;
+      const inProgress = this.milestones.filter(m => m.status === 'In Progress').length;
+      const total = this.milestones.length;
+      if (status === 'Completed') return '100%';
+      if (status === 'In Progress') return Math.round((completed / total) * 100) + '%';
+      if (status === 'Planning' || status === 'On Hold') return Math.round(((completed + inProgress) / total) * 100) + '%';
+      return '0%';
+    }
+    return '0%';
+  }
+
   printPage(): void { window.print(); }
   downloadReport(): void { console.log('Download PDF triggered (API integration pending)'); }
 }

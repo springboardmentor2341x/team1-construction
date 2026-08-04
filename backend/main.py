@@ -26,10 +26,15 @@ app = FastAPI(
 )
 
 # CORS configuration for Angular frontend
+# NOTE: allow_credentials must be False here. The app uses Bearer tokens (not
+# cookies), and combining allow_credentials=True with allow_origins=["*"] makes
+# the browser reject every CORS response (a wildcard origin is not allowed with
+# credentialed CORS). This was the root cause of "The server is not reachable"
+# even when the backend was running.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -233,6 +238,10 @@ def root():
         "version": "1.0.0",
         "docs_url": "/docs"
     }
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "service": "BuildTrack API"}
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

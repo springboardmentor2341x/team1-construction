@@ -138,7 +138,7 @@ import { UserRole } from '../../../core/models/role.enum';
 })
 export class ProjectScheduleComponent implements OnInit {
   projects: Project[] = [];
-  selectedProjectId = 'prj-101';
+selectedProjectId = '';
   schedules: ProjectSchedule[] = [];
   scheduleForm: FormGroup;
   editingId: string | null = null;

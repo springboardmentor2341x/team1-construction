@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
+import { UserService } from '../../../core/services/user.service';
 
 export interface Worker {
   id: string;
@@ -148,18 +149,29 @@ export interface Worker {
     </div>
   `
 })
-export class ContractorWorkforceComponent {
+export class ContractorWorkforceComponent implements OnInit {
   searchTerm = '';
   statusFilter = '';
 
-  workers = signal<Worker[]>([
-    { id: 'w-1', name: 'Robert Thorne', trade: 'Masonry & Concrete', employeeId: 'WRK-5099', phone: '+1 555-0156', status: 'Active', assignedProject: 'Skyline Metropolis Tower', attendanceRate: 97, tasksCompleted: 14 },
-    { id: 'w-2', name: 'Carlos Mendez', trade: 'Waterproofing & Sealing', employeeId: 'WRK-5100', phone: '+1 555-0212', status: 'Active', assignedProject: 'Skyline Metropolis Tower', attendanceRate: 91, tasksCompleted: 9 },
-    { id: 'w-3', name: 'Ahmed Khan', trade: 'Steel & Rebar Fabrication', employeeId: 'WRK-5101', phone: '+1 555-0340', status: 'Active', assignedProject: 'Harbor Bridge Expansion', attendanceRate: 88, tasksCompleted: 11 },
-    { id: 'w-4', name: 'Priya Nair', trade: 'Site Cleanup & Logistics', employeeId: 'WRK-5102', phone: '+1 555-0285', status: 'On Leave', assignedProject: 'Skyline Metropolis Tower', attendanceRate: 82, tasksCompleted: 7 },
-    { id: 'w-5', name: 'Ivan Petrov', trade: 'Scaffolding & Formwork', employeeId: 'WRK-5103', phone: '+1 555-0317', status: 'Active', assignedProject: 'Harbor Bridge Expansion', attendanceRate: 95, tasksCompleted: 16 },
-    { id: 'w-6', name: 'Amir Hassan', trade: 'Plumbing & MEP Support', employeeId: 'WRK-5104', phone: '+1 555-0456', status: 'Inactive', assignedProject: '—', attendanceRate: 65, tasksCompleted: 3 }
-  ]);
+  workers = signal<Worker[]>([]);
+
+  constructor(private userService: UserService) {}
+
+ngOnInit(): void {
+    this.userService.getUsers('Worker').subscribe(users => {
+      this.workers.set(users.map(u => ({
+        id: u.id,
+        name: u.fullName,
+        trade: u.department || 'General',
+        employeeId: u.employeeId || u.id,
+        phone: u.mobileNumber || '',
+        status: u.isActive ? 'Active' : 'Inactive',
+        assignedProject: '',
+        attendanceRate: 0,
+        tasksCompleted: 0
+      })));
+    });
+  }
 
   filteredWorkers() {
     return this.workers().filter(w =>

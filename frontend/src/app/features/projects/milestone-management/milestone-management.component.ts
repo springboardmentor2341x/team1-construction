@@ -156,7 +156,7 @@ import { UserRole } from '../../../core/models/role.enum';
 })
 export class MilestoneManagementComponent implements OnInit {
   projects: Project[] = [];
-  selectedProjectId = 'prj-101';
+selectedProjectId = '';
   milestones: Milestone[] = [];
   milestoneForm: FormGroup;
   editingId: string | null = null;

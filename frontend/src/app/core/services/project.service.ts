@@ -21,7 +21,9 @@ export class ProjectService {
     if (status) params = params.set('status', status);
 
     return this.http.get<Project[]>(this.apiUrl, { params }).pipe(
-      catchError(() => of([]))
+      catchError(() => {
+        throw new Error('Backend unavailable');
+      })
     );
   }
 

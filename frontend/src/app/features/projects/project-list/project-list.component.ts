@@ -135,10 +135,16 @@ import { UserRole } from '../../../core/models/role.enum';
                       </div>
                     </td>
                   </tr>
-                  <tr *ngIf="filteredProjects.length === 0">
+                  <tr *ngIf="filteredProjects.length === 0 && !loadError">
                     <td colspan="9" class="text-center py-5 text-muted">
                       <i class="bi bi-search fs-1 d-block mb-2 text-secondary"></i>
                       No projects matched your search criteria.
+                    </td>
+                  </tr>
+                  <tr *ngIf="loadError">
+                    <td colspan="9" class="text-center py-5 text-danger">
+                      <i class="bi bi-exclamation-circle fs-1 d-block mb-2"></i>
+                      {{ loadError }}
                     </td>
                   </tr>
                 </tbody>
@@ -160,6 +166,7 @@ import { UserRole } from '../../../core/models/role.enum';
 export class ProjectListComponent implements OnInit {
   projects: Project[] = [];
   filteredProjects: Project[] = [];
+  loadError = '';
 
   searchTerm = '';
   selectedCategory = '';
@@ -174,9 +181,16 @@ export class ProjectListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.projectService.getProjects().subscribe(data => {
-      this.projects = data;
-      this.filteredProjects = data;
+    this.projectService.getProjects().subscribe({
+      next: (data) => {
+        this.projects = data;
+        this.filteredProjects = data;
+      },
+      error: () => {
+        this.loadError = 'Unable to load projects. The backend server is not running or is unreachable.';
+        this.projects = [];
+        this.filteredProjects = [];
+      }
     });
   }
 

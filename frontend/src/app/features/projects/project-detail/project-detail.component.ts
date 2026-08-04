@@ -117,10 +117,10 @@ import { UserRole } from '../../../core/models/role.enum';
                   <div class="col-md-4">
                     <div class="p-3 bg-light rounded-3 border">
                       <span class="text-uppercase extra-small text-muted fw-bold d-block mb-1">Assigned Site Engineers</span>
-                      <div *ngFor="let eng of project.assignedEngineers" class="small fw-semibold text-dark">
+<div *ngFor="let eng of project.assignedEngineers" class="small fw-semibold text-dark">
                         <i class="bi bi-person me-1"></i> {{ eng.name }}
                       </div>
-                      <div *ngIf="!project.assignedEngineers?.length" class="extra-small text-muted">David Miller (Lead Eng)</div>
+                      <div *ngIf="!project.assignedEngineers?.length" class="extra-small text-muted">No engineers assigned</div>
                     </div>
                   </div>
 
@@ -131,7 +131,7 @@ import { UserRole } from '../../../core/models/role.enum';
                       <div *ngFor="let con of project.assignedContractors" class="small fw-semibold text-dark">
                         <i class="bi bi-person me-1"></i> {{ con.name }}
                       </div>
-                      <div *ngIf="!project.assignedContractors?.length" class="extra-small text-muted">Marcus Brody (Steel)</div>
+<div *ngIf="!project.assignedContractors?.length" class="extra-small text-muted">No contractors assigned</div>
                     </div>
                   </div>
                 </div>

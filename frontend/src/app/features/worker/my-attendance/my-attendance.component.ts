@@ -108,16 +108,7 @@ export class MyAttendanceComponent {
   monthFilter = new Date().toISOString().slice(0, 7);
   statusFilter = '';
 
-  records = signal<AttendanceRecord[]>([
-    { date: '2026-08-03', dayName: 'Monday', shiftType: 'Morning', checkIn: '05:58', checkOut: '14:02', status: 'Present', hoursWorked: 8, location: 'Block A – Level 5' },
-    { date: '2026-08-02', dayName: 'Sunday', shiftType: 'Off', checkIn: '', checkOut: '', status: 'On Leave', hoursWorked: 0, location: '—' },
-    { date: '2026-08-01', dayName: 'Saturday', shiftType: 'Morning', checkIn: '06:15', checkOut: '14:00', status: 'Late', hoursWorked: 7.8, location: 'Block A – Level 4' },
-    { date: '2026-07-31', dayName: 'Friday', shiftType: 'Morning', checkIn: '06:00', checkOut: '14:00', status: 'Present', hoursWorked: 8, location: 'Foundation Pit' },
-    { date: '2026-07-30', dayName: 'Thursday', shiftType: 'Morning', checkIn: '06:00', checkOut: '14:00', status: 'Present', hoursWorked: 8, location: 'Block A – Level 4' },
-    { date: '2026-07-29', dayName: 'Wednesday', shiftType: 'Morning', checkIn: '', checkOut: '', status: 'Absent', hoursWorked: 0, location: '—' },
-    { date: '2026-07-28', dayName: 'Tuesday', shiftType: 'Morning', checkIn: '06:00', checkOut: '14:00', status: 'Present', hoursWorked: 8, location: 'Block B – Level 3' },
-    { date: '2026-07-27', dayName: 'Monday', shiftType: 'Morning', checkIn: '06:00', checkOut: '14:05', status: 'Present', hoursWorked: 8, location: 'Block A – Level 3' }
-  ]);
+records = signal<AttendanceRecord[]>([]);
 
   summary = [
     { label: 'Present', count: 0, colorClass: 'text-success' },

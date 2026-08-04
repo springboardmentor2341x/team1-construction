@@ -89,14 +89,7 @@ export class NotificationsComponent {
   activeFilter = signal<string>('all');
   dashboardRoute: string;
 
-  notifications = signal<NotificationItem[]>([
-    { id: '1', title: 'Milestone Delayed', message: 'Harbor Bridge Phase 1 piling test logged a 2-day weather delay. Reschedule required.', type: 'warning', time: '10 mins ago', read: false, category: 'Milestone' },
-    { id: '2', title: 'Project Status Updated', message: 'Skyline Metropolis Tower moved to "In Progress" by Administrator Alex Vance.', type: 'info', time: '1 hour ago', read: false, category: 'Project' },
-    { id: '3', title: 'Budget Alert', message: 'Estimated budget for BT-PRJ-2026-01 has exceeded 70% utilization threshold.', type: 'danger', time: '3 hours ago', read: true, category: 'System' },
-    { id: '4', title: 'Milestone Completed', message: 'Land Survey & Geotechnical Clearances milestone marked 100% complete.', type: 'success', time: 'Yesterday', read: true, category: 'Milestone' },
-    { id: '5', title: 'New Assignment', message: 'You have been assigned as Project Manager for BT-PRJ-2026-02.', type: 'info', time: '2 days ago', read: true, category: 'Project' },
-    { id: '6', title: 'System Maintenance', message: 'Scheduled maintenance window: Sunday 2 AM – 4 AM IST. API will be temporarily unavailable.', type: 'warning', time: '3 days ago', read: true, category: 'System' }
-  ]);
+  notifications = signal<NotificationItem[]>([]);
 
   constructor(private authService: AuthService) {
     const role = this.authService.getRole();

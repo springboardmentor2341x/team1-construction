@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
+import { DocumentService, DocumentItem } from '../../../core/services/document.service';
 
 export interface ProjectDocument {
   id: string;
@@ -58,10 +59,9 @@ export interface ProjectDocument {
                 <option value="Permit">Permits & Approvals</option>
                 <option value="Safety">Safety Documents</option>
               </select>
-              <select class="form-select form-select-sm" style="max-width:160px" [(ngModel)]="projectFilter">
+<select class="form-select form-select-sm" style="max-width:160px" [(ngModel)]="projectFilter">
                 <option value="">All Projects</option>
-                <option value="Skyline Tower">Skyline Metropolis Tower</option>
-                <option value="Harbor Bridge">Harbor Bridge Expansion</option>
+                <option *ngFor="let p of projectOptions" [value]="p">{{ p }}</option>
               </select>
               <button class="btn btn-sm btn-outline-secondary" (click)="searchTerm=''; categoryFilter=''; projectFilter=''">Reset</button>
             </div>
@@ -117,11 +117,12 @@ export interface ProjectDocument {
     </div>
   `
 })
-export class ProjectDocumentsComponent {
+export class ProjectDocumentsComponent implements OnInit {
   searchTerm = '';
   categoryFilter = '';
   projectFilter = '';
   selectedCategory = 'all';
+  projectOptions: string[] = [];
 
   categories = [
     { label: 'All', value: 'all', icon: 'bi-folder' },
@@ -131,16 +132,16 @@ export class ProjectDocumentsComponent {
     { label: 'Permits', value: 'Permit', icon: 'bi-file-earmark-check' }
   ];
 
-  documents = signal<ProjectDocument[]>([
-    { id: 'd-1', name: 'Structural Foundation Drawings – Rev C', type: 'PDF', category: 'Engineering Drawing', project: 'Skyline Tower', uploadedBy: 'David Miller', uploadDate: '2026-07-20', size: '18.4 MB' },
-    { id: 'd-2', name: 'Q2 2026 Construction Progress Report', type: 'PDF', category: 'Progress Report', project: 'Skyline Tower', uploadedBy: 'Sarah Jenkins', uploadDate: '2026-07-31', size: '4.2 MB' },
-    { id: 'd-3', name: 'Main Contractor Agreement – Marcus Brody', type: 'DOCX', category: 'Contract', project: 'Skyline Tower', uploadedBy: 'Alex Vance', uploadDate: '2026-01-10', size: '1.1 MB' },
-    { id: 'd-4', name: 'Building Construction Permit – BMP/2026/042', type: 'PDF', category: 'Permit', project: 'Skyline Tower', uploadedBy: 'Alex Vance', uploadDate: '2026-01-05', size: '0.8 MB' },
-    { id: 'd-5', name: 'Site Safety & Emergency Plan', type: 'PDF', category: 'Safety', project: 'Skyline Tower', uploadedBy: 'David Miller', uploadDate: '2026-02-14', size: '2.6 MB' },
-    { id: 'd-6', name: 'Harbor Bridge Piling Inspection Report', type: 'PDF', category: 'Progress Report', project: 'Harbor Bridge', uploadedBy: 'David Miller', uploadDate: '2026-07-25', size: '3.1 MB' },
-    { id: 'd-7', name: 'Harbor Bridge Structural Drawings – Rev A', type: 'DWG', category: 'Engineering Drawing', project: 'Harbor Bridge', uploadedBy: 'Sarah Jenkins', uploadDate: '2026-03-12', size: '42.0 MB' },
-    { id: 'd-8', name: 'Environmental Impact Assessment', type: 'PDF', category: 'Permit', project: 'Harbor Bridge', uploadedBy: 'Alex Vance', uploadDate: '2026-02-20', size: '6.4 MB' }
-  ]);
+  documents = signal<ProjectDocument[]>([]);
+
+  constructor(private documentService: DocumentService) {}
+
+  ngOnInit(): void {
+    this.documentService.getDocuments().subscribe(docs => {
+      this.documents.set(docs);
+      this.projectOptions = Array.from(new Set(docs.map(d => d.project)));
+    });
+  }
 
   filteredDocuments() {
     return this.documents().filter(d =>

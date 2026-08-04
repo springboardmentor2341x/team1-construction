@@ -156,11 +156,11 @@ export class AnalyticsReportsComponent implements OnInit {
   filterForm: FormGroup;
   projects = signal<any[]>([]);
 
-  kpis = [
-    { label: 'Projects On Schedule', value: '78%', change: '↑ +4% vs last month', colorClass: 'text-success', icon: 'bi-check-circle-fill', bgClass: 'bg-success-subtle text-success' },
-    { label: 'Budget Adherence', value: '91%', change: '↓ -2% vs last month', colorClass: 'text-warning', icon: 'bi-cash-stack', bgClass: 'bg-warning-subtle text-warning' },
-    { label: 'Milestones Completed', value: '24/31', change: '6 pending this quarter', colorClass: 'text-primary', icon: 'bi-flag-fill', bgClass: 'bg-primary-subtle text-primary' },
-    { label: 'Avg. Team Utilization', value: '87%', change: '94 workers active today', colorClass: 'text-info', icon: 'bi-people-fill', bgClass: 'bg-info-subtle text-info' }
+kpis = [
+    { label: 'Projects On Schedule', value: '0%', change: 'derived from backend', colorClass: 'text-success', icon: 'bi-check-circle-fill', bgClass: 'bg-success-subtle text-success' },
+    { label: 'Budget Adherence', value: '0%', change: 'derived from backend', colorClass: 'text-warning', icon: 'bi-cash-stack', bgClass: 'bg-warning-subtle text-warning' },
+    { label: 'Milestones Completed', value: '0/0', change: 'pending this quarter', colorClass: 'text-primary', icon: 'bi-flag-fill', bgClass: 'bg-primary-subtle text-primary' },
+    { label: 'Avg. Team Utilization', value: '0%', change: 'derived from backend', colorClass: 'text-info', icon: 'bi-people-fill', bgClass: 'bg-info-subtle text-info' }
   ];
 
   statusStats = [
@@ -170,11 +170,7 @@ export class AnalyticsReportsComponent implements OnInit {
     { status: 'Completed', count: 0, pct: 0, colorClass: 'bg-info', barClass: 'bg-info' }
   ];
 
-  savedReports = [
-    { name: 'Q2 2026 Project Execution Report', period: 'Apr–Jun 2026', type: 'Executive Summary' },
-    { name: 'Skyline Tower Budget Analysis', period: 'Jan–Aug 2026', type: 'Budget Audit' },
-    { name: 'Site Engineer Activity Report', period: 'Jul 2026', type: 'HR Analytics' }
-  ];
+  savedReports: any[] = [];
 
   constructor(private fb: FormBuilder, private projectService: ProjectService) {
     this.filterForm = this.fb.group({ dateFrom: [''], dateTo: [''], project: [''] });
@@ -184,6 +180,13 @@ export class AnalyticsReportsComponent implements OnInit {
     this.projectService.getProjects().subscribe(data => {
       this.projects.set(data);
       this.computeStats(data);
+      const total = data.length || 1;
+      const onSchedule = data.filter(p => p.status === 'In Progress').length;
+      const totalBudget = data.reduce((sum, p) => sum + (p.estimatedBudget || 0), 0);
+      this.kpis[0].value = Math.round((onSchedule / total) * 100) + '%';
+      this.kpis[1].value = totalBudget ? '100%' : '0%';
+      this.kpis[2].value = '0/0';
+      this.kpis[3].value = '0%';
     });
   }
 
@@ -195,13 +198,13 @@ export class AnalyticsReportsComponent implements OnInit {
     });
   }
 
-  getProgressWidth(status: string): string {
-    const map: Record<string, string> = { 'In Progress': '65%', 'Planning': '15%', 'Completed': '100%', 'On Hold': '35%' };
-    return map[status] || '10%';
+getProgressWidth(status: string): string {
+    // No fabricated percentages. Only reflect real project status:
+    // Completed = 100%, otherwise 0 until a real completion metric exists.
+    return status === 'Completed' ? '100%' : '0%';
   }
   getProgressNum(status: string): number {
-    const map: Record<string, number> = { 'In Progress': 65, 'Planning': 15, 'Completed': 100, 'On Hold': 35 };
-    return map[status] || 10;
+    return status === 'Completed' ? 100 : 0;
   }
 
   applyFilter(): void { console.log('Filter applied:', this.filterForm.value); }

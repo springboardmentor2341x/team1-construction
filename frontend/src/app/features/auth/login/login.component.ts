@@ -95,8 +95,8 @@ export class LoginComponent {
     private router: Router
   ) {
     this.loginForm = this.fb.group({
-      email: ['admin@buildtrack.com', [Validators.required, Validators.email]],
-      password: ['Admin@1234', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]],
       rememberMe: [true]
     });
   }
@@ -109,9 +109,29 @@ export class LoginComponent {
       return;
     }
 
-    this.isLoading = true;
+this.isLoading = true;
     this.errorMessage = '';
 
+    // Verify the backend is reachable before allowing login. If the backend is
+    // not running, block login with a clear message so the app never appears to
+    // work without real backend responses.
+    this.authService.checkBackend().subscribe({
+      next: (backendUp) => {
+        if (!backendUp) {
+          this.isLoading = false;
+          this.errorMessage = 'The server is not reachable right now. Please start the backend and try again.';
+          return;
+        }
+        this.performLogin();
+      },
+      error: () => {
+        this.isLoading = false;
+        this.errorMessage = 'The server is not reachable right now. Please start the backend and try again.';
+      }
+    });
+  }
+
+  private performLogin(): void {
     this.authService.login(this.loginForm.value).subscribe({
       next: (res) => {
         this.isLoading = false;
@@ -120,7 +140,10 @@ export class LoginComponent {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err?.error?.message || 'Invalid credentials. Please try again.';
+        const message = err?.status === 0
+          ? 'Unable to connect to the server. Please try again later.'
+          : err?.error?.message || 'Invalid credentials. Please try again.';
+        this.errorMessage = message;
       }
     });
   }

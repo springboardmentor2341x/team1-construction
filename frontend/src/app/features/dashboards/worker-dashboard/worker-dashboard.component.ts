@@ -1,17 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
-import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
+import { TaskService, TaskItem } from '../../../core/services/task.service';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-worker-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, NavbarComponent, SidebarComponent, RoleSimulatorComponent],
+  imports: [CommonModule, RouterModule, NavbarComponent, SidebarComponent],
   template: `
-    <app-role-simulator></app-role-simulator>
     <app-navbar></app-navbar>
 
     <div class="container-fluid p-0">
@@ -29,59 +28,55 @@ import { AuthService } from '../../../core/services/auth.service';
               </div>
               <p class="text-muted small mb-0">Check daily task assignments, site safety instructions, & attendance clock-in status.</p>
             </div>
-            <button class="btn btn-success btn-sm d-flex align-items-center gap-2 shadow-sm" (click)="clockIn()">
-              <i class="bi bi-clock-fill"></i> {{ clockedIn ? 'Clocked In (07:05 AM)' : 'Clock-In Shift' }}
-            </button>
           </div>
 
           <!-- Top Status Row -->
           <div class="row g-3 mb-4">
             <div class="col-md-4">
               <div class="card card-custom p-3 border-0">
-                <span class="text-muted small fw-semibold">Shift Timing Today</span>
-                <h4 class="fw-bold text-dark mb-0 mt-1">07:00 AM - 03:30 PM</h4>
-                <small class="text-success"><i class="bi bi-geo-alt-fill me-1"></i> Zone 3 - Floor 12 Tower</small>
+                <span class="text-muted small fw-semibold">Assigned Tasks</span>
+                <h4 class="fw-bold text-dark mb-0 mt-1">{{ tasks.length }}</h4>
+                <small class="text-muted">{{ inProgressCount }} in progress</small>
               </div>
             </div>
 
             <div class="col-md-4">
               <div class="card card-custom p-3 border-0">
-                <span class="text-muted small fw-semibold">Attendance Status</span>
-                <h4 class="fw-bold text-success mb-0 mt-1">Present (Clocked-In)</h4>
-                <small class="text-muted">On time attendance record</small>
+                <span class="text-muted small fw-semibold">Completed Tasks</span>
+                <h4 class="fw-bold text-success mb-0 mt-1">{{ completedCount }}</h4>
+                <small class="text-muted">from backend</small>
               </div>
             </div>
 
             <div class="col-md-4">
               <div class="card card-custom p-3 border-0">
-                <span class="text-muted small fw-semibold">Safety Clearance</span>
-                <h4 class="fw-bold text-primary mb-0 mt-1">PPE Verified</h4>
-                <small class="text-muted">Hard hat, steel boots & vest</small>
+                <span class="text-muted small fw-semibold">Open Tasks</span>
+                <h4 class="fw-bold text-primary mb-0 mt-1">{{ openCount }}</h4>
+                <small class="text-muted">pending assignment</small>
               </div>
             </div>
           </div>
 
           <!-- Main Grid -->
           <div class="row g-4">
-            <!-- Today's Tasks -->
+            <!-- My Tasks -->
             <div class="col-lg-8">
               <div class="card card-custom border-0 p-4 mb-4">
-                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-card-checklist me-2 text-warning"></i> Today's Assigned Tasks</h5>
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-card-checklist me-2 text-warning"></i> My Assigned Tasks</h5>
                 <div class="list-group list-group-flush space-y-2">
-                  <div class="list-group-item p-3 border rounded-3 bg-light">
+                  <div class="list-group-item p-3 border rounded-3 bg-light" *ngFor="let t of myTasks">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                      <strong class="text-dark">Rebar Lapping & Tie Wire Binding - Grid 12C</strong>
-                      <span class="badge bg-warning text-dark">In Progress</span>
+                      <strong class="text-dark">{{ t.title }}</strong>
+                      <span class="badge" [ngClass]="getStatusBadge(t.status)">{{ t.status }}</span>
                     </div>
-                    <p class="small text-muted mb-0">Bind #8 deformed rebar cages as per site engineer structural drawing specifications.</p>
+                    <p class="small text-muted mb-0">{{ t.description }}</p>
+                    <div class="d-flex justify-content-between extra-small text-muted mt-2 border-top pt-2">
+                      <span>Project: {{ t.project }}</span>
+                      <span>Due: {{ t.dueDate }}</span>
+                    </div>
                   </div>
-
-                  <div class="list-group-item p-3 border rounded-3 bg-light">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <strong class="text-dark">Safety Scaffold Tie Inspection</strong>
-                      <span class="badge bg-success">Completed</span>
-                    </div>
-                    <p class="small text-muted mb-0">Check safety catch nets on outer edge perimeter wall before crane load hoisting.</p>
+                  <div *ngIf="myTasks.length === 0" class="text-center py-4 text-muted">
+                    No tasks assigned yet. Connect the backend to load your tasks.
                   </div>
                 </div>
               </div>
@@ -96,13 +91,13 @@ import { AuthService } from '../../../core/services/auth.service';
                   <span class="badge bg-light text-dark font-monospace">{{ user.employeeId }}</span>
                 </div>
                 <div class="extra-small space-y-2 border-top pt-2">
-                  <div class="d-flex justify-content-between">
-                    <span class="text-muted">Specialty:</span>
-                    <strong>Masonry & Steel</strong>
+<div class="d-flex justify-content-between">
+                    <span class="text-muted">Department:</span>
+                    <strong>{{ user.department }}</strong>
                   </div>
                   <div class="d-flex justify-content-between">
-                    <span class="text-muted">Contractor Supervisor:</span>
-                    <strong>Marcus Brody</strong>
+                    <span class="text-muted">Email:</span>
+                    <strong>{{ user.email }}</strong>
                   </div>
                 </div>
               </div>
@@ -117,12 +112,34 @@ import { AuthService } from '../../../core/services/auth.service';
     .space-y-2 > * + * { margin-top: 0.5rem; }
   `]
 })
-export class WorkerDashboardComponent {
-  clockedIn = true;
+export class WorkerDashboardComponent implements OnInit {
+  tasks: TaskItem[] = [];
 
-  constructor(public authService: AuthService) {}
+  constructor(public authService: AuthService, private taskService: TaskService) {}
 
-  clockIn(): void {
-    this.clockedIn = !this.clockedIn;
+  ngOnInit(): void {
+    this.taskService.getTasks().subscribe(t => this.tasks = t);
+  }
+
+  get myTasks(): TaskItem[] {
+    const user = this.authService.currentUser();
+    const name = user?.fullName || '';
+    return this.tasks.filter(t => t.assignedTo === name || t.assignedTo === user?.employeeId);
+  }
+
+  get inProgressCount(): number {
+    return this.myTasks.filter(t => t.status === 'In Progress').length;
+  }
+
+  get completedCount(): number {
+    return this.myTasks.filter(t => t.status === 'Completed').length;
+  }
+
+  get openCount(): number {
+    return this.myTasks.filter(t => t.status === 'Open').length;
+  }
+
+  getStatusBadge(status: string): string {
+    return { 'Open': 'bg-primary', 'In Progress': 'bg-warning text-dark', 'Completed': 'bg-success', 'On Hold': 'bg-secondary' }[status] || 'bg-secondary';
   }
 }

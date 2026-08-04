@@ -131,14 +131,7 @@ export class ShiftScheduleComponent {
 
   weekDays: { dayName: string; dayNum: string; date: string }[] = [];
 
-  shifts = signal<ShiftEntry[]>([
-    { id: 's-1', workerName: 'Robert Thorne', date: this.getTodayStr(0), shiftType: 'Morning', shiftStart: '06:00', shiftEnd: '14:00', location: 'Block A – Level 5', project: 'Skyline Tower', status: 'Scheduled' },
-    { id: 's-2', workerName: 'Carlos Mendez', date: this.getTodayStr(0), shiftType: 'Morning', shiftStart: '06:00', shiftEnd: '14:00', location: 'Basement B2', project: 'Skyline Tower', status: 'Scheduled' },
-    { id: 's-3', workerName: 'Ahmed Khan', date: this.getTodayStr(0), shiftType: 'Afternoon', shiftStart: '14:00', shiftEnd: '22:00', location: 'Grid D Zone', project: 'Harbor Bridge', status: 'Scheduled' },
-    { id: 's-4', workerName: 'Ivan Petrov', date: this.getTodayStr(0), shiftType: 'Night', shiftStart: '22:00', shiftEnd: '06:00', location: 'Block B Scaffolding', project: 'Skyline Tower', status: 'Scheduled' },
-    { id: 's-5', workerName: 'Priya Nair', date: this.getTodayStr(0), shiftType: 'Morning', shiftStart: '06:00', shiftEnd: '14:00', location: 'Site Perimeter', project: 'Skyline Tower', status: 'On Leave' },
-    { id: 's-6', workerName: 'Robert Thorne', date: this.getTodayStr(-1), shiftType: 'Morning', shiftStart: '06:00', shiftEnd: '14:00', location: 'Block A – Level 4', project: 'Skyline Tower', status: 'Completed' }
-  ]);
+  shifts = signal<ShiftEntry[]>([]);
 
   constructor(private authService: AuthService) {
     const role = authService.getRole();

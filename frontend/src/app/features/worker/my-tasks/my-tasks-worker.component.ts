@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
-import { ProjectService } from '../../../core/services/project.service';
+import { TaskService, TaskItem } from '../../../core/services/task.service';
 
 @Component({
   selector: 'app-my-tasks-worker',
@@ -83,19 +83,23 @@ import { ProjectService } from '../../../core/services/project.service';
 })
 export class MyTasksWorkerComponent implements OnInit {
   statusFilter = '';
-  tasks = signal([
-    { id: 't-1', title: 'Install rebar grid – Level 5 East Wing', description: 'Complete Grade 60 rebar installation on Level 5 east perimeter columns.', project: 'Skyline Tower', location: 'Block A – Level 5', dueDate: '2026-08-05', priority: 'High', status: 'In Progress' },
-    { id: 't-2', title: 'Concrete curing check – Slab Zone B', description: 'Monitor curing compound application and moisture readings.', project: 'Skyline Tower', location: 'Block B – Level 3', dueDate: '2026-08-06', priority: 'Medium', status: 'Open' },
-    { id: 't-3', title: 'Site cleanup – Perimeter fencing', description: 'Remove debris and reinforce western perimeter safety fencing.', project: 'Skyline Tower', location: 'Site Perimeter', dueDate: '2026-08-01', priority: 'Low', status: 'Completed' }
-  ]);
+  tasks = signal<TaskItem[]>([]);
   summary = [
     { label: 'Total', count: 0, colorClass: 'text-dark' },
     { label: 'Open', count: 0, colorClass: 'text-primary' },
     { label: 'In Progress', count: 0, colorClass: 'text-warning' },
     { label: 'Completed', count: 0, colorClass: 'text-success' }
   ];
-  constructor() { this.computeSummary(); }
-  ngOnInit(): void { this.computeSummary(); }
+
+  constructor(private taskService: TaskService) { }
+
+  ngOnInit(): void {
+    this.taskService.getTasks().subscribe(tasks => {
+      this.tasks.set(tasks);
+      this.computeSummary();
+    });
+  }
+
   computeSummary(): void {
     const t = this.tasks();
     this.summary[0].count = t.length;

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
-import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { ProjectService } from '../../../core/services/project.service';
 import { MilestoneService } from '../../../core/services/milestone.service';
@@ -13,9 +12,8 @@ import { Milestone } from '../../../core/models/milestone.model';
 @Component({
   selector: 'app-project-manager-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, NavbarComponent, SidebarComponent, RoleSimulatorComponent, StatusBadgeComponent],
+  imports: [CommonModule, RouterModule, NavbarComponent, SidebarComponent, StatusBadgeComponent],
   template: `
-    <app-role-simulator></app-role-simulator>
     <app-navbar></app-navbar>
 
     <div class="container-fluid p-0">
@@ -59,11 +57,11 @@ import { Milestone } from '../../../core/models/milestone.model';
                 <div class="d-flex align-items-center justify-content-between">
                   <div>
                     <span class="text-muted small fw-semibold">Milestone Velocity</span>
-                    <h3 class="fw-bold text-success mb-0 mt-1">78%</h3>
+                    <h3 class="fw-bold text-success mb-0 mt-1">{{ milestoneVelocity }}%</h3>
                   </div>
                   <div class="stat-icon-wrapper bg-success-subtle text-success"><i class="bi bi-speedometer"></i></div>
                 </div>
-                <div class="mt-2 small text-muted">+5% target adherence</div>
+                <div class="mt-2 small text-muted">avg. completion</div>
               </div>
             </div>
 
@@ -71,12 +69,12 @@ import { Milestone } from '../../../core/models/milestone.model';
               <div class="card card-custom p-3 border-0">
                 <div class="d-flex align-items-center justify-content-between">
                   <div>
-                    <span class="text-muted small fw-semibold">Workforce Active</span>
-                    <h3 class="fw-bold text-info mb-0 mt-1">42 Workers</h3>
+                    <span class="text-muted small fw-semibold">Active Milestones</span>
+                    <h3 class="fw-bold text-info mb-0 mt-1">{{ milestones.length }}</h3>
                   </div>
                   <div class="stat-icon-wrapper bg-info-subtle text-info"><i class="bi bi-person-lines-fill"></i></div>
                 </div>
-                <div class="mt-2 small text-muted">Across 3 contractor teams</div>
+                <div class="mt-2 small text-muted">across projects</div>
               </div>
             </div>
 
@@ -85,11 +83,11 @@ import { Milestone } from '../../../core/models/milestone.model';
                 <div class="d-flex align-items-center justify-content-between">
                   <div>
                     <span class="text-muted small fw-semibold">Delayed Activities</span>
-                    <h3 class="fw-bold text-danger mb-0 mt-1">1 Critical</h3>
+                    <h3 class="fw-bold text-danger mb-0 mt-1">{{ delayedMilestones }}</h3>
                   </div>
                   <div class="stat-icon-wrapper bg-danger-subtle text-danger"><i class="bi bi-exclamation-triangle"></i></div>
                 </div>
-                <div class="mt-2 small text-muted">Harbor Piling Test</div>
+                <div class="mt-2 small text-muted">milestones delayed</div>
               </div>
             </div>
           </div>
@@ -118,6 +116,9 @@ import { Milestone } from '../../../core/models/milestone.model';
                       </div>
                     </div>
                   </div>
+                  <div *ngIf="assignedProjects.length === 0" class="col-12 text-center py-4 text-muted">
+                    No projects available yet.
+                  </div>
                 </div>
               </div>
 
@@ -138,24 +139,18 @@ import { Milestone } from '../../../core/models/milestone.model';
                       <span>Progress: <strong>{{ m.completionPercentage }}%</strong></span>
                     </div>
                   </div>
+                  <div *ngIf="milestones.length === 0" class="text-center py-4 text-muted">
+                    No milestones available yet.
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Right Sidebar: Upcoming Deadlines & Workforce -->
+            <!-- Right Sidebar -->
             <div class="col-lg-4">
               <div class="card card-custom border-0 p-4 mb-4">
                 <h5 class="fw-bold text-dark mb-3"><i class="bi bi-clock-history text-danger me-2"></i> Upcoming Deadlines</h5>
-                <div class="list-group list-group-flush extra-small">
-                  <div class="list-group-item px-0 py-2">
-                    <div class="fw-bold text-dark">Basement Level 3 Concrete Pour</div>
-                    <div class="text-danger"><i class="bi bi-calendar-event me-1"></i> Due in 4 days (Apr 10, 2026)</div>
-                  </div>
-                  <div class="list-group-item px-0 py-2">
-                    <div class="fw-bold text-dark">Environmental Compliance Signoff</div>
-                    <div class="text-warning"><i class="bi bi-calendar-event me-1"></i> Due in 12 days</div>
-                  </div>
-                </div>
+                <div class="text-muted small">Deadlines will appear here once milestone data is available.</div>
               </div>
 
               <!-- Resource & Workforce Summary -->
@@ -163,16 +158,16 @@ import { Milestone } from '../../../core/models/milestone.model';
                 <h5 class="fw-bold text-dark mb-3"><i class="bi bi-boxes text-info me-2"></i> Resource & Workforce Summary</h5>
                 <div class="extra-small space-y-2">
                   <div class="d-flex justify-content-between py-1 border-bottom">
-                    <span class="text-muted">Civil Engineers:</span>
-                    <strong class="text-dark">3 Assigned</strong>
+                    <span class="text-muted">Managed Projects:</span>
+                    <strong class="text-dark">{{ assignedProjects.length }}</strong>
                   </div>
                   <div class="d-flex justify-content-between py-1 border-bottom">
-                    <span class="text-muted">Subcontractors:</span>
-                    <strong class="text-dark">4 Teams</strong>
+                    <span class="text-muted">Milestones:</span>
+                    <strong class="text-dark">{{ milestones.length }}</strong>
                   </div>
                   <div class="d-flex justify-content-between py-1">
-                    <span class="text-muted">Heavy Equipment:</span>
-                    <strong class="text-success">8 Units Operational</strong>
+                    <span class="text-muted">Delayed:</span>
+                    <strong class="text-danger">{{ delayedMilestones }}</strong>
                   </div>
                 </div>
               </div>
@@ -197,7 +192,20 @@ export class ProjectManagerDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.projectService.getProjects().subscribe(projects => this.assignedProjects = projects);
-    this.milestoneService.getMilestonesByProject('prj-101').subscribe(ms => this.milestones = ms);
+    this.projectService.getProjects().subscribe(projects => {
+      this.assignedProjects = projects;
+      if (projects.length) {
+        this.milestoneService.getMilestonesByProject(projects[0].id).subscribe(ms => this.milestones = ms);
+      }
+    });
+  }
+
+  get milestoneVelocity(): number {
+    if (!this.milestones.length) return 0;
+    return Math.round(this.milestones.reduce((sum, m) => sum + (m.completionPercentage || 0), 0) / this.milestones.length);
+  }
+
+  get delayedMilestones(): number {
+    return this.milestones.filter(m => m.status === 'Delayed').length;
   }
 }

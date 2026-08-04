@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -6,6 +6,9 @@ import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
+import { TaskService, TaskItem } from '../../../core/services/task.service';
+import { UserService } from '../../../core/services/user.service';
+import { UserRole } from '../../../core/models/role.enum';
 
 export interface Task {
   id: string;
@@ -78,20 +81,18 @@ export interface Task {
                   <label class="form-label small fw-semibold">Site Location</label>
                   <input class="form-control form-control-sm" formControlName="location" placeholder="e.g. Block A – Floor 12">
                 </div>
-                <div class="col-md-4">
+<div class="col-md-4">
                   <label class="form-label small fw-semibold">Project</label>
                   <select class="form-select form-select-sm" formControlName="project">
-                    <option value="Skyline Tower">Skyline Metropolis Tower</option>
-                    <option value="Harbor Bridge">Harbor Bridge Expansion</option>
+                    <option value="">Select Project</option>
+                    <option *ngFor="let p of projectOptions" [value]="p">{{ p }}</option>
                   </select>
                 </div>
                 <div class="col-md-4">
                   <label class="form-label small fw-semibold">Assign To (Worker)</label>
                   <select class="form-select form-select-sm" formControlName="assignedTo">
-                    <option value="Robert Thorne">Robert Thorne</option>
-                    <option value="Carlos Mendez">Carlos Mendez</option>
-                    <option value="Priya Nair">Priya Nair</option>
-                    <option value="Ahmed Khan">Ahmed Khan</option>
+                    <option value="">Select Worker</option>
+                    <option *ngFor="let w of workerOptions" [value]="w.fullName">{{ w.fullName }}</option>
                   </select>
                 </div>
                 <div class="col-12 d-flex gap-2 justify-content-end">
@@ -140,44 +141,48 @@ export interface Task {
     </div>
   `
 })
-export class AssignTaskComponent {
+export class AssignTaskComponent implements OnInit {
   taskForm: FormGroup;
   showForm = signal(false);
   submitted = false;
 
-  tasks = signal<Task[]>([
-    { id: 't-1', title: 'Install rebar grid – Level 5 East Wing', description: 'Complete Grade 60 rebar installation on Level 5 east perimeter.', project: 'Skyline Tower', assignedTo: 'Robert Thorne', assignedWorkers: ['Robert Thorne'], priority: 'High', status: 'In Progress', dueDate: '2026-08-05', location: 'Block A – Level 5' },
-    { id: 't-2', title: 'Waterproofing Basement B2', description: 'Apply membrane waterproofing on all B2 walls and flooring.', project: 'Skyline Tower', assignedTo: 'Carlos Mendez', assignedWorkers: ['Carlos Mendez'], priority: 'High', status: 'Open', dueDate: '2026-08-08', location: 'Basement B2' },
-    { id: 't-3', title: 'Steel shuttering – Column Grid D', description: 'Shuttering panels for columns D7–D14.', project: 'Harbor Bridge', assignedTo: 'Ahmed Khan', assignedWorkers: ['Ahmed Khan'], priority: 'Medium', status: 'Open', dueDate: '2026-08-06', location: 'Grid D Zone' },
-    { id: 't-4', title: 'Site cleanup – Perimeter fencing', description: 'Remove debris and reinforce western perimeter safety fencing.', project: 'Skyline Tower', assignedTo: 'Priya Nair', assignedWorkers: ['Priya Nair'], priority: 'Low', status: 'Completed', dueDate: '2026-08-01', location: 'Site Perimeter' },
-    { id: 't-5', title: 'Concrete mix quality check – Batch 14', description: 'Cube test sampling and slump test for batch 14.', project: 'Harbor Bridge', assignedTo: 'Robert Thorne', assignedWorkers: ['Robert Thorne'], priority: 'Medium', status: 'On Hold', dueDate: '2026-08-07', location: 'Batching Plant' }
-  ]);
+  tasks = signal<Task[]>([]);
+  projectOptions: string[] = [];
+  workerOptions: any[] = [];
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private taskService: TaskService,
+    private userService: UserService
+  ) {
     this.taskForm = this.fb.group({
       title: ['', Validators.required],
       description: [''],
       priority: ['Medium'],
       dueDate: ['', Validators.required],
       location: [''],
-      project: ['Skyline Tower'],
-      assignedTo: ['Robert Thorne']
+      project: [''],
+      assignedTo: ['']
     });
+  }
+
+  ngOnInit(): void {
+    this.taskService.getTasks().subscribe(tasks => {
+      this.tasks.set(tasks as unknown as Task[]);
+      this.projectOptions = Array.from(new Set(tasks.map(t => t.project)));
+    });
+    this.userService.getUsersByRole(UserRole.WORKER).subscribe(workers => this.workerOptions = workers);
   }
 
   createTask(): void {
     this.submitted = true;
     if (this.taskForm.invalid) return;
-    const newTask: Task = {
-      id: `t-${Date.now()}`,
-      ...this.taskForm.value,
-      assignedWorkers: [this.taskForm.value.assignedTo],
-      status: 'Open'
-    };
-    this.tasks.update(tasks => [newTask, ...tasks]);
-    this.taskForm.reset({ priority: 'Medium', project: 'Skyline Tower', assignedTo: 'Robert Thorne' });
-    this.showForm.set(false);
-    this.submitted = false;
+    this.taskService.createTask(this.taskForm.value).subscribe(() => {
+      this.taskService.getTasks().subscribe(tasks => this.tasks.set(tasks as unknown as Task[]));
+      this.taskForm.reset({ priority: 'Medium', project: '', assignedTo: '' });
+      this.showForm.set(false);
+      this.submitted = false;
+    });
   }
 
   getTasksForStatus(status: string) { return this.tasks().filter(t => t.status === status); }

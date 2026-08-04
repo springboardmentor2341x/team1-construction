@@ -209,8 +209,8 @@ export class ProjectCreateComponent implements OnInit {
       expectedCompletionDate: [today, [Validators.required]],
       priority: ['Medium', [Validators.required]],
       status: ['Planning', [Validators.required]],
-      projectManagerId: ['usr-pm-1', [Validators.required]],
-      projectManagerName: ['Sarah Jenkins'],
+projectManagerId: ['', [Validators.required]],
+      projectManagerName: [''],
       description: ['']
     }, { validators: this.dateValidator });
   }

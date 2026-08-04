@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +6,7 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
 import { AuthService } from '../../../core/services/auth.service';
+import { TaskService, TaskItem } from '../../../core/services/task.service';
 
 @Component({
   selector: 'app-my-tasks',
@@ -110,16 +111,11 @@ import { AuthService } from '../../../core/services/auth.service';
     </div>
   `
 })
-export class MyTasksComponent {
+export class MyTasksComponent implements OnInit {
   statusFilter = '';
   priorityFilter = '';
 
-  tasks = signal([
-    { id: 't-1', title: 'Install rebar grid – Level 5 East Wing', description: 'Complete Grade 60 rebar installation on Level 5 east perimeter columns.', project: 'Skyline Tower', location: 'Block A – Level 5', dueDate: '2026-08-05', assignedBy: 'Marcus Brody', priority: 'High', status: 'In Progress', progress: 60 },
-    { id: 't-2', title: 'Concrete curing check – Slab Zone B', description: 'Monitor curing compound application and document moisture readings.', project: 'Skyline Tower', location: 'Block B – Level 3', dueDate: '2026-08-06', assignedBy: 'Marcus Brody', priority: 'Medium', status: 'Open', progress: 0 },
-    { id: 't-3', title: 'Safety gear inspection', description: 'Inspect personal protective equipment for all team members and report deficiencies.', project: 'Harbor Bridge', location: 'Site Office', dueDate: '2026-08-04', assignedBy: 'Marcus Brody', priority: 'High', status: 'Open', progress: 0 },
-    { id: 't-4', title: 'Site cleanup – Perimeter fencing', description: 'Remove debris and reinforce western perimeter safety fencing.', project: 'Skyline Tower', location: 'Site Perimeter', dueDate: '2026-08-01', assignedBy: 'Marcus Brody', priority: 'Low', status: 'Completed', progress: 100 }
-  ]);
+  tasks = signal<TaskItem[]>([]);
 
   taskSummary = [
     { label: 'Total', count: 0, colorClass: 'text-dark' },
@@ -128,7 +124,14 @@ export class MyTasksComponent {
     { label: 'Completed', count: 0, colorClass: 'text-success' }
   ];
 
-  constructor(private authService: AuthService) { this.computeSummary(); }
+  constructor(private authService: AuthService, private taskService: TaskService) { }
+
+  ngOnInit(): void {
+    this.taskService.getTasks().subscribe(tasks => {
+      this.tasks.set(tasks);
+      this.computeSummary();
+    });
+  }
 
   computeSummary(): void {
     const tasks = this.tasks();
@@ -145,8 +148,20 @@ export class MyTasksComponent {
     );
   }
 
-  startTask(task: any): void { task.status = 'In Progress'; task.progress = 10; }
-  completeTask(task: any): void { task.status = 'Completed'; task.progress = 100; this.computeSummary(); }
+startTask(task: any): void {
+    this.taskService.updateTaskStatus(task.id, 'In Progress').subscribe(() => {
+      task.status = 'In Progress';
+      task.progress = 10;
+      this.computeSummary();
+    });
+  }
+  completeTask(task: any): void {
+    this.taskService.updateTaskStatus(task.id, 'Completed').subscribe(() => {
+      task.status = 'Completed';
+      task.progress = 100;
+      this.computeSummary();
+    });
+  }
   getPriorityBadge = (p: string) => ({ 'High': 'bg-danger', 'Medium': 'bg-warning text-dark', 'Low': 'bg-success' }[p] || 'bg-secondary');
   getStatusBadge = (s: string) => ({ 'Open': 'bg-primary', 'In Progress': 'bg-warning text-dark', 'Completed': 'bg-success', 'On Hold': 'bg-secondary' }[s] || 'bg-secondary');
 }
