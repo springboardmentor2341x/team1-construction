@@ -1,20 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
 import { AuthService } from '../../../core/services/auth.service';
-
-export interface NotificationItem {
-  id: string;
-  title: string;
-  message: string;
-  type: 'info' | 'warning' | 'success' | 'danger';
-  time: string;
-  read: boolean;
-  category: string;
-}
+import { NotificationService, NotificationItem } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-notifications',
@@ -85,17 +76,27 @@ export interface NotificationItem {
     </div>
   `
 })
-export class NotificationsComponent {
+export class NotificationsComponent implements OnInit {
   activeFilter = signal<string>('all');
   dashboardRoute: string;
 
   notifications = signal<NotificationItem[]>([]);
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, private notificationService: NotificationService) {
     const role = this.authService.getRole();
     this.dashboardRoute = role === 'Site Engineer' ? '/dashboard/site-engineer' :
                           role === 'Contractor' ? '/dashboard/contractor' :
                           '/dashboard/project-manager';
+  }
+
+  ngOnInit(): void {
+    this.loadNotifications();
+  }
+
+  loadNotifications(): void {
+    this.notificationService.getNotifications().subscribe(data => {
+      this.notifications.set(data);
+    });
   }
 
   unreadCount = () => this.notifications().filter(n => !n.read).length;

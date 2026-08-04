@@ -1,15 +1,18 @@
-# Fix: Frontend must require backend & remove dummy data
+# TODO: Fix Live Backend Data for Attendance, Notifications & Shifts
 
-## Tasks
-- [x] Add PATCH /tasks/{id} endpoint to backend (task status updates)
-- [x] Add updateTaskStatus() to frontend TaskService
-- [x] Wire my-tasks startTask/completeTask to backend
-- [ ] Add backend health check endpoint
-- [ ] Add checkBackend() to AuthService; gate login on backend connectivity
-- [ ] Make isLoggedIn()/validateSession() strictly require backend verification
-- [ ] Admin dashboard: remove hardcoded 128/94/$180M/65%/12; wire user counts
-- [ ] Client dashboard: derive progress from real milestone data (remove hardcoded % map)
-- [ ] Executive report: derive progress from real data (remove hardcoded % map)
-- [ ] Analytics reports: derive progress from real data (remove hardcoded % map)
-- [ ] Services: surface backend errors instead of silently returning [] where required
-- [ ] Build/verify frontend and backend
+## Backend
+- [ ] Add `attendance`, `notification` fields to existing models (expand placeholders.py)
+- [ ] Create `ShiftModel` (backend/app/models/shift.py)
+- [ ] Create `attendance.py` router (GET/POST /attendance)
+- [ ] Create `notifications.py` router (GET /notifications, mark-read, read-all, clear)
+- [ ] Create `shifts.py` router (GET/POST/PUT/DELETE /shifts)
+- [ ] Register new routers & seed sample data in `backend/main.py`
+
+## Frontend
+- [ ] Create `attendance.service.ts`
+- [ ] Create `notification.service.ts`
+- [ ] Create `shift.service.ts`
+- [ ] Wire `MyAttendanceComponent` to fetch from backend
+- [ ] Wire `NotificationsComponent` to fetch from backend
+- [ ] Wire `ShiftScheduleComponent` to fetch from backend
+

@@ -16,9 +16,10 @@ from app.models.activity_log import ActivityLogModel
 from app.models.equipment import EquipmentModel
 from app.models.task import TaskModel
 from app.models.document import DocumentModel
+from app.models.shift import ShiftModel
 from app.core.security import get_password_hash
 
-from app.routers import auth, users, projects, schedules, milestones, site_engineer, tasks_router
+from app.routers import auth, users, projects, schedules, milestones, site_engineer, tasks_router, attendance, notifications, shifts
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -49,15 +50,40 @@ app.include_router(milestones.router, prefix=settings.API_V1_STR)
 app.include_router(site_engineer.router, prefix=settings.API_V1_STR)
 app.include_router(tasks_router.tasks_router, prefix=settings.API_V1_STR)
 app.include_router(tasks_router.documents_router, prefix=settings.API_V1_STR)
+app.include_router(attendance.router, prefix=settings.API_V1_STR)
+app.include_router(notifications.router, prefix=settings.API_V1_STR)
+app.include_router(shifts.router, prefix=settings.API_V1_STR)
+
 
 @app.on_event("startup")
 def startup_event():
     try:
         # Create all tables on startup if PostgreSQL is active
         Base.metadata.create_all(bind=engine)
+        # Lightweight migration: add missing columns to existing tables
+        # (create_all does not alter existing tables, so we add schema columns
+        #  that were introduced after the initial table creation).
+        ensure_columns()
         seed_database()
     except Exception as e:
         print(f"[Warning] Database startup initialization notice: {e}")
+
+
+def ensure_columns():
+    """Add missing columns to existing tables (lightweight migration)."""
+    from sqlalchemy import text
+    db = SessionLocal()
+    try:
+        # attendance.user_name was added to the model after the table was created
+        db.execute(text(
+            "ALTER TABLE attendance ADD COLUMN IF NOT EXISTS user_name VARCHAR(100) DEFAULT 'Robert Thorne'"
+        ))
+        db.commit()
+    except Exception as e:
+        print(f"[Warning] Column migration notice: {e}")
+    finally:
+        db.close()
+
 
 def seed_database():
     db: Session = SessionLocal()
@@ -226,10 +252,46 @@ def seed_database():
             db.add_all([d1, d2])
             db.commit()
 
+        # 8. Seed Attendance Records
+        if db.query(Attendance).count() == 0:
+            att = [
+                Attendance(user_id="", user_name="Robert Thorne", date="2026-08-03", day_name="Monday", shift_type="Morning", check_in="06:05", check_out="14:10", status="Present", hours_worked=8.0, location="Block A – Level 5"),
+                Attendance(user_id="", user_name="Robert Thorne", date="2026-08-02", day_name="Sunday", shift_type="Morning", check_in="06:10", check_out="14:00", status="Present", hours_worked=7.8, location="Block A – Level 5"),
+                Attendance(user_id="", user_name="Robert Thorne", date="2026-08-01", day_name="Saturday", shift_type="Afternoon", check_in="14:15", check_out="22:00", status="Late", hours_worked=7.5, location="Basement B2"),
+                Attendance(user_id="", user_name="Robert Thorne", date="2026-07-31", day_name="Friday", shift_type="Morning", check_in=None, check_out=None, status="On Leave", hours_worked=0.0, location=""),
+                Attendance(user_id="", user_name="Robert Thorne", date="2026-07-30", day_name="Thursday", shift_type="Morning", check_in="06:00", check_out="14:02", status="Present", hours_worked=8.0, location="Block A – Level 5"),
+            ]
+            db.add_all(att)
+            db.commit()
+
+        # 9. Seed Notifications
+        if db.query(Notification).count() == 0:
+            notifs = [
+                Notification(title="Milestone Approved", message="Foundation milestone for Skyline Metropolis Tower was approved.", notification_type="success", time="2 hours ago", is_read=False, category="Milestone"),
+                Notification(title="New Task Assigned", message="You have been assigned a new task: Waterproofing Basement B2.", notification_type="info", time="5 hours ago", is_read=False, category="Project"),
+                Notification(title="Equipment Maintenance Due", message="Excavator CAT 390F is due for service.", notification_type="warning", time="1 day ago", is_read=True, category="System"),
+                Notification(title="Safety Alert", message="Storm warning issued for the site. Secure loose materials.", notification_type="danger", time="2 days ago", is_read=True, category="System"),
+            ]
+            db.add_all(notifs)
+            db.commit()
+
+        # 10. Seed Shifts
+        if db.query(ShiftModel).count() == 0:
+            shifts_seed = [
+                ShiftModel(worker_name="Robert Thorne", date="2026-08-03", shift_type="Morning", shift_start="06:00", shift_end="14:00", location="Block A – Level 5", project="Skyline Tower", status="Scheduled"),
+                ShiftModel(worker_name="Carlos Mendez", date="2026-08-03", shift_type="Morning", shift_start="06:00", shift_end="14:00", location="Basement B2", project="Skyline Tower", status="Scheduled"),
+                ShiftModel(worker_name="Maria Gonzalez", date="2026-08-03", shift_type="Afternoon", shift_start="14:00", shift_end="22:00", location="Foundation Pit", project="Skyline Tower", status="Scheduled"),
+                ShiftModel(worker_name="Robert Thorne", date="2026-08-02", shift_type="Morning", shift_start="06:00", shift_end="14:00", location="Block A – Level 5", project="Skyline Tower", status="Completed"),
+                ShiftModel(worker_name="James Watson", date="2026-08-02", shift_type="Night", shift_start="22:00", shift_end="06:00", location="Tower Crane", project="Skyline Tower", status="Completed"),
+            ]
+            db.add_all(shifts_seed)
+            db.commit()
+
     except Exception as err:
         print(f"[Seed Warning] Database seeding notice: {err}")
     finally:
         db.close()
+
 
 @app.get("/")
 def root():
@@ -239,9 +301,11 @@ def root():
         "docs_url": "/docs"
     }
 
+
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "BuildTrack API"}
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

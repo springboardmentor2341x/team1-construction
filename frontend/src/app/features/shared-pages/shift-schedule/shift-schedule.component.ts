@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -6,18 +6,7 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
 import { AuthService } from '../../../core/services/auth.service';
-
-export interface ShiftEntry {
-  id: string;
-  workerName: string;
-  date: string;
-  shiftType: 'Morning' | 'Afternoon' | 'Night';
-  shiftStart: string;
-  shiftEnd: string;
-  location: string;
-  project: string;
-  status: 'Scheduled' | 'Completed' | 'Absent' | 'On Leave';
-}
+import { ShiftService, ShiftEntry } from '../../../core/services/shift.service';
 
 @Component({
   selector: 'app-shift-schedule',
@@ -121,7 +110,7 @@ export interface ShiftEntry {
     </div>
   `
 })
-export class ShiftScheduleComponent {
+export class ShiftScheduleComponent implements OnInit {
   shiftFilter = '';
   statusFilter = '';
   selectedDay = '';
@@ -133,7 +122,7 @@ export class ShiftScheduleComponent {
 
   shifts = signal<ShiftEntry[]>([]);
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, private shiftService: ShiftService) {
     const role = authService.getRole();
     if (role === 'Worker') {
       this.dashboardRoute = '/dashboard/worker';
@@ -141,6 +130,16 @@ export class ShiftScheduleComponent {
     }
     this.initWeek();
     this.selectedDay = this.getTodayStr(0);
+  }
+
+  ngOnInit(): void {
+    this.loadShifts();
+  }
+
+  loadShifts(): void {
+    this.shiftService.getShifts().subscribe(data => {
+      this.shifts.set(data);
+    });
   }
 
   getTodayStr(offset: number): string {

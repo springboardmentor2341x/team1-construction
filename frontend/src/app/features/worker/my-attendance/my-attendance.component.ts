@@ -1,21 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
-
-export interface AttendanceRecord {
-  date: string;
-  dayName: string;
-  shiftType: string;
-  checkIn: string;
-  checkOut: string;
-  status: 'Present' | 'Absent' | 'Late' | 'Half Day' | 'On Leave';
-  hoursWorked: number;
-  location: string;
-}
+import { AttendanceService, AttendanceRecord } from '../../../core/services/attendance.service';
 
 @Component({
   selector: 'app-my-attendance',
@@ -104,11 +94,11 @@ export interface AttendanceRecord {
     </div>
   `
 })
-export class MyAttendanceComponent {
+export class MyAttendanceComponent implements OnInit {
   monthFilter = new Date().toISOString().slice(0, 7);
   statusFilter = '';
 
-records = signal<AttendanceRecord[]>([]);
+  records = signal<AttendanceRecord[]>([]);
 
   summary = [
     { label: 'Present', count: 0, colorClass: 'text-success' },
@@ -117,7 +107,18 @@ records = signal<AttendanceRecord[]>([]);
     { label: 'On Leave', count: 0, colorClass: 'text-info' }
   ];
 
-  constructor() { this.computeSummary(); }
+  constructor(private attendanceService: AttendanceService) {}
+
+  ngOnInit(): void {
+    this.loadAttendance();
+  }
+
+  loadAttendance(): void {
+    this.attendanceService.getAttendance().subscribe(data => {
+      this.records.set(data);
+      this.computeSummary();
+    });
+  }
 
   computeSummary(): void {
     const r = this.records();
