@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Project Management</title>
+
+<link rel="stylesheet" href="project-management.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+<link rel="stylesheet" href="../common/theme.css">
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<!-- Sidebar -->
+
+<aside class="sidebar">
+
+
+<h2>🏗 Admin</h2>
+
+
+<ul>
+
+
+<li>
+<i class="fa-solid fa-house"></i>
+<a href="../admin dashboard/admin.html">
+Dashboard
+</a>
+</li>
+
+
+
+<li class="active">
+
+<i class="fa-solid fa-building"></i>
+Project Management
+
+</li>
+
+
+
+<li>
+<i class="fa-solid fa-users"></i>
+<a href="../user-management/user-management.html">
+User Management
+</a>
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-chart-line"></i>
+<a href="../reports/reports.html">
+Reports
+</a>
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-bell"></i>
+<a href="../notifications/notifications.html">
+Notifications
+</a>
+</li>
+
+<li>
+
+<i class="fa-solid fa-right-from-bracket"></i>
+<a href="../../login.html">
+Logout
+</a>
+</li>
+
+
+
+</ul>
+
+
+</aside>
+
+
+
+
+
+<!-- Main Content -->
+
+
+<main class="main">
+
+
+<header>
+
+<h1>Project Management</h1>
+
+<div>
+Welcome Admin 👋
+</div>
+
+</header>
+
+
+
+
+
+<section class="top-bar">
+
+
+<button class="create-btn">
+
+<i class="fa-solid fa-plus"></i>
+
+<a href="../../project-mgmt-mod2/create-project/create-project.html">
+    Create Project
+</a>
+
+</button>
+<button class="create-btn">
+<a href="../../project-mgmt-mod2/project-list/project-list.html" class="list-btn">
+    <i class="fa-solid fa-list"></i> Project List
+</a>
+</button>
+
+
+<div class="filters">
+
+
+<input type="text"
+id="searchProject"
+placeholder="Search project...">
+
+
+
+<select id="statusFilter">
+
+
+<option value="All">
+All Status
+</option>
+
+
+<option value="Completed">
+Completed
+</option>
+
+
+<option value="Ongoing">
+Ongoing
+</option>
+
+
+<option value="Pending">
+Pending
+</option>
+
+
+
+</select>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+<section class="table-box">
+
+
+<table>
+
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+
+<th>Project Name</th>
+
+<th>Client</th>
+
+<th>Manager</th>
+
+<th>Budget</th>
+
+<th>Status</th>
+
+<th>Action</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody id="projectTable">
+
+
+<tr>
+
+<td>101</td>
+
+<td>Metro Construction</td>
+
+<td>ABC Pvt Ltd</td>
+
+<td>Rahul</td>
+
+<td>$50,000</td>
+
+<td>
+<span class="ongoing">
+Ongoing
+</span>
+</td>
+
+
+<td>
+
+<button class="view">
+View
+</button>
+
+
+<button class="edit">
+Edit
+</button>
+
+
+<button class="delete">
+Delete
+</button>
+
+
+</td>
+
+
+</tr>
+
+
+
+
+
+<tr>
+
+<td>102</td>
+
+<td>Residential Building</td>
+
+<td>XYZ Company</td>
+
+<td>Priya</td>
+
+<td>$80,000</td>
+
+
+<td>
+
+<span class="completed">
+Completed
+</span>
+
+</td>
+
+
+
+<td>
+
+
+<button class="view">
+View
+</button>
+
+
+<button class="edit">
+Edit
+</button>
+
+
+<button class="delete">
+Delete
+</button>
+
+
+
+</td>
+
+
+</tr>
+
+
+
+
+
+<tr>
+
+
+<td>103</td>
+
+<td>Road Development</td>
+
+<td>City Council</td>
+
+<td>Arjun</td>
+
+<td>$40,000</td>
+
+
+<td>
+
+<span class="pending">
+Pending
+</span>
+
+</td>
+
+
+
+<td>
+
+
+<button class="view">
+View
+</button>
+
+
+<button class="edit">
+Edit
+</button>
+
+
+<button class="delete">
+Delete
+</button>
+
+
+
+</td>
+
+
+</tr>
+
+
+</tbody>
+
+
+</table>
+
+
+</section>
+
+
+
+</main>
+
+
+</div>
+
+
+
+<script src="project-management.js"></script>
+<script src="../common/theme.js"></script>
+
+</body>
+
+</html>

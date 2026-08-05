@@ -1,0 +1,233 @@
+/* Reset */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+}
+
+/* Layout */
+
+.container{
+    display:flex;
+    min-height:100vh;
+}
+
+/* Sidebar */
+
+.sidebar{
+    width:260px;
+    background:#1e293b;
+    color:white;
+    padding:20px;
+}
+
+.sidebar h2{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.sidebar ul{
+    list-style:none;
+}
+
+.sidebar li{
+    padding:15px;
+    margin:8px 0;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.sidebar li:hover,
+.sidebar .active{
+    background:#2563eb;
+}
+
+.sidebar a{
+    color:white;
+    text-decoration:none;
+}
+
+/* Main */
+
+.main{
+    flex:1;
+    padding:30px;
+}
+
+/* Header */
+
+header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+header h1{
+    color:#1e293b;
+}
+
+.profile{
+    background:#2563eb;
+    color:white;
+    padding:10px 20px;
+    border-radius:25px;
+    font-weight:bold;
+}
+
+/* Profile Card */
+
+.profile-card{
+    display:flex;
+    align-items:center;
+    gap:40px;
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    margin-bottom:30px;
+}
+
+.profile-image{
+    width:180px;
+    height:180px;
+    border-radius:50%;
+    background:#e5e7eb;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.profile-image i{
+    font-size:130px;
+    color:#2563eb;
+}
+
+.profile-details{
+    flex:1;
+}
+
+.profile-details h2{
+    color:#1e293b;
+    margin-bottom:20px;
+}
+
+.profile-details p{
+    margin:12px 0;
+    color:#555;
+    font-size:16px;
+}
+
+/* Project Information */
+
+.project-info{
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    margin-bottom:30px;
+}
+
+.project-info h2{
+    margin-bottom:20px;
+    color:#1e293b;
+}
+
+.project-info table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.project-info th{
+    width:35%;
+    background:#1e293b;
+    color:white;
+    padding:15px;
+    text-align:left;
+}
+
+.project-info td{
+    padding:15px;
+    border:1px solid #ddd;
+    background:#fff;
+}
+
+/* Support Box */
+
+.contact-box{
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.contact-box h2{
+    color:#1e293b;
+    margin-bottom:20px;
+}
+
+.contact-box p{
+    margin:12px 0;
+    color:#555;
+    font-size:16px;
+}
+
+/* Hover Effects */
+
+.profile-card:hover,
+.project-info:hover,
+.contact-box:hover{
+    transform:translateY(-5px);
+    transition:0.3s;
+}
+
+/* Responsive */
+
+@media(max-width:992px){
+
+    .profile-card{
+        flex-direction:column;
+        text-align:center;
+    }
+
+    .profile-image{
+        margin-bottom:20px;
+    }
+
+}
+
+@media(max-width:768px){
+
+    .container{
+        flex-direction:column;
+    }
+
+    .sidebar{
+        width:100%;
+    }
+
+    header{
+        flex-direction:column;
+        gap:15px;
+        align-items:flex-start;
+    }
+
+    .project-info table,
+    .project-info th,
+    .project-info td{
+        display:block;
+        width:100%;
+    }
+
+    .project-info th{
+        margin-top:10px;
+    }
+
+}

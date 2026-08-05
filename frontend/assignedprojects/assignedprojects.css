@@ -1,0 +1,247 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+}
+
+.container{
+    display:flex;
+    min-height:100vh;
+}
+
+/* ================= Sidebar ================= */
+
+.sidebar{
+    width:260px;
+    background:#1f2937;
+    color:#fff;
+    position:fixed;
+    height:100vh;
+    padding:25px;
+    overflow-y:auto;
+}
+
+.logo{
+    text-align:center;
+    margin-bottom:40px;
+}
+
+.logo h2{
+    font-size:28px;
+}
+
+.logo p{
+    margin-top:8px;
+    color:#cbd5e1;
+}
+
+.sidebar ul{
+    list-style:none;
+}
+
+.sidebar ul li{
+    margin:16px 0;
+}
+
+.sidebar ul li a{
+    color:#fff;
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px;
+    border-radius:8px;
+    transition:.3s;
+}
+
+.sidebar ul li a:hover{
+    background:#2563eb;
+}
+
+.active a{
+    background:#2563eb;
+}
+
+/* ================= Main ================= */
+
+.main-content{
+    margin-left:260px;
+    width:100%;
+    padding:35px;
+}
+
+.header{
+    margin-bottom:30px;
+}
+
+.header h1{
+    font-size:34px;
+    color:#1f2937;
+}
+
+.header p{
+    margin-top:8px;
+    color:#6b7280;
+}
+
+/* ================= Search ================= */
+
+.search-box{
+    display:flex;
+    gap:15px;
+    margin-bottom:35px;
+    flex-wrap:wrap;
+}
+
+.search-box input{
+    flex:1;
+    min-width:260px;
+    padding:14px;
+    border:1px solid #d1d5db;
+    border-radius:10px;
+    outline:none;
+    font-size:15px;
+}
+
+.search-box input:focus{
+    border-color:#2563eb;
+}
+
+.search-box button{
+    background:#2563eb;
+    color:#fff;
+    border:none;
+    padding:14px 28px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:.3s;
+    font-size:15px;
+}
+
+.search-box button:hover{
+    background:#1d4ed8;
+}
+
+/* ================= Cards ================= */
+
+.projects{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:25px;
+}
+
+.project-card{
+    background:#fff;
+    border-radius:16px;
+    padding:25px;
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+    transition:.3s;
+}
+
+.project-card:hover{
+    transform:translateY(-6px);
+}
+
+.project-card h2{
+    color:#1f2937;
+    margin-bottom:18px;
+}
+
+.project-card p{
+    margin:10px 0;
+    color:#4b5563;
+}
+
+.project-card strong{
+    color:#111827;
+}
+
+/* ================= Progress ================= */
+
+.progress{
+    width:100%;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    height:20px;
+    margin:20px 0;
+}
+
+.progress-bar{
+    height:100%;
+    background:#2563eb;
+    color:#fff;
+    text-align:center;
+    line-height:20px;
+    font-size:12px;
+    font-weight:600;
+}
+
+/* ================= Button ================= */
+
+.project-card button{
+    width:100%;
+    background:#16a34a;
+    color:#fff;
+    border:none;
+    padding:14px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:15px;
+    transition:.3s;
+}
+
+.project-card button:hover{
+    background:#15803d;
+}
+
+/* ================= Responsive ================= */
+
+@media(max-width:992px){
+
+.main-content{
+    margin-left:0;
+}
+
+.sidebar{
+    position:relative;
+    width:100%;
+    height:auto;
+}
+
+.container{
+    flex-direction:column;
+}
+
+}
+
+@media(max-width:768px){
+
+.main-content{
+    padding:20px;
+}
+
+.search-box{
+    flex-direction:column;
+}
+
+.search-box button{
+    width:100%;
+}
+
+.header h1{
+    font-size:28px;
+}
+
+.projects{
+    grid-template-columns:1fr;
+}
+
+}

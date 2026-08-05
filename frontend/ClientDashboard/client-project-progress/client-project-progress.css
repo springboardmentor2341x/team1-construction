@@ -1,0 +1,463 @@
+/* ==========================
+   RESET
+========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+
+body{
+
+    background:#f4f6f9;
+
+}
+
+
+
+/* ==========================
+   MAIN LAYOUT
+========================== */
+
+
+.container{
+
+    display:flex;
+    min-height:100vh;
+
+}
+
+
+
+/* ==========================
+   SIDEBAR
+========================== */
+
+
+.sidebar{
+
+    width:260px;
+    background:#1e293b;
+    color:white;
+    padding:20px;
+    position:fixed;
+    height:100vh;
+
+}
+
+
+.sidebar h2{
+
+    text-align:center;
+    margin-bottom:30px;
+    font-size:26px;
+
+}
+
+
+.sidebar ul{
+
+    list-style:none;
+
+}
+
+
+.sidebar li{
+
+    padding:15px;
+    margin:8px 0;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.3s;
+
+}
+
+
+.sidebar li:hover,
+.sidebar .active{
+
+    background:#2563eb;
+
+}
+
+
+.sidebar a{
+
+    color:white;
+    text-decoration:none;
+
+}
+
+
+.sidebar i{
+
+    margin-right:10px;
+
+}
+
+
+
+/* ==========================
+   MAIN CONTENT
+========================== */
+
+
+.main{
+
+    margin-left:260px;
+    width:calc(100% - 260px);
+    padding:30px;
+
+}
+
+
+
+/* ==========================
+   HEADER
+========================== */
+
+
+.header{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+
+}
+
+
+.header h1{
+
+    color:#1e293b;
+    font-size:32px;
+
+}
+
+
+.header p{
+
+    color:#666;
+    margin-top:8px;
+
+}
+
+
+
+.back-btn{
+
+    background:#2563eb;
+    color:white;
+    padding:10px 18px;
+    border-radius:8px;
+    text-decoration:none;
+
+}
+
+
+.back-btn:hover{
+
+    background:#1d4ed8;
+
+}
+
+
+
+
+/* ==========================
+   SUMMARY CARD
+========================== */
+
+
+.summary-card{
+
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+    margin-bottom:30px;
+
+}
+
+
+.summary-card h2{
+
+    margin-bottom:20px;
+    color:#1e293b;
+
+}
+
+
+
+.summary-grid{
+
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+
+}
+
+
+
+.summary-item label{
+
+    display:block;
+    margin-bottom:8px;
+    font-weight:bold;
+    color:#555;
+
+}
+
+
+
+.summary-item input{
+
+    width:100%;
+    padding:12px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    background:#f8fafc;
+
+}
+
+
+
+
+/* ==========================
+   PROGRESS BAR
+========================== */
+
+
+.progress-section{
+
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    margin-bottom:30px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+}
+
+
+
+.progress-section h2{
+
+    margin-bottom:15px;
+
+}
+
+
+
+.progress-bar{
+
+    width:100%;
+    height:30px;
+    background:#e5e7eb;
+    border-radius:20px;
+    overflow:hidden;
+
+}
+
+
+
+.progress-fill{
+
+    height:100%;
+    background:#2563eb;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+
+}
+
+
+
+
+
+/* ==========================
+   MILESTONE TABLE
+========================== */
+
+
+.milestone-card{
+
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    margin-bottom:30px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+}
+
+
+.milestone-card h2{
+
+    margin-bottom:20px;
+
+}
+
+
+
+table{
+
+    width:100%;
+    border-collapse:collapse;
+
+}
+
+
+th{
+
+    background:#1e293b;
+    color:white;
+    padding:15px;
+
+}
+
+
+td{
+
+    padding:15px;
+    text-align:center;
+    border-bottom:1px solid #ddd;
+
+}
+
+
+tbody tr:hover{
+
+    background:#eef4ff;
+
+}
+
+
+
+
+
+/* ==========================
+   UPDATES
+========================== */
+
+
+.updates-card{
+
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+}
+
+
+
+.updates-card h2{
+
+    margin-bottom:20px;
+
+}
+
+
+
+.updates-card ul{
+
+    list-style:none;
+
+}
+
+
+
+.updates-card li{
+
+    padding:12px 0;
+    border-bottom:1px solid #eee;
+    color:#444;
+
+}
+
+
+
+.updates-card i{
+
+    color:#16a34a;
+    margin-right:10px;
+
+}
+
+
+
+
+
+/* ==========================
+   RESPONSIVE DESIGN
+========================== */
+
+
+@media(max-width:1100px){
+
+    .summary-grid{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}
+
+
+
+@media(max-width:768px){
+
+
+    .sidebar{
+
+        position:relative;
+        width:100%;
+        height:auto;
+
+    }
+
+
+    .container{
+
+        flex-direction:column;
+
+    }
+
+
+    .main{
+
+        margin-left:0;
+        width:100%;
+        padding:20px;
+
+    }
+
+
+    .header{
+
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+
+    }
+
+
+    .summary-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    table{
+
+        min-width:600px;
+
+    }
+
+
+}

@@ -1,0 +1,388 @@
+/* ==========================
+   RESET
+========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+
+body{
+
+    background:#f4f6f9;
+
+}
+
+
+
+/* ==========================
+   LAYOUT
+========================== */
+
+
+.container{
+
+    display:flex;
+    min-height:100vh;
+
+}
+
+
+
+
+
+/* ==========================
+   SIDEBAR
+========================== */
+
+
+.sidebar{
+
+    width:260px;
+    background:#1e293b;
+    color:white;
+    padding:20px;
+    position:fixed;
+    height:100vh;
+
+}
+
+
+
+.sidebar h2{
+
+    text-align:center;
+    margin-bottom:30px;
+    font-size:26px;
+
+}
+
+
+
+.sidebar ul{
+
+    list-style:none;
+
+}
+
+
+
+.sidebar li{
+
+    padding:15px;
+    margin:8px 0;
+    border-radius:8px;
+    cursor:pointer;
+    transition:.3s;
+
+}
+
+
+
+.sidebar li:hover,
+.sidebar .active{
+
+    background:#2563eb;
+
+}
+
+
+
+.sidebar a{
+
+    color:white;
+    text-decoration:none;
+
+}
+
+
+
+.sidebar i{
+
+    margin-right:10px;
+
+}
+
+
+
+
+
+/* ==========================
+   MAIN CONTENT
+========================== */
+
+
+.main{
+
+    margin-left:260px;
+    width:calc(100% - 260px);
+    padding:30px;
+
+}
+
+
+
+
+
+/* ==========================
+   HEADER
+========================== */
+
+
+header{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+
+}
+
+
+
+header h1{
+
+    color:#1e293b;
+    font-size:32px;
+
+}
+
+
+
+header p{
+
+    color:#666;
+    margin-top:8px;
+
+}
+
+
+
+.back-btn{
+
+    background:#2563eb;
+    color:white;
+    padding:10px 20px;
+    border-radius:8px;
+    text-decoration:none;
+
+}
+
+
+
+.back-btn:hover{
+
+    background:#1d4ed8;
+
+}
+
+
+
+
+
+/* ==========================
+   FORM CARD
+========================== */
+
+
+.form-card{
+
+    background:white;
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+
+}
+
+
+
+
+
+
+/* ==========================
+   FORM GRID
+========================== */
+
+
+.form-grid{
+
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:25px;
+
+}
+
+
+
+.form-group label{
+
+    display:block;
+    margin-bottom:8px;
+    font-weight:bold;
+    color:#374151;
+
+}
+
+
+
+.form-group input,
+.form-group select{
+
+    width:100%;
+    padding:12px;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+    outline:none;
+    font-size:15px;
+
+}
+
+
+
+.form-group input:focus,
+.form-group select:focus{
+
+    border-color:#2563eb;
+    box-shadow:0 0 5px rgba(37,99,235,.3);
+
+}
+
+
+
+
+
+/* ==========================
+   BUTTONS
+========================== */
+
+
+.buttons{
+
+    margin-top:30px;
+    display:flex;
+    gap:15px;
+
+}
+
+
+
+.save-btn,
+.cancel-btn{
+
+    padding:12px 25px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:15px;
+
+}
+
+
+
+.save-btn{
+
+    background:#2563eb;
+    color:white;
+
+}
+
+
+
+.save-btn:hover{
+
+    background:#1d4ed8;
+
+}
+
+
+
+.cancel-btn{
+
+    background:#64748b;
+    color:white;
+
+}
+
+
+
+.cancel-btn:hover{
+
+    background:#475569;
+
+}
+
+
+
+
+
+/* ==========================
+   RESPONSIVE DESIGN
+========================== */
+
+
+@media(max-width:1100px){
+
+
+    .form-grid{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}
+
+
+
+
+
+@media(max-width:768px){
+
+
+    .container{
+
+        flex-direction:column;
+
+    }
+
+
+    .sidebar{
+
+        position:relative;
+        width:100%;
+        height:auto;
+
+    }
+
+
+
+    .main{
+
+        margin-left:0;
+        width:100%;
+        padding:20px;
+
+    }
+
+
+
+    header{
+
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+
+    }
+
+
+
+    .form-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+}

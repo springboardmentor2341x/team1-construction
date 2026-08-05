@@ -70,19 +70,35 @@ def startup_event():
 
 
 def ensure_columns():
-    """Add missing columns to existing tables (lightweight migration)."""
+    """Reconcile placeholder tables (attendance, notifications) with their models.
+
+    The existing tables may have been created with an older, smaller schema that
+    is missing columns the models now reference (e.g. attendance.day_name,
+    notifications.notification_type). Because these are demo/seed tables whose
+    data is re-populated by seed_database(), we drop and recreate them to match
+    the models exactly. This prevents "UndefinedColumn" errors on every startup.
+    """
     from sqlalchemy import text
     db = SessionLocal()
     try:
-        # attendance.user_name was added to the model after the table was created
-        db.execute(text(
-            "ALTER TABLE attendance ADD COLUMN IF NOT EXISTS user_name VARCHAR(100) DEFAULT 'Robert Thorne'"
-        ))
+        # Drop the stale tables so they can be recreated to match the models.
+        db.execute(text("DROP TABLE IF EXISTS attendance"))
+        db.execute(text("DROP TABLE IF EXISTS notifications"))
         db.commit()
+        db.close()
+
+        # Recreate using SQLAlchemy metadata (matches the model definitions).
+        from app.database.session import engine
+        from app.models.placeholders import Attendance, Notification  # noqa: F401
+        Base.metadata.create_all(bind=engine, tables=[Attendance.__table__, Notification.__table__])
+        print("[Migration] Recreated attendance & notifications tables to match models.")
     except Exception as e:
         print(f"[Warning] Column migration notice: {e}")
     finally:
-        db.close()
+        try:
+            db.close()
+        except Exception:
+            pass
 
 
 def seed_database():

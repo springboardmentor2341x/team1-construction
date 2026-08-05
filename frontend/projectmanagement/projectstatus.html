@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Project Status | BuildTrack</title>
+
+<link rel="stylesheet" href="projectstatus.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- Sidebar -->
+
+<aside class="sidebar">
+
+<div class="logo">
+
+<h2>BuildTrack</h2>
+
+<p>Administrator</p>
+
+</div>
+
+<ul>
+
+<li><a href="projectcreation.html"><i class="fa-solid fa-folder-plus"></i>Create Project</a></li>
+
+<li><a href="projectlist.html"><i class="fa-solid fa-list"></i>Project List</a></li>
+
+<li><a href="projectdetails.html"><i class="fa-solid fa-folder-open"></i>Project Details</a></li>
+
+<li><a href="projectupdate.html"><i class="fa-solid fa-pen"></i>Update Project</a></li>
+
+<li><a href="projectschedule.html"><i class="fa-solid fa-calendar-days"></i>Project Schedule</a></li>
+
+<li><a href="milestonemanagement.html"><i class="fa-solid fa-flag-checkered"></i>Milestones</a></li>
+
+<li class="active">
+<a href="projectstatus.html">
+<i class="fa-solid fa-chart-line"></i>
+Project Status
+</a>
+</li>
+
+</ul>
+
+</aside>
+
+<!-- Main Content -->
+
+<main class="main-content">
+
+<div class="header">
+
+<h1>Project Status Tracking</h1>
+
+<p>Track overall project progress and current execution status.</p>
+
+</div>
+
+<!-- Cards -->
+
+<div class="cards">
+
+<div class="card">
+
+<h3>Current Status</h3>
+
+<h2>In Progress</h2>
+
+</div>
+
+<div class="card">
+
+<h3>Completion</h3>
+
+<h2>65%</h2>
+
+</div>
+
+<div class="card">
+
+<h3>Remaining Days</h3>
+
+<h2>142</h2>
+
+</div>
+
+<div class="card">
+
+<h3>Priority</h3>
+
+<h2>High</h2>
+
+</div>
+
+</div>
+
+<!-- Form -->
+
+<div class="form-container">
+
+<form id="statusForm">
+
+<div class="row">
+
+<div class="input-box">
+
+<label>Project Name</label>
+
+<input type="text" placeholder="Apartment Tower">
+
+</div>
+
+<div class="input-box">
+
+<label>Project Status</label>
+
+<select>
+
+<option>Planning</option>
+
+<option selected>In Progress</option>
+
+<option>On Hold</option>
+
+<option>Completed</option>
+
+<option>Closed</option>
+
+</select>
+
+</div>
+
+</div>
+
+<div class="row">
+
+<div class="input-box">
+
+<label>Completion Percentage</label>
+
+<input type="number" min="0" max="100" placeholder="65">
+
+</div>
+
+<div class="input-box">
+
+<label>Last Updated</label>
+
+<input type="date">
+
+</div>
+
+</div>
+
+<div class="input-box">
+
+<label>Status Remarks</label>
+
+<textarea rows="5"
+placeholder="Write current project status..."></textarea>
+
+</div>
+
+<div class="button-group">
+
+<button type="reset" class="reset-btn">
+
+Reset
+
+</button>
+
+<button type="submit" class="save-btn">
+
+Update Status
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+<!-- Status History -->
+
+<div class="table-container">
+
+<h2>Status History</h2>
+
+<table>
+
+<tr>
+
+<th>Date</th>
+
+<th>Status</th>
+
+<th>Progress</th>
+
+<th>Updated By</th>
+
+</tr>
+
+<tr>
+
+<td>01 Aug 2026</td>
+
+<td>Planning</td>
+
+<td>5%</td>
+
+<td>Admin</td>
+
+</tr>
+
+<tr>
+
+<td>18 Aug 2026</td>
+
+<td>In Progress</td>
+
+<td>35%</td>
+
+<td>Project Manager</td>
+
+</tr>
+
+<tr>
+
+<td>10 Sep 2026</td>
+
+<td>In Progress</td>
+
+<td>65%</td>
+
+<td>Site Engineer</td>
+
+</tr>
+
+</table>
+
+</div>
+
+</main>
+
+</div>
+
+<script src="projectstatus.js"></script>
+
+</body>
+
+</html>

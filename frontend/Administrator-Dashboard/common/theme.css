@@ -1,0 +1,111 @@
+/* ==========================
+   DARK THEME
+========================== */
+
+body.dark-theme{
+    background:#121212;
+    color:#ffffff;
+}
+
+/* Sidebar */
+
+body.dark-theme .sidebar{
+    background:#0f172a;
+}
+
+body.dark-theme .sidebar li:hover,
+body.dark-theme .sidebar .active{
+    background:#2563eb;
+}
+
+/* Main */
+
+body.dark-theme .main{
+    background:#1b1b1b;
+}
+
+/* Header */
+
+body.dark-theme header h1{
+    color:#ffffff;
+}
+
+/* Cards */
+
+body.dark-theme .card,
+body.dark-theme .box,
+body.dark-theme .table-container,
+body.dark-theme .settings-card,
+body.dark-theme .summary-card,
+body.dark-theme .stat-box,
+body.dark-theme .recent-notifications,
+body.dark-theme .activities{
+
+    background:#2b2b2b;
+    color:#ffffff;
+
+}
+
+/* Headings */
+
+body.dark-theme h2,
+body.dark-theme h3{
+    color:#ffffff;
+}
+
+/* Paragraph */
+
+body.dark-theme p,
+body.dark-theme label,
+body.dark-theme li{
+    color:#e5e5e5;
+}
+
+/* Tables */
+
+body.dark-theme table{
+    color:white;
+}
+
+body.dark-theme th{
+    background:#2563eb;
+}
+
+body.dark-theme td{
+    border-color:#555;
+}
+
+body.dark-theme tbody tr:hover{
+    background:#3a3a3a;
+}
+
+/* Forms */
+
+body.dark-theme input,
+body.dark-theme select,
+body.dark-theme textarea{
+
+    background:#3a3a3a;
+    color:white;
+    border:1px solid #666;
+
+}
+
+body.dark-theme input::placeholder{
+    color:#cccccc;
+}
+
+/* Buttons */
+
+body.dark-theme button{
+
+    background:#2563eb;
+    color:white;
+
+}
+
+/* Progress Bars */
+
+body.dark-theme .bar{
+    background:#555;
+}

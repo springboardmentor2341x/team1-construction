@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Workforce Management</title>
+
+<link rel="stylesheet" href="workforce-management.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+<link rel="stylesheet" href="../common/theme.css">
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<!-- Sidebar -->
+
+<aside class="sidebar">
+
+<h2>🏗 Admin</h2>
+
+
+<ul>
+
+
+<li>
+
+<i class="fa-solid fa-house"></i>
+
+<a href="../admin dashboard/admin.html">
+Dashboard
+</a>
+
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-users"></i>
+
+<a href="../user-management/user-management.html">
+User Management
+</a>
+
+</li>
+
+
+
+<li>
+    <i class="fa-solid fa-building"></i>
+    <a href="../project-management/project-management.html">Project Management</a>
+</li>
+
+
+
+<li class="active">
+
+<i class="fa-solid fa-user-group"></i>
+
+Workforce Management
+
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-chart-line"></i>
+<a href="../reports/reports.html">
+Reports
+</a>
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-bell"></i>
+<a href="../notifications/notifications.html">
+Notifications
+</a>
+</li>
+
+
+
+
+
+<li>
+
+<i class="fa-solid fa-right-from-bracket"></i>
+<a href="../../login.html">
+Logout
+</a>
+</li>
+
+
+</ul>
+
+
+</aside>
+
+
+
+
+
+<!-- Main -->
+
+
+<main class="main">
+
+
+<header>
+
+<h1>Workforce Management</h1>
+
+<div>
+Welcome Admin 👋
+</div>
+
+</header>
+
+
+
+
+
+
+<section class="top-section">
+
+
+<button class="add-btn">
+
+<i class="fa-solid fa-user-plus"></i>
+<a href="add-worker/add-worker.html">Add Worker</a>
+</button>
+
+
+
+<div class="filters">
+
+
+<input type="text"
+id="searchWorker"
+placeholder="Search worker...">
+
+
+
+<select id="roleFilter">
+
+
+<option value="All">
+All Roles
+</option>
+
+
+<option value="Engineer">
+Engineer
+</option>
+
+
+<option value="Supervisor">
+Supervisor
+</option>
+
+
+<option value="Mason">
+Mason
+</option>
+
+
+<option value="Labour">
+Labour
+</option>
+
+
+</select>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+<section class="table-box">
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+<th>ID</th>
+
+<th>Name</th>
+
+<th>Role</th>
+
+<th>Phone</th>
+
+<th>Assigned Project</th>
+
+<th>Status</th>
+
+<th>Action</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody id="workerTable">
+
+
+<tr>
+
+
+<td>1</td>
+
+<td>Ramesh Kumar</td>
+
+<td>Engineer</td>
+
+<td>9876543210</td>
+
+<td>Metro Construction</td>
+
+<td>
+
+<span class="working">
+Working
+</span>
+
+</td>
+
+
+<td>
+
+<button class="assign">
+Assign
+</button>
+
+<button class="edit">
+Edit
+</button>
+
+<button class="delete">
+Delete
+</button>
+
+</td>
+
+
+</tr>
+
+
+
+
+
+<tr>
+
+
+<td>2</td>
+
+<td>Suresh Rao</td>
+
+<td>Mason</td>
+
+<td>9876541230</td>
+
+<td>Residential Building</td>
+
+<td>
+
+<span class="working">
+Working
+</span>
+
+</td>
+
+
+<td>
+
+<button class="assign">
+Assign
+</button>
+
+
+<button class="edit">
+Edit
+</button>
+
+
+<button class="delete">
+Delete
+</button>
+
+
+</td>
+
+
+</tr>
+
+
+
+
+
+
+<tr>
+
+
+<td>3</td>
+
+<td>Vijay Singh</td>
+
+<td>Labour</td>
+
+<td>9876509876</td>
+
+<td>Not Assigned</td>
+
+<td>
+
+<span class="available">
+Available
+</span>
+
+</td>
+
+
+<td>
+
+
+<button class="assign">
+Assign
+</button>
+
+
+<button class="edit">
+Edit
+</button>
+
+
+<button class="delete">
+Delete
+</button>
+
+
+</td>
+
+
+</tr>
+
+
+</tbody>
+
+
+</table>
+
+
+</section>
+
+
+
+</main>
+
+
+</div>
+
+
+<script src="workforce-management.js"></script>
+
+<script src="../common/theme.js"></script>
+</body>
+
+</html>

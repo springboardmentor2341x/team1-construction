@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Profile</title>
+
+    <link rel="stylesheet" href="profile.css">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <h2>🏗 Client</h2>
+
+        <ul>
+
+            <li>
+                <i class="fa-solid fa-house"></i>
+                <a href="../client-dashboard/client-dashboard.html">Dashboard</a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-chart-line"></i>
+                <a href="../client-project-progress/client-project-progress.html">
+    Project Progress
+</a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-flag-checkered"></i>
+                <a href="../milestones/milestones.html">Milestones</a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-file-lines"></i>
+                <a href="../reports/reports.html">
+                Reports</a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-folder-open"></i>
+                <a href="../documents/documents.html">
+                Documents</a>
+            </li>
+
+            <li>
+                <i class="fa-solid fa-bell"></i>
+                <a href="../notifications/notifications.html">
+                Notifications</a>
+            </li>
+
+            <li class="active">
+                <i class="fa-solid fa-user"></i>
+                Profile
+            </li>
+
+            <li onclick="logout()">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <a href="../../login.html">
+                Logout</a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main Content -->
+
+    <main class="main">
+
+        <header>
+
+            <h1>Client Profile</h1>
+
+            <div class="profile">
+                Welcome, Client 👋
+            </div>
+
+        </header>
+
+        <!-- Profile Card -->
+
+        <section class="profile-card">
+
+            <div class="profile-image">
+
+                <i class="fa-solid fa-circle-user"></i>
+
+            </div>
+
+            <div class="profile-details">
+
+                <h2>John Anderson</h2>
+
+                <p><strong>Client ID:</strong> CL001</p>
+
+                <p><strong>Email:</strong> john.anderson@email.com</p>
+
+                <p><strong>Phone:</strong> +91 9876543210</p>
+
+                <p><strong>Company:</strong> ABC Constructions Pvt Ltd</p>
+
+                <p><strong>Address:</strong> Hyderabad, Telangana</p>
+
+                <p><strong>Project Assigned:</strong> Commercial Building Project</p>
+
+                <p><strong>Account Status:</strong> Active</p>
+
+            </div>
+
+        </section>
+
+        <!-- Project Information -->
+
+        <section class="project-info">
+
+            <h2>Project Information</h2>
+
+            <table>
+
+                <tr>
+                    <th>Project Name</th>
+                    <td>Commercial Building Project</td>
+                </tr>
+
+                <tr>
+                    <th>Project Manager</th>
+                    <td>Rahul Sharma</td>
+                </tr>
+
+                <tr>
+                    <th>Start Date</th>
+                    <td>01-Jan-2026</td>
+                </tr>
+
+                <tr>
+                    <th>Expected Completion</th>
+                    <td>30-Oct-2026</td>
+                </tr>
+
+                <tr>
+                    <th>Current Progress</th>
+                    <td>80%</td>
+                </tr>
+
+                <tr>
+                    <th>Status</th>
+                    <td>Ongoing</td>
+                </tr>
+
+            </table>
+
+        </section>
+
+        <!-- Contact Information -->
+
+        <section class="contact-box">
+
+            <h2>Support Contact</h2>
+
+            <p><strong>Email:</strong> support@construction.com</p>
+
+            <p><strong>Phone:</strong> +91 9000011111</p>
+
+            <p><strong>Working Hours:</strong> Monday - Saturday (9:00 AM - 6:00 PM)</p>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="profile.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Procurement Management</title>
+
+<link rel="stylesheet" href="procurement.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<link rel="stylesheet" href="../common/theme.css">
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<!-- Sidebar -->
+
+<aside class="sidebar">
+
+
+<h2>🏗 Admin</h2>
+
+
+<ul>
+
+
+<li>
+
+<i class="fa-solid fa-house"></i>
+
+<a href="../admin dashboard/admin.html">
+Dashboard
+</a>
+
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-users"></i>
+
+<a href="../user-management/user-management.html">
+User Management
+</a>
+
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-building"></i>
+
+<a href="../project-management/project-management.html">
+Project Management
+</a>
+
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-truck"></i>
+
+<a href="../resource-management/resource-management.html">
+Resource Management
+</a>
+
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-box"></i>
+
+<a href="../material-inventory/material-inventory.html">
+Material & Inventory
+</a>
+
+</li>
+
+
+
+<li class="active">
+
+<i class="fa-solid fa-cart-shopping"></i>
+
+Procurement
+
+</li>
+
+
+
+
+<li>
+
+<i class="fa-solid fa-chart-line"></i>
+<a href="../reports/reports.html">
+Reports
+</a>
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-bell"></i>
+<a href="../notifications/notifications.html">
+Notifications
+</a>
+</li>
+
+
+<li>
+
+<i class="fa-solid fa-right-from-bracket"></i>
+<a href="../../login.html">
+Logout
+
+</li>
+
+
+
+</ul>
+
+
+</aside>
+
+
+
+
+
+
+<!-- Main Content -->
+
+
+<main class="main">
+
+
+<header>
+
+<h1>Procurement Management</h1>
+
+<div>
+Welcome Admin 👋
+</div>
+
+</header>
+
+
+
+
+
+
+
+<section class="top-section">
+
+
+<button class="add-btn">
+
+<i class="fa-solid fa-plus"></i>
+
+Create Request
+
+</button>
+
+
+
+<div class="filters">
+
+
+<input type="text"
+id="searchRequest"
+placeholder="Search material...">
+
+
+
+<select id="statusFilter">
+
+
+<option value="All">
+All Status
+</option>
+
+
+<option value="Pending">
+Pending
+</option>
+
+
+<option value="Approved">
+Approved
+</option>
+
+
+<option value="Rejected">
+Rejected
+</option>
+
+
+</select>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+<section class="table-box">
+
+
+<table>
+
+
+<thead>
+
+
+<tr>
+
+<th>ID</th>
+
+<th>Material</th>
+
+<th>Requested By</th>
+
+<th>Quantity</th>
+
+<th>Date</th>
+
+<th>Status</th>
+
+<th>Action</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+
+<tbody id="requestTable">
+
+
+
+<tr>
+
+<td>1</td>
+
+<td>Cement Bags</td>
+
+<td>Site Engineer</td>
+
+<td>500</td>
+
+<td>28-07-2026</td>
+
+<td>
+
+<span class="pending">
+Pending
+</span>
+
+</td>
+
+
+<td>
+
+
+<button class="approve">
+Approve
+</button>
+
+
+<button class="reject">
+Reject
+</button>
+
+
+<button class="delete">
+Delete
+</button>
+
+
+</td>
+
+
+</tr>
+
+
+
+
+
+<tr>
+
+<td>2</td>
+
+<td>Steel Rods</td>
+
+<td>Project Manager</td>
+
+<td>200</td>
+
+<td>25-07-2026</td>
+
+<td>
+
+<span class="approved">
+Approved
+</span>
+
+</td>
+
+
+<td>
+
+
+<button class="approve">
+Approve
+</button>
+
+
+<button class="reject">
+Reject
+</button>
+
+
+<button class="delete">
+Delete
+</button>
+
+
+</td>
+
+
+</tr>
+
+
+
+
+
+<tr>
+
+<td>3</td>
+
+<td>Safety Equipment</td>
+
+<td>Site Engineer</td>
+
+<td>100</td>
+
+<td>20-07-2026</td>
+
+<td>
+
+<span class="rejected">
+Rejected
+</span>
+
+</td>
+
+
+<td>
+
+
+<button class="approve">
+Approve
+</button>
+
+
+<button class="reject">
+Reject
+</button>
+
+
+<button class="delete">
+Delete
+</button>
+
+
+</td>
+
+
+</tr>
+
+
+
+</tbody>
+
+
+</table>
+
+
+</section>
+
+
+
+</main>
+
+
+</div>
+
+
+
+<script src="procurement.js"></script>
+
+<script src="../common/theme.js"></script>
+</body>
+
+</html>

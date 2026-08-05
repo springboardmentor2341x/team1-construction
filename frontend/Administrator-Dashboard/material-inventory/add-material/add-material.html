@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Add Material</title>
+
+<link rel="stylesheet" href="add-material.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<!-- Sidebar -->
+
+<aside class="sidebar">
+
+
+<h2>⚙ Admin</h2>
+
+
+<ul>
+
+
+<li>
+
+<i class="fa-solid fa-house"></i>
+
+<a href="../../admin-dashboard/admin-dashboard.html">
+Dashboard
+</a>
+
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-users"></i>
+
+<a href="../../user-management/user-management.html">
+User Management
+</a>
+
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-people-group"></i>
+
+<a href="../../workforce-management/workforce-management.html">
+Workforce Management
+</a>
+
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-box"></i>
+
+<a href="../../resource-management/resource-management.html">
+Resource Management
+</a>
+
+</li>
+
+
+
+
+<li class="active">
+
+<i class="fa-solid fa-cubes"></i>
+
+Material Inventory
+
+</li>
+
+
+
+
+<li>
+
+<i class="fa-solid fa-chart-line"></i>
+
+Reports
+
+</li>
+
+
+
+<li>
+
+<i class="fa-solid fa-bell"></i>
+
+Notifications
+
+</li>
+
+
+
+
+<li>
+
+<i class="fa-solid fa-user"></i>
+
+Profile
+
+</li>
+
+
+
+
+<li onclick="logout()">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+Logout
+
+</li>
+
+
+</ul>
+
+
+</aside>
+
+
+
+
+
+
+
+<!-- Main Content -->
+
+
+<main class="main">
+
+
+
+<header>
+
+
+<div>
+
+<h1>
+Add New Material
+</h1>
+
+
+<p>
+Add construction material details to inventory
+</p>
+
+
+</div>
+
+
+
+
+<a href="../material-inventory.html"
+class="back-btn">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Back
+
+</a>
+
+
+
+</header>
+
+
+
+
+
+
+
+<!-- Material Form -->
+
+
+<section class="form-card">
+
+
+<form id="materialForm">
+
+
+
+<div class="form-grid">
+
+
+
+
+
+<div class="form-group">
+
+<label>
+Material ID
+</label>
+
+
+<input type="text"
+id="materialId"
+placeholder="Enter material ID">
+
+
+</div>
+
+
+
+
+
+
+
+<div class="form-group">
+
+<label>
+Material Name
+</label>
+
+
+<input type="text"
+id="materialName"
+placeholder="Enter material name">
+
+
+</div>
+
+
+
+
+
+
+
+<div class="form-group">
+
+<label>
+Category
+</label>
+
+
+<select id="category">
+
+
+<option value="">
+Select Category
+</option>
+
+
+<option>
+Cement
+</option>
+
+
+<option>
+Steel
+</option>
+
+
+<option>
+Bricks
+</option>
+
+
+<option>
+Sand
+</option>
+
+
+<option>
+Wood
+</option>
+
+
+<option>
+Tiles
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="form-group">
+
+<label>
+Quantity
+</label>
+
+
+<input type="number"
+id="quantity"
+placeholder="Enter quantity">
+
+
+</div>
+
+
+
+
+
+
+
+<div class="form-group">
+
+<label>
+Unit
+</label>
+
+
+<select id="unit">
+
+
+<option>
+Kg
+</option>
+
+
+<option>
+Ton
+</option>
+
+
+<option>
+Pieces
+</option>
+
+
+<option>
+Bags
+</option>
+
+
+<option>
+Cubic Meter
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="form-group">
+
+<label>
+Supplier Name
+</label>
+
+
+<input type="text"
+id="supplier"
+placeholder="Enter supplier name">
+
+
+</div>
+
+
+
+
+
+
+
+<div class="form-group">
+
+<label>
+Purchase Date
+</label>
+
+
+<input type="date"
+id="purchaseDate">
+
+
+</div>
+
+
+
+
+
+
+
+<div class="form-group">
+
+<label>
+Cost
+</label>
+
+
+<input type="number"
+id="cost"
+placeholder="Enter cost">
+
+
+</div>
+
+
+
+
+
+
+
+<div class="form-group">
+
+<label>
+Stock Status
+</label>
+
+
+<select id="stockStatus">
+
+
+<option>
+Available
+</option>
+
+
+<option>
+Low Stock
+</option>
+
+
+<option>
+Out of Stock
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div class="buttons">
+
+
+
+<button type="submit"
+class="save-btn">
+
+
+<i class="fa-solid fa-plus"></i>
+
+Add Material
+
+
+</button>
+
+
+
+
+
+<button type="reset"
+class="cancel-btn">
+
+Cancel
+
+</button>
+
+
+
+</div>
+
+
+
+
+</form>
+
+
+</section>
+
+
+
+
+</main>
+
+
+
+</div>
+
+
+
+
+<script src="add-material.js"></script>
+
+
+</body>
+
+</html>
