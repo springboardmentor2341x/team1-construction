@@ -1,5 +1,6 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
+from app.schemas.auth import validate_password_strength
 
 class UserCreate(BaseModel):
     fullName: str
@@ -12,6 +13,8 @@ class UserCreate(BaseModel):
     designation: Optional[str] = None
     address: Optional[str] = None
     profilePicture: Optional[str] = None
+
+    _validate_password = field_validator("password")(validate_password_strength)
 
 class UserUpdate(BaseModel):
     fullName: Optional[str] = None

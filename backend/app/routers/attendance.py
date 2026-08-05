@@ -2,6 +2,9 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.dependencies.database import get_db
+from app.dependencies.auth import get_current_user
+from app.dependencies.rbac import RequireRole
+from app.models.user import User
 from app.models.placeholders import Attendance
 from pydantic import BaseModel
 
@@ -35,7 +38,10 @@ class AttendanceCreate(BaseModel):
 
 
 @router.get("", response_model=List[AttendanceRead])
-def get_attendance(db: Session = Depends(get_db)):
+def get_attendance(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     records = db.query(Attendance).order_by(Attendance.date.desc()).all()
     return [
         AttendanceRead(
@@ -53,10 +59,14 @@ def get_attendance(db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=AttendanceRead, status_code=status.HTTP_201_CREATED)
-def create_attendance(req: AttendanceCreate, db: Session = Depends(get_db)):
+def create_attendance(
+    req: AttendanceCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     new_rec = Attendance(
-        user_id="",  # linked to current user in a full auth flow
-        user_name="Robert Thorne",
+        user_id=current_user.id,
+        user_name=current_user.full_name,
         date=req.date,
         day_name=req.dayName,
         shift_type=req.shiftType or "Morning",

@@ -1,11 +1,38 @@
 from pydantic import BaseModel
 from typing import Optional, List
 
+
 class PersonnelRead(BaseModel):
     id: str
     name: str
     role: str
     avatar: Optional[str] = None
+
+
+class AssignmentRequest(BaseModel):
+    userId: str
+
+
+class AssignmentRead(BaseModel):
+    projectId: str
+    projectName: str
+    engineers: List[PersonnelRead] = []
+    contractors: List[PersonnelRead] = []
+    clients: List[PersonnelRead] = []
+
+
+class AuditLogRead(BaseModel):
+    id: str
+    action: str
+    performedByName: Optional[str] = None
+    description: Optional[str] = None
+    timestamp: Optional[str] = None
+
+
+class ProjectCloseRequest(BaseModel):
+    # Optional reason/reference for the closure.
+    reason: Optional[str] = None
+
 
 class ProjectCreate(BaseModel):
     projectName: str
@@ -23,6 +50,7 @@ class ProjectCreate(BaseModel):
     projectManagerId: Optional[str] = None
     projectManagerName: Optional[str] = None
 
+
 class ProjectUpdate(BaseModel):
     projectName: Optional[str] = None
     category: Optional[str] = None
@@ -37,6 +65,7 @@ class ProjectUpdate(BaseModel):
     status: Optional[str] = None
     projectManagerId: Optional[str] = None
     projectManagerName: Optional[str] = None
+
 
 class ProjectRead(BaseModel):
     id: str
@@ -56,6 +85,7 @@ class ProjectRead(BaseModel):
     projectManagerName: Optional[str] = None
     assignedEngineers: List[PersonnelRead] = []
     assignedContractors: List[PersonnelRead] = []
+    assignedClients: List[PersonnelRead] = []
 
     class Config:
         from_attributes = True

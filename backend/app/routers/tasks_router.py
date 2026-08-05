@@ -2,6 +2,9 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies.database import get_db
+from app.dependencies.auth import get_current_user
+from app.dependencies.rbac import RequireRole
+from app.models.user import User
 from app.models.task import TaskModel
 from app.models.document import DocumentModel
 from pydantic import BaseModel
@@ -50,7 +53,10 @@ class DocumentRead(BaseModel):
         from_attributes = True
 
 @tasks_router.get("", response_model=List[TaskRead])
-def get_tasks(db: Session = Depends(get_db)):
+def get_tasks(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     tasks = db.query(TaskModel).order_by(TaskModel.created_at.desc()).all()
     return [
         TaskRead(
@@ -67,7 +73,11 @@ def get_tasks(db: Session = Depends(get_db)):
     ]
 
 @tasks_router.post("", response_model=TaskRead, status_code=status.HTTP_201_CREATED)
-def create_task(req: TaskCreate, db: Session = Depends(get_db)):
+def create_task(
+    req: TaskCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer", "Contractor"]))
+):
     new_task = TaskModel(
         title=req.title,
         description=req.description,
@@ -94,12 +104,19 @@ def create_task(req: TaskCreate, db: Session = Depends(get_db)):
     )
 
 @tasks_router.patch("/{task_id}", response_model=TaskRead)
-def update_task_status(task_id: str, req: TaskUpdate, db: Session = Depends(get_db)):
+def update_task_status(
+    task_id: str,
+    req: TaskUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     task = db.query(TaskModel).filter(TaskModel.id == task_id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     if req.status is not None:
         task.status = req.status
+    if req.progress is not None:
+        task.progress = req.progress
     db.commit()
     db.refresh(task)
     return TaskRead(
@@ -115,7 +132,10 @@ def update_task_status(task_id: str, req: TaskUpdate, db: Session = Depends(get_
     )
 
 @documents_router.get("", response_model=List[DocumentRead])
-def get_documents(db: Session = Depends(get_db)):
+def get_documents(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     docs = db.query(DocumentModel).order_by(DocumentModel.created_at.desc()).all()
     return [
         DocumentRead(

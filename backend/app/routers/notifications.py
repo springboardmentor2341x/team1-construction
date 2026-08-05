@@ -2,6 +2,9 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies.database import get_db
+from app.dependencies.auth import get_current_user
+from app.dependencies.rbac import RequireRole
+from app.models.user import User
 from app.models.placeholders import Notification
 from pydantic import BaseModel
 
@@ -34,7 +37,10 @@ class NotificationUpdate(BaseModel):
 
 
 @router.get("", response_model=List[NotificationRead])
-def get_notifications(db: Session = Depends(get_db)):
+def get_notifications(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     notifs = db.query(Notification).order_by(Notification.created_at.desc()).all()
     return [
         NotificationRead(
@@ -50,7 +56,11 @@ def get_notifications(db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=NotificationRead, status_code=status.HTTP_201_CREATED)
-def create_notification(req: NotificationCreate, db: Session = Depends(get_db)):
+def create_notification(
+    req: NotificationCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager"]))
+):
     new_n = Notification(
         title=req.title,
         message=req.message,
@@ -74,7 +84,11 @@ def create_notification(req: NotificationCreate, db: Session = Depends(get_db)):
 
 
 @router.patch("/{notification_id}/read", response_model=NotificationRead)
-def mark_notification_read(notification_id: str, db: Session = Depends(get_db)):
+def mark_notification_read(
+    notification_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     n = db.query(Notification).filter(Notification.id == notification_id).first()
     if not n:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
@@ -93,7 +107,10 @@ def mark_notification_read(notification_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/read-all", response_model=List[NotificationRead])
-def mark_all_notifications_read(db: Session = Depends(get_db)):
+def mark_all_notifications_read(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     notifs = db.query(Notification).all()
     for n in notifs:
         n.is_read = True
@@ -112,7 +129,10 @@ def mark_all_notifications_read(db: Session = Depends(get_db)):
 
 
 @router.delete("", status_code=status.HTTP_204_NO_CONTENT)
-def clear_all_notifications(db: Session = Depends(get_db)):
+def clear_all_notifications(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager"]))
+):
     notifs = db.query(Notification).all()
     for n in notifs:
         db.delete(n)

@@ -90,10 +90,16 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./features/projects/project-schedule/project-schedule.component').then(m => m.ProjectScheduleComponent)
   },
-  {
+{
     path: 'projects/milestones',
     canActivate: [authGuard],
     loadComponent: () => import('./features/projects/milestone-management/milestone-management.component').then(m => m.MilestoneManagementComponent)
+  },
+  {
+    path: 'projects/assignments',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER] },
+    loadComponent: () => import('./features/projects/project-assignments/project-assignments.component').then(m => m.ProjectAssignmentsComponent)
   },
   {
     path: 'projects/:id',

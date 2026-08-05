@@ -2,6 +2,9 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies.database import get_db
+from app.dependencies.auth import get_current_user
+from app.dependencies.rbac import RequireRole
+from app.models.user import User
 from app.models.shift import ShiftModel
 from pydantic import BaseModel
 
@@ -60,13 +63,20 @@ def _to_read(s: ShiftModel) -> ShiftRead:
 
 
 @router.get("", response_model=List[ShiftRead])
-def get_shifts(db: Session = Depends(get_db)):
+def get_shifts(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     shifts = db.query(ShiftModel).order_by(ShiftModel.date).all()
     return [_to_read(s) for s in shifts]
 
 
 @router.post("", response_model=ShiftRead, status_code=status.HTTP_201_CREATED)
-def create_shift(req: ShiftCreate, db: Session = Depends(get_db)):
+def create_shift(
+    req: ShiftCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
+):
     new_s = ShiftModel(
         worker_name=req.workerName,
         date=req.date,
@@ -84,7 +94,12 @@ def create_shift(req: ShiftCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/{shift_id}", response_model=ShiftRead)
-def update_shift(shift_id: str, updates: ShiftUpdate, db: Session = Depends(get_db)):
+def update_shift(
+    shift_id: str,
+    updates: ShiftUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
+):
     s = db.query(ShiftModel).filter(ShiftModel.id == shift_id).first()
     if not s:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shift not found")
@@ -102,7 +117,11 @@ def update_shift(shift_id: str, updates: ShiftUpdate, db: Session = Depends(get_
 
 
 @router.delete("/{shift_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_shift(shift_id: str, db: Session = Depends(get_db)):
+def delete_shift(
+    shift_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
+):
     s = db.query(ShiftModel).filter(ShiftModel.id == shift_id).first()
     if not s:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shift not found")

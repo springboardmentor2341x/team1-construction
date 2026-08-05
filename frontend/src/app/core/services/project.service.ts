@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { Project } from '../models/project.model';
+import { Project, ProjectAssignment, AuditLog } from '../models/project.model';
 
 @Injectable({
   providedIn: 'root'
@@ -46,5 +46,42 @@ export class ProjectService {
       map(() => true),
       catchError(() => of(false))
     );
+  }
+
+  // ==== Project personnel assignments ====
+
+  getProjectAssignments(): Observable<ProjectAssignment[]> {
+    return this.http.get<ProjectAssignment[]>(`${this.apiUrl}/assignments`);
+  }
+
+  assignEngineer(projectId: string, userId: string): Observable<Project> {
+    return this.http.post<Project>(`${this.apiUrl}/${projectId}/assign-engineer`, { userId });
+  }
+
+  assignContractor(projectId: string, userId: string): Observable<Project> {
+    return this.http.post<Project>(`${this.apiUrl}/${projectId}/assign-contractor`, { userId });
+  }
+
+  assignClient(projectId: string, userId: string): Observable<Project> {
+    return this.http.post<Project>(`${this.apiUrl}/${projectId}/assign-client`, { userId });
+  }
+
+  unassignPersonnel(projectId: string, userId: string, kind: 'engineer' | 'contractor' | 'client'): Observable<Project> {
+    let params = new HttpParams()
+      .set('userId', userId)
+      .set('kind', kind);
+    return this.http.delete<Project>(`${this.apiUrl}/${projectId}/unassign`, { params });
+  }
+
+  // ==== Project closure ====
+
+  closeProject(projectId: string, reason?: string): Observable<Project> {
+    return this.http.post<Project>(`${this.apiUrl}/${projectId}/close`, { reason });
+  }
+
+  // ==== Project audit history ====
+
+  getProjectAudit(projectId: string): Observable<AuditLog[]> {
+    return this.http.get<AuditLog[]>(`${this.apiUrl}/${projectId}/audit`);
   }
 }

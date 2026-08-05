@@ -4,6 +4,7 @@ from sqlalchemy import String, Text, Float, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.session import Base
 
+
 class Project(Base):
     __tablename__ = "projects"
 
@@ -28,3 +29,7 @@ class Project(Base):
     project_manager = relationship("User", foreign_keys=[project_manager_id], back_populates="managed_projects")
     schedules = relationship("ProjectSchedule", back_populates="project", cascade="all, delete-orphan")
     milestones = relationship("ProjectMilestone", back_populates="project", cascade="all, delete-orphan")
+    site_engineers = relationship("ProjectSiteEngineer", back_populates="project", cascade="all, delete-orphan")
+    contractors = relationship("ProjectContractor", back_populates="project", cascade="all, delete-orphan")
+    clients = relationship("ProjectClient", back_populates="project", cascade="all, delete-orphan")
+    audit_logs = relationship("ProjectAuditLog", back_populates="project", cascade="all, delete-orphan")

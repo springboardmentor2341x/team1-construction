@@ -28,7 +28,7 @@ def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
 @router.post("/reset-password", response_model=MessageResponse)
 def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
     auth_service = AuthService(db)
-    return auth_service.reset_password(req.password)
+    return auth_service.reset_password(req.token, req.password)
 
 @router.get("/me", response_model=UserRead)
 def get_current_user_profile(current_user: User = Depends(get_current_user)):

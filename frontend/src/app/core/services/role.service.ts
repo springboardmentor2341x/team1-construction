@@ -15,20 +15,22 @@ export class RoleService {
 
   getNavItemsForRole(role: UserRole | null): NavItem[] {
     switch (role) {
-      case UserRole.ADMINISTRATOR:
+case UserRole.ADMINISTRATOR:
         return [
           { label: 'Executive Dashboard', icon: 'bi-grid-1x2-fill', route: '/dashboard/admin' },
           { label: 'Project Directory', icon: 'bi-building-gear', route: '/projects' },
           { label: 'Create New Project', icon: 'bi-plus-circle-fill', route: '/projects/create' },
-          { label: 'User Management', icon: 'bi-people-fill', route: '/users' },
+          { label: 'Project Assignments', icon: 'bi-people-fill', route: '/projects/assignments' },
+          { label: 'User Management', icon: 'bi-person-badge', route: '/users' },
           { label: 'System Settings', icon: 'bi-gear-wide-connected', route: '/settings' },
-          { label: 'My Profile', icon: 'bi-person-badge', route: '/profile' }
+          { label: 'My Profile', icon: 'bi-person-circle', route: '/profile' }
         ];
 
       case UserRole.PROJECT_MANAGER:
         return [
           { label: 'Manager Dashboard', icon: 'bi-speedometer2', route: '/dashboard/project-manager' },
           { label: 'My Managed Projects', icon: 'bi-kanban-fill', route: '/projects' },
+          { label: 'Project Assignments', icon: 'bi-people-fill', route: '/projects/assignments' },
           { label: 'Project Schedules', icon: 'bi-calendar3-range', route: '/projects/schedules' },
           { label: 'Milestone Tracker', icon: 'bi-flag-fill', route: '/projects/milestones' },
           { label: 'Analytics & Reports', icon: 'bi-bar-chart-line-fill', route: '/reports' },

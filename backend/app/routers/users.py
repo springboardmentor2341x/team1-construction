@@ -11,12 +11,20 @@ from app.services.user_service import UserService
 router = APIRouter(prefix="/users", tags=["Users"])
 
 @router.get("", response_model=List[UserRead])
-def get_users(role: Optional[str] = None, db: Session = Depends(get_db)):
+def get_users(
+    role: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer", "Contractor"]))
+):
     user_service = UserService(db)
     return user_service.get_users(role)
 
 @router.get("/{user_id}", response_model=UserRead)
-def get_user_by_id(user_id: str, db: Session = Depends(get_db)):
+def get_user_by_id(
+    user_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     user_service = UserService(db)
     user = user_service.user_repo.get_by_id(user_id)
     if not user:

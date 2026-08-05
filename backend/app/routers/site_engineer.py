@@ -2,6 +2,9 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.dependencies.database import get_db
+from app.dependencies.auth import get_current_user
+from app.dependencies.rbac import RequireRole
+from app.models.user import User
 from app.models.activity_log import ActivityLogModel
 from app.models.equipment import EquipmentModel
 from pydantic import BaseModel
@@ -48,7 +51,10 @@ class EquipmentRead(BaseModel):
         from_attributes = True
 
 @router.get("/activity-logs", response_model=List[ActivityLogRead])
-def get_activity_logs(db: Session = Depends(get_db)):
+def get_activity_logs(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     logs = db.query(ActivityLogModel).order_by(ActivityLogModel.date.desc()).all()
     return [
         ActivityLogRead(
@@ -66,7 +72,11 @@ def get_activity_logs(db: Session = Depends(get_db)):
     ]
 
 @router.post("/activity-logs", response_model=ActivityLogRead, status_code=status.HTTP_201_CREATED)
-def create_activity_log(req: ActivityLogCreate, db: Session = Depends(get_db)):
+def create_activity_log(
+    req: ActivityLogCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(RequireRole(["Site Engineer", "Administrator", "Project Manager"]))
+):
     new_log = ActivityLogModel(
         date=req.date,
         location=req.location,
@@ -75,7 +85,7 @@ def create_activity_log(req: ActivityLogCreate, db: Session = Depends(get_db)):
         weather_condition=req.weatherCondition or "Sunny",
         workers_present=req.workersPresent or 0,
         issues=req.issues,
-        submitted_by="David Miller",
+        submitted_by=current_user.full_name,
         status="Pending"
     )
     db.add(new_log)
@@ -95,7 +105,10 @@ def create_activity_log(req: ActivityLogCreate, db: Session = Depends(get_db)):
     )
 
 @router.get("/equipment", response_model=List[EquipmentRead])
-def get_equipment(db: Session = Depends(get_db)):
+def get_equipment(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     equipment_list = db.query(EquipmentModel).all()
     return [
         EquipmentRead(

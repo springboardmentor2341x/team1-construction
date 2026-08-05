@@ -12,10 +12,6 @@ def get_current_user(
     db: Session = Depends(get_db)
 ) -> User:
     if not token:
-        # Fallback for dev demo
-        user = db.query(User).first()
-        if user:
-            return user
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication token required"

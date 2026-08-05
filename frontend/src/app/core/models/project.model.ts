@@ -22,9 +22,26 @@ export interface Project {
   expectedCompletionDate: string;
   priority: ProjectPriority;
   status: ProjectStatus;
-  projectManagerId: string;
+projectManagerId: string;
   projectManagerName: string;
   assignedEngineers?: ProjectPersonnel[];
   assignedContractors?: ProjectPersonnel[];
+  assignedClients?: ProjectPersonnel[];
   createdAt?: string;
+}
+
+export interface ProjectAssignment {
+  projectId: string;
+  projectName: string;
+  engineers: ProjectPersonnel[];
+  contractors: ProjectPersonnel[];
+  clients: ProjectPersonnel[];
+}
+
+export interface AuditLog {
+  id: string;
+  action: string;
+  performedByName?: string;
+  description?: string;
+  timestamp?: string;
 }
