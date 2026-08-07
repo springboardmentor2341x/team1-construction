@@ -1,5 +1,14 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List
+
+# Standard project categories defined by the platform specification.
+PROJECT_CATEGORIES = [
+    "Residential",
+    "Commercial",
+    "Industrial",
+    "Infrastructure",
+    "Government",
+]
 
 
 class PersonnelRead(BaseModel):
@@ -50,6 +59,13 @@ class ProjectCreate(BaseModel):
     projectManagerId: Optional[str] = None
     projectManagerName: Optional[str] = None
 
+    @field_validator("category")
+    @classmethod
+    def _validate_category(cls, v: str) -> str:
+        if v not in PROJECT_CATEGORIES:
+            raise ValueError(f"category must be one of {PROJECT_CATEGORIES}")
+        return v
+
 
 class ProjectUpdate(BaseModel):
     projectName: Optional[str] = None
@@ -65,6 +81,13 @@ class ProjectUpdate(BaseModel):
     status: Optional[str] = None
     projectManagerId: Optional[str] = None
     projectManagerName: Optional[str] = None
+
+    @field_validator("category")
+    @classmethod
+    def _validate_category(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and v not in PROJECT_CATEGORIES:
+            raise ValueError(f"category must be one of {PROJECT_CATEGORIES}")
+        return v
 
 
 class ProjectRead(BaseModel):

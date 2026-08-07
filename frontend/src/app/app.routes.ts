@@ -129,6 +129,50 @@ export const routes: Routes = [
     loadComponent: () => import('./features/project-manager/analytics-reports/analytics-reports.component').then(m => m.AnalyticsReportsComponent)
   },
 
+  // === MODULE 3 : SITE PROGRESS MONITORING ===
+  // Daily Progress Reports (Site Engineer)
+  {
+    path: 'daily-progress-reports',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.SITE_ENGINEER, UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.CLIENT] },
+    loadComponent: () => import('./features/site-engineer/daily-progress-reports/daily-progress-reports.component').then(m => m.DailyProgressReportsComponent)
+  },
+  // Weekly Progress Reports (PM / Admin)
+  {
+    path: 'weekly-progress-reports',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.PROJECT_MANAGER, UserRole.ADMINISTRATOR] },
+    loadComponent: () => import('./features/project-manager/weekly-progress-reports/weekly-progress-reports.component').then(m => m.WeeklyProgressReportsComponent)
+  },
+  // Milestone Tracking (all authenticated stakeholders)
+  {
+    path: 'milestone-tracking',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CLIENT] },
+    loadComponent: () => import('./features/projects/milestone-tracking/milestone-tracking.component').then(m => m.MilestoneTrackingComponent)
+  },
+  // Delay Tracking (PM / Admin / Site Engineer)
+  {
+    path: 'delay-tracking',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER] },
+    loadComponent: () => import('./features/project-manager/delay-tracking/delay-tracking.component').then(m => m.DelayTrackingComponent)
+  },
+  // Site Activity Logs (Site Engineer / Admin / PM)
+  {
+    path: 'site-activity-logs',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.SITE_ENGINEER, UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER] },
+    loadComponent: () => import('./features/site-engineer/site-activity-logs/site-activity-logs.component').then(m => m.SiteActivityLogsComponent)
+  },
+  // Work Completion Dashboard (all stakeholders)
+  {
+    path: 'work-completion-dashboard',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CLIENT] },
+    loadComponent: () => import('./features/project-manager/work-completion-dashboard/work-completion-dashboard.component').then(m => m.WorkCompletionDashboardComponent)
+  },
+
   // === SITE ENGINEER PAGES ===
   {
     path: 'site-activity',

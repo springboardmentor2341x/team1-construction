@@ -45,8 +45,32 @@ def get_user_by_id(
 
 @router.put("/{user_id}", response_model=UserRead)
 def update_user(user_id: str, updates: UserUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # RBAC: only an Administrator or the user themselves may update a profile.
+    role_name = current_user.role_rel.name if current_user.role_rel else ""
+    if current_user.id != user_id and role_name != "Administrator":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to update this user's profile."
+        )
     user_service = UserService(db)
     return user_service.update_profile(user_id, updates)
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(user_id: str, db: Session = Depends(get_db), current_user: User = Depends(RequireRole(["Administrator"]))):
+    """Delete a user. Only an Administrator may delete a user account."""
+    # Prevent an administrator from deleting their own account.
+    if current_user.id == user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot delete your own account."
+        )
+    user_service = UserService(db)
+    user = user_service.user_repo.get_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    user_service.user_repo.delete(user)
+    return None
+
 
 @router.patch("/{user_id}/status", response_model=UserRead)
 def toggle_user_status(user_id: str, active: bool, db: Session = Depends(get_db), current_user: User = Depends(RequireRole(["Administrator"]))):

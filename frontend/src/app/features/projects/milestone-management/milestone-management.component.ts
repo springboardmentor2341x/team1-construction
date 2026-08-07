@@ -198,7 +198,7 @@ selectedProjectId = '';
 
   canManage(): boolean {
     const role = this.authService.getRole();
-    return role === UserRole.ADMINISTRATOR || role === UserRole.PROJECT_MANAGER || role === UserRole.SITE_ENGINEER;
+    return role === UserRole.ADMINISTRATOR || role === UserRole.PROJECT_MANAGER;
   }
 
   openCreateModal(): void {

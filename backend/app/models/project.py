@@ -33,3 +33,8 @@ class Project(Base):
     contractors = relationship("ProjectContractor", back_populates="project", cascade="all, delete-orphan")
     clients = relationship("ProjectClient", back_populates="project", cascade="all, delete-orphan")
     audit_logs = relationship("ProjectAuditLog", back_populates="project", cascade="all, delete-orphan")
+    daily_progress_reports = relationship("DailyProgressReport", back_populates="project", cascade="all, delete-orphan")
+    weekly_progress_reports = relationship("WeeklyProgressReport", back_populates="project", cascade="all, delete-orphan")
+    completion_status = relationship("WorkCompletionStatus", back_populates="project", cascade="all, delete-orphan", uselist=False)
+    delays = relationship("DelayTracking", back_populates="project", cascade="all, delete-orphan")
+    site_activity_logs = relationship("SiteActivityLog", back_populates="project", cascade="all, delete-orphan")

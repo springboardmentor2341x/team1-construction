@@ -15,7 +15,7 @@ export class RoleService {
 
   getNavItemsForRole(role: UserRole | null): NavItem[] {
     switch (role) {
-case UserRole.ADMINISTRATOR:
+      case UserRole.ADMINISTRATOR:
         return [
           { label: 'Executive Dashboard', icon: 'bi-grid-1x2-fill', route: '/dashboard/admin' },
           { label: 'Project Directory', icon: 'bi-building-gear', route: '/projects' },
@@ -23,6 +23,11 @@ case UserRole.ADMINISTRATOR:
           { label: 'Project Assignments', icon: 'bi-people-fill', route: '/projects/assignments' },
           { label: 'User Management', icon: 'bi-person-badge', route: '/users' },
           { label: 'System Settings', icon: 'bi-gear-wide-connected', route: '/settings' },
+          { label: 'Work Completion', icon: 'bi-graph-up-arrow', route: '/work-completion-dashboard' },
+          { label: 'Milestone Tracking', icon: 'bi-flag-fill', route: '/milestone-tracking' },
+          { label: 'Delay Tracking', icon: 'bi-exclamation-triangle-fill', route: '/delay-tracking' },
+          { label: 'Weekly Reports', icon: 'bi-card-checklist', route: '/weekly-progress-reports' },
+          { label: 'Site Activity Logs', icon: 'bi-clipboard-data', route: '/site-activity-logs' },
           { label: 'My Profile', icon: 'bi-person-circle', route: '/profile' }
         ];
 
@@ -34,6 +39,11 @@ case UserRole.ADMINISTRATOR:
           { label: 'Project Schedules', icon: 'bi-calendar3-range', route: '/projects/schedules' },
           { label: 'Milestone Tracker', icon: 'bi-flag-fill', route: '/projects/milestones' },
           { label: 'Analytics & Reports', icon: 'bi-bar-chart-line-fill', route: '/reports' },
+          { label: 'Work Completion', icon: 'bi-graph-up-arrow', route: '/work-completion-dashboard' },
+          { label: 'Daily Progress Reports', icon: 'bi-journal-text', route: '/daily-progress-reports' },
+          { label: 'Weekly Progress Reports', icon: 'bi-card-checklist', route: '/weekly-progress-reports' },
+          { label: 'Delay Tracking', icon: 'bi-exclamation-triangle-fill', route: '/delay-tracking' },
+          { label: 'Site Activity Logs', icon: 'bi-clipboard-data', route: '/site-activity-logs' },
           { label: 'Notifications', icon: 'bi-bell-fill', route: '/notifications', badge: '3' },
           { label: 'My Profile', icon: 'bi-person-circle', route: '/profile' }
         ];
@@ -44,6 +54,11 @@ case UserRole.ADMINISTRATOR:
           { label: 'Assigned Site Projects', icon: 'bi-building-fill-check', route: '/projects' },
           { label: 'Daily Activity Logs', icon: 'bi-journal-check', route: '/site-activity' },
           { label: 'Equipment Status', icon: 'bi-truck-front-fill', route: '/equipment' },
+          { label: 'Daily Progress Reports', icon: 'bi-journal-text', route: '/daily-progress-reports' },
+          { label: 'Site Activity Logs', icon: 'bi-clipboard-data', route: '/site-activity-logs' },
+          { label: 'Milestone Tracking', icon: 'bi-flag-fill', route: '/milestone-tracking' },
+          { label: 'Delay Tracking', icon: 'bi-exclamation-triangle-fill', route: '/delay-tracking' },
+          { label: 'Work Completion', icon: 'bi-graph-up-arrow', route: '/work-completion-dashboard' },
           { label: 'Site Notifications', icon: 'bi-bell-fill', route: '/notifications', badge: '5' },
           { label: 'My Profile', icon: 'bi-person-bounding-box', route: '/profile' }
         ];

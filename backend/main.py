@@ -18,9 +18,17 @@ from app.models.equipment import EquipmentModel
 from app.models.task import TaskModel
 from app.models.document import DocumentModel
 from app.models.shift import ShiftModel
+from app.models.site_progress import (
+    DailyProgressReport,
+    WeeklyProgressReport,
+    WorkCompletionStatus,
+    DelayTracking,
+    SiteActivityLog,
+    ProgressPhotograph,
+)
 from app.core.security import get_password_hash
 
-from app.routers import auth, users, projects, schedules, milestones, site_engineer, tasks_router, attendance, notifications, shifts
+from app.routers import auth, users, projects, schedules, milestones, site_engineer, tasks_router, attendance, notifications, shifts, site_progress
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -54,6 +62,7 @@ app.include_router(tasks_router.documents_router, prefix=settings.API_V1_STR)
 app.include_router(attendance.router, prefix=settings.API_V1_STR)
 app.include_router(notifications.router, prefix=settings.API_V1_STR)
 app.include_router(shifts.router, prefix=settings.API_V1_STR)
+app.include_router(site_progress.router, prefix=settings.API_V1_STR)
 
 
 @app.on_event("startup")
@@ -71,18 +80,29 @@ def startup_event():
 
 
 def ensure_columns():
-    """Reconcile placeholder tables (attendance, notifications) with their models.
+    """Reconcile stale/demo tables with their current model definitions.
 
-    The existing tables may have been created with an older, smaller schema that
-    is missing columns the models now reference (e.g. attendance.day_name,
-    notifications.notification_type). Because these are demo/seed tables whose
-    data is re-populated by seed_database(), we drop and recreate them to match
-    the models exactly. This prevents "UndefinedColumn" errors on every startup.
+    The existing tables may have been created with an older schema that is
+    missing columns the models now reference (e.g. attendance.day_name,
+    notifications.notification_type), or whose columns do not match the model
+    (e.g. the Module 3 site-progress tables were originally created with a
+    different column set). Because these are demo/seed tables whose data is
+    re-populated by seed_database(), we drop and recreate them to match the
+    models exactly. This prevents "UndefinedColumn" errors on every startup
+    and keeps create_all() from silently leaving stale tables behind.
     """
     from sqlalchemy import text
     db = SessionLocal()
     try:
-        # Drop the stale tables so they can be recreated to match the models.
+# Drop the stale tables so they can be recreated to match the models.
+        # Drop child tables first (progress_photographs -> daily_progress_reports)
+        # to satisfy foreign-key dependencies.
+        db.execute(text("DROP TABLE IF EXISTS progress_photographs"))
+        db.execute(text("DROP TABLE IF EXISTS daily_progress_reports"))
+        db.execute(text("DROP TABLE IF EXISTS weekly_progress_reports"))
+        db.execute(text("DROP TABLE IF EXISTS delay_tracking"))
+        db.execute(text("DROP TABLE IF EXISTS site_activity_logs"))
+        db.execute(text("DROP TABLE IF EXISTS work_completion_status"))
         db.execute(text("DROP TABLE IF EXISTS attendance"))
         db.execute(text("DROP TABLE IF EXISTS notifications"))
         db.commit()
@@ -91,8 +111,21 @@ def ensure_columns():
         # Recreate using SQLAlchemy metadata (matches the model definitions).
         from app.database.session import engine
         from app.models.placeholders import Attendance, Notification  # noqa: F401
-        Base.metadata.create_all(bind=engine, tables=[Attendance.__table__, Notification.__table__])
-        print("[Migration] Recreated attendance & notifications tables to match models.")
+        from app.models.site_progress import (  # noqa: F401
+            DailyProgressReport,
+            WeeklyProgressReport,
+            WorkCompletionStatus,
+            DelayTracking,
+            SiteActivityLog,
+            ProgressPhotograph,
+        )
+        Base.metadata.create_all(bind=engine, tables=[
+            Attendance.__table__, Notification.__table__,
+            DailyProgressReport.__table__, WeeklyProgressReport.__table__,
+            WorkCompletionStatus.__table__, DelayTracking.__table__,
+            SiteActivityLog.__table__, ProgressPhotograph.__table__,
+        ])
+        print("[Migration] Recreated attendance, notifications & site-progress tables to match models.")
     except Exception as e:
         print(f"[Warning] Column migration notice: {e}")
     finally:
@@ -159,9 +192,9 @@ def seed_database():
         # 3. Seed Projects safely
         projects_seed = [
             {
-                "project_name": "Skyline Metropolis Tower",
+"project_name": "Skyline Metropolis Tower",
                 "project_code": "BT-PRJ-2026-01",
-                "category": "Commercial High-Rise",
+                "category": "Commercial",
                 "client_name": "Apex Real Estate Holdings",
                 "client_contact": "+1 (555) 014-7000",
                 "description": "45-story commercial office tower featuring smart climate control.",
@@ -303,6 +336,132 @@ def seed_database():
             ]
             db.add_all(shifts_seed)
             db.commit()
+
+        # 11. Seed Module 3 - Site Progress Monitoring data
+        first_project = db.query(Project).order_by(Project.created_at.asc()).first()
+        second_project = db.query(Project).order_by(Project.created_at.desc()).first()
+
+        if first_project and db.query(DailyProgressReport).count() == 0:
+            dpr1 = DailyProgressReport(
+                project_id=first_project.id,
+                report_date="2026-08-03",
+                progress_category="Foundation",
+                work_completed="Pile cap formwork completed for Grid C/D; 12 pile caps prepped and rebar cages lowered.",
+                progress_percentage=85,
+                contractor="Marcus Brody",
+                worker_attendance="42 workers present (Morning shift)",
+                machinery_used="Concrete Pump Truck CP-8, Tower Crane TC-480",
+                materials_consumed="Grade 60 rebar (12 tons), formwork plywood (48 sheets)",
+                weather_conditions="Cloudy",
+                safety_observations="All personnel wore PPE; no safety incidents reported.",
+                quality_inspection_remarks="Rebar spacing within tolerance; inspection approved.",
+                delays=False,
+                delay_reasons=None,
+                comments="Foundation work on track for completion this week.",
+                reported_by="David Miller",
+                status="Approved"
+            )
+            dpr2 = DailyProgressReport(
+                project_id=first_project.id,
+                report_date="2026-08-04",
+                progress_category="Structural Work",
+                work_completed="Concrete pouring for columns B7-B14 completed. Curing compound applied.",
+                progress_percentage=40,
+                contractor="Marcus Brody",
+                worker_attendance="58 workers present (Morning + Afternoon shifts)",
+                machinery_used="Concrete Pump Truck CP-8",
+                materials_consumed="Ready-mix concrete (64 m3), curing compound (20 L)",
+                weather_conditions="Sunny",
+                safety_observations="Safety harnesses used at height; scaffold inspected before pour.",
+                quality_inspection_remarks="Concrete slump test passed (75mm).",
+                delays=True,
+                delay_reasons="2-hour delay due to pump truck maintenance.",
+                comments="Structural progress proceeding; minor delay logged.",
+                reported_by="David Miller",
+                status="Approved"
+            )
+            dpr3 = DailyProgressReport(
+                project_id=first_project.id,
+                report_date="2026-08-05",
+                progress_category="Electrical Work",
+                work_completed="Conduit installation on Level 5 East Wing; rough-in wiring started.",
+                progress_percentage=25,
+                contractor="VoltWorks Electrical",
+                worker_attendance="12 electricians present",
+                machinery_used="Bend saw, wire puller",
+                materials_consumed="Conduit pipes (300 m), junction boxes (40 units)",
+                weather_conditions="Sunny",
+                safety_observations="Lockout/tagout verified on live panels.",
+                quality_inspection_remarks="Conduit bends within 90° limit; approved.",
+                delays=False,
+                delay_reasons=None,
+                comments="Electrical rough-in on schedule.",
+                reported_by="David Miller",
+                status="Pending"
+            )
+            db.add_all([dpr1, dpr2, dpr3])
+            db.commit()
+
+        if first_project and db.query(WeeklyProgressReport).count() == 0:
+            wpr = WeeklyProgressReport(
+                project_id=first_project.id,
+                week_start_date="2026-08-03",
+                week_end_date="2026-08-09",
+                completed_work="Foundation pile caps completed (85%). Column concrete pour for B7-B14 finished. Electrical conduit rough-in started on Level 5.",
+                weekly_progress_percentage=15,
+                major_activities="Foundation Work, Structural Work, Electrical Work",
+                delays="Pump truck maintenance caused a 2-hour delay on 2026-08-04.",
+                safety_incidents="No major safety incidents recorded.",
+                overall_status="On Track",
+                generated_by="Sarah Jenkins"
+            )
+            db.add(wpr)
+            db.commit()
+
+        if first_project and db.query(DelayTracking).count() == 0:
+            d1 = DelayTracking(
+                project_id=first_project.id,
+                reason="Concrete pump truck maintenance",
+                duration_days=1,
+                affected_work_category="Structural Work",
+                impact_on_timeline="Minor - 2 hours lost on column pour; absorbed by float.",
+                reported_date="2026-08-04",
+                reported_by="David Miller",
+                status="Resolved"
+            )
+            d2 = DelayTracking(
+                project_id=first_project.id,
+                reason="Weather: heavy rain forecast for foundation excavation",
+                duration_days=2,
+                affected_work_category="Foundation",
+                impact_on_timeline="Potential 2-day slip on foundation completion if rain persists.",
+                reported_date="2026-08-02",
+                reported_by="David Miller",
+                status="Open"
+            )
+            db.add_all([d1, d2])
+            db.commit()
+
+        if first_project and db.query(SiteActivityLog).count() == 0:
+            logs = [
+                SiteActivityLog(project_id=first_project.id, activity_date="2026-08-05", activity_time="08:00", description="Steel rebar delivery - 20 tons Grade 60 for Level 6.", event_type="Material Delivery", responsible_person="Marcus Brody"),
+                SiteActivityLog(project_id=first_project.id, activity_date="2026-08-04", activity_time="10:30", description="Tower crane TC-480 routine maintenance and lubrication.", event_type="Machinery Maintenance", responsible_person="James Watson"),
+                SiteActivityLog(project_id=first_project.id, activity_date="2026-08-04", activity_time="07:30", description="Weekly toolbox safety meeting - focus on working at height.", event_type="Safety Meeting", responsible_person="David Miller"),
+                SiteActivityLog(project_id=first_project.id, activity_date="2026-08-03", activity_time="13:00", description="Structural engineer inspection of pile cap rebar cages.", event_type="Inspection", responsible_person="David Miller"),
+                SiteActivityLog(project_id=first_project.id, activity_date="2026-08-01", activity_time="11:00", description="Client site walkthrough - Apex Real Estate representatives.", event_type="Client Visit", responsible_person="Sarah Jenkins"),
+                SiteActivityLog(project_id=first_project.id, activity_date="2026-07-31", activity_time="09:00", description="Internal QA audit of foundation formwork quality.", event_type="Quality Audit", responsible_person="Alex Vance"),
+            ]
+            db.add_all(logs)
+            db.commit()
+
+        # Compute initial completion snapshot for seeded projects
+        if first_project:
+            from app.services.site_progress_service import SiteProgressService
+            try:
+                SiteProgressService(db).recompute_completion(first_project.id)
+                SiteProgressService(db).sync_milestones_from_reports(first_project.id)
+            except Exception as sp_err:
+                print(f"[Seed Warning] Site progress completion seed notice: {sp_err}")
 
     except Exception as err:
         print(f"[Seed Warning] Database seeding notice: {err}")

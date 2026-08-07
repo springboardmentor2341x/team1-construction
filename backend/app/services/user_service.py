@@ -1,4 +1,5 @@
 from typing import List, Optional
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.user import UserRead, UserUpdate
@@ -29,7 +30,7 @@ class UserService:
     def update_profile(self, user_id: str, updates: UserUpdate) -> UserRead:
         user = self.user_repo.get_by_id(user_id)
         if not user:
-            raise Exception("User not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
         if updates.fullName is not None: user.full_name = updates.fullName
         if updates.mobileNumber is not None: user.mobile = updates.mobileNumber
