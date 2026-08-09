@@ -6,6 +6,7 @@ import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.com
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { ProjectService } from '../../../core/services/project.service';
 import { UserService } from '../../../core/services/user.service';
+import { ProcurementService } from '../../../core/services/procurement.service';
 import { Project } from '../../../core/models/project.model';
 
 @Component({
@@ -123,7 +124,7 @@ import { Project } from '../../../core/models/project.model';
                   <span class="badge bg-primary rounded-pill">{{ procurementCount }} Pending Approval</span>
                 </div>
                 <div class="small text-muted border-top pt-2">
-                  Procurement records will load from the backend once available.
+                  Live procurement data synced from backend.
                 </div>
               </div>
             </div>
@@ -210,7 +211,8 @@ export class AdminDashboardComponent implements OnInit {
 
   constructor(
     private projectService: ProjectService,
-    private userService: UserService
+    private userService: UserService,
+    private procurementService: ProcurementService
   ) {}
 
   ngOnInit(): void {
@@ -233,6 +235,15 @@ export class AdminDashboardComponent implements OnInit {
       error: () => {
         this.totalUsersCount = 0;
         this.activeWorkersCount = 0;
+      }
+    });
+
+    this.procurementService.getProcurements().subscribe({
+      next: (data) => {
+        this.procurementCount = data.filter(p => p.status === 'Pending Approval').length;
+      },
+      error: () => {
+        this.procurementCount = 0;
       }
     });
   }

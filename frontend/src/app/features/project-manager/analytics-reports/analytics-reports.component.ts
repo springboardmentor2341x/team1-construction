@@ -6,6 +6,8 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
 import { ProjectService } from '../../../core/services/project.service';
+import { ResourceService } from '../../../core/services/resource.service';
+import { MilestoneService } from '../../../core/services/milestone.service';
 
 @Component({
   selector: 'app-analytics-reports',
@@ -172,7 +174,12 @@ kpis = [
 
   savedReports: any[] = [];
 
-  constructor(private fb: FormBuilder, private projectService: ProjectService) {
+  constructor(
+    private fb: FormBuilder, 
+    private projectService: ProjectService,
+    private resourceService: ResourceService,
+    private milestoneService: MilestoneService
+  ) {
     this.filterForm = this.fb.group({ dateFrom: [''], dateTo: [''], project: [''] });
   }
 
@@ -184,9 +191,29 @@ kpis = [
       const onSchedule = data.filter(p => p.status === 'In Progress').length;
       const totalBudget = data.reduce((sum, p) => sum + (p.estimatedBudget || 0), 0);
       this.kpis[0].value = Math.round((onSchedule / total) * 100) + '%';
-      this.kpis[1].value = totalBudget ? '100%' : '0%';
-      this.kpis[2].value = '0/0';
-      this.kpis[3].value = '0%';
+      this.kpis[1].value = data.length > 0 ? '100%' : '0%'; // Assumption: fully utilized allocated budget
+
+      // Fetch Milestones
+      if (data.length > 0) {
+        let totalMilestones = 0;
+        let completedMilestones = 0;
+        data.forEach((p, index) => {
+          this.milestoneService.getMilestonesByProject(p.id).subscribe(ms => {
+            totalMilestones += ms.length;
+            completedMilestones += ms.filter(m => m.status === 'Completed').length;
+            if (index === data.length - 1) {
+              this.kpis[2].value = `${completedMilestones}/${totalMilestones}`;
+            }
+          });
+        });
+      }
+    });
+
+    this.resourceService.getResources().subscribe(res => {
+      if (res.length > 0) {
+        const util = res.reduce((sum, r) => sum + (r.utilization_percentage || 0), 0) / res.length;
+        this.kpis[3].value = Math.round(util) + '%';
+      }
     });
   }
 

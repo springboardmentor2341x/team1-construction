@@ -9,7 +9,10 @@ class Resource(Base):
     __tablename__ = "resources"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    resource_type: Mapped[str] = mapped_column(String(50), nullable=True)
+    resource_type: Mapped[str] = mapped_column(String(50), nullable=True) # Excavators, Concrete Mixers, etc.
+    project_id: Mapped[str] = mapped_column(String(36), nullable=True) # Project Allocation
+    status: Mapped[str] = mapped_column(String(50), default="Available") # Available, Allocated, Maintenance
+    utilization_percentage: Mapped[float] = mapped_column(Float, default=0.0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
@@ -18,6 +21,8 @@ class Inventory(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     item_name: Mapped[str] = mapped_column(String(100), nullable=False)
     quantity: Mapped[float] = mapped_column(Float, default=0.0)
+    project_id: Mapped[str] = mapped_column(String(36), nullable=True)
+    status: Mapped[str] = mapped_column(String(50), default="In Stock")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
@@ -42,6 +47,11 @@ class Procurement(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     title: Mapped[str] = mapped_column(String(150), nullable=False)
     amount: Mapped[float] = mapped_column(Float, default=0.0)
+    project_id: Mapped[str] = mapped_column(String(36), nullable=True)
+    material_id: Mapped[str] = mapped_column(String(36), nullable=True)
+    quantity: Mapped[float] = mapped_column(Float, default=0.0)
+    status: Mapped[str] = mapped_column(String(50), default="Pending Approval") # Pending Approval, Approved, Rejected
+    requested_by: Mapped[str] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 

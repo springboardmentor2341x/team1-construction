@@ -29,6 +29,7 @@ from app.models.site_progress import (
 from app.core.security import get_password_hash
 
 from app.routers import auth, users, projects, schedules, milestones, site_engineer, tasks_router, attendance, notifications, shifts, site_progress
+from app.routers import resources, inventory, procurement
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -63,6 +64,9 @@ app.include_router(attendance.router, prefix=settings.API_V1_STR)
 app.include_router(notifications.router, prefix=settings.API_V1_STR)
 app.include_router(shifts.router, prefix=settings.API_V1_STR)
 app.include_router(site_progress.router, prefix=settings.API_V1_STR)
+app.include_router(resources.router, prefix=settings.API_V1_STR)
+app.include_router(inventory.router, prefix=settings.API_V1_STR)
+app.include_router(procurement.router, prefix=settings.API_V1_STR)
 
 
 @app.on_event("startup")
@@ -105,12 +109,15 @@ def ensure_columns():
         db.execute(text("DROP TABLE IF EXISTS work_completion_status"))
         db.execute(text("DROP TABLE IF EXISTS attendance"))
         db.execute(text("DROP TABLE IF EXISTS notifications"))
+        db.execute(text("DROP TABLE IF EXISTS resources"))
+        db.execute(text("DROP TABLE IF EXISTS inventory"))
+        db.execute(text("DROP TABLE IF EXISTS procurements"))
         db.commit()
         db.close()
 
         # Recreate using SQLAlchemy metadata (matches the model definitions).
         from app.database.session import engine
-        from app.models.placeholders import Attendance, Notification  # noqa: F401
+        from app.models.placeholders import Attendance, Notification, Resource, Inventory, Procurement  # noqa: F401
         from app.models.site_progress import (  # noqa: F401
             DailyProgressReport,
             WeeklyProgressReport,
@@ -121,11 +128,12 @@ def ensure_columns():
         )
         Base.metadata.create_all(bind=engine, tables=[
             Attendance.__table__, Notification.__table__,
+            Resource.__table__, Inventory.__table__, Procurement.__table__,
             DailyProgressReport.__table__, WeeklyProgressReport.__table__,
             WorkCompletionStatus.__table__, DelayTracking.__table__,
             SiteActivityLog.__table__, ProgressPhotograph.__table__,
         ])
-        print("[Migration] Recreated attendance, notifications & site-progress tables to match models.")
+        print("[Migration] Recreated attendance, notifications, resources, inventory, procurements & site-progress tables to match models.")
     except Exception as e:
         print(f"[Warning] Column migration notice: {e}")
     finally:
@@ -160,12 +168,12 @@ def seed_database():
 
         # 2. Seed Default Personnel Accounts for each role
         users_seed = [
-            ("Alex Vance", "admin@buildtrack.com", "Administrator", "ADM-1001", "Executive Management"),
-            ("Sarah Jenkins", "pm@buildtrack.com", "Project Manager", "PM-2004", "Project Operations"),
-            ("David Miller", "engineer@buildtrack.com", "Site Engineer", "ENG-3012", "Civil Engineering"),
-            ("Marcus Brody", "contractor@buildtrack.com", "Contractor", "CON-4022", "Structural Contracting"),
-            ("Robert Thorne", "worker@buildtrack.com", "Worker", "WRK-5099", "Masonry & Steel"),
-            ("Apex Real Estate", "client@buildtrack.com", "Client", "CLI-9001", "Client Representative")
+            ("Michael Sterling", "admin@buildtrack.com", "Administrator", "ADM-1001", "Executive Management"),
+            ("Elena Rostova", "pm@buildtrack.com", "Project Manager", "PM-2004", "Project Operations"),
+            ("Jackson Reed", "engineer@buildtrack.com", "Site Engineer", "ENG-3012", "Civil Engineering"),
+            ("Samuel Harris", "contractor@buildtrack.com", "Contractor", "CON-4022", "Structural Contracting"),
+            ("Luis Gomez", "worker@buildtrack.com", "Worker", "WRK-5099", "Masonry & Steel"),
+            ("Global Innovations Rep", "client@buildtrack.com", "Client", "CLI-9001", "Client Representative")
         ]
 
         pm_user_id = None
@@ -192,28 +200,28 @@ def seed_database():
         # 3. Seed Projects safely
         projects_seed = [
             {
-"project_name": "Skyline Metropolis Tower",
+                "project_name": "Nexus Tech Park",
                 "project_code": "BT-PRJ-2026-01",
                 "category": "Commercial",
-                "client_name": "Apex Real Estate Holdings",
+                "client_name": "Global Innovations Inc.",
                 "client_contact": "+1 (555) 014-7000",
-                "description": "45-story commercial office tower featuring smart climate control.",
-                "location": "742 Executive Parkway, Downtown District",
-                "estimated_budget": 45000000.0,
+                "description": "State-of-the-art tech campus with LEED-certified green buildings.",
+                "location": "Silicon Valley Hub",
+                "estimated_budget": 85000000.0,
                 "priority": "High",
                 "status": "In Progress",
                 "start_date": "2026-01-15",
                 "expected_completion_date": "2027-11-30"
             },
             {
-                "project_name": "Harbor Bridge Expansion",
+                "project_name": "Metro Tunnel Network",
                 "project_code": "BT-PRJ-2026-02",
                 "category": "Infrastructure",
-                "client_name": "Department of Transportation",
+                "client_name": "City Transit Authority",
                 "client_contact": "+1 (555) 019-3322",
-                "description": "Six-lane marine cable-stayed bridge widening project.",
-                "location": "Harbor Transit Corridor, Bay Area",
-                "estimated_budget": 120000000.0,
+                "description": "Underground rapid transit tunnel connecting the financial district.",
+                "location": "Metropolitan Underground",
+                "estimated_budget": 240000000.0,
                 "priority": "High",
                 "status": "In Progress",
                 "start_date": "2026-03-01",
@@ -462,6 +470,31 @@ def seed_database():
                 SiteProgressService(db).sync_milestones_from_reports(first_project.id)
             except Exception as sp_err:
                 print(f"[Seed Warning] Site progress completion seed notice: {sp_err}")
+
+        # 12. Seed Resources, Inventory, and Procurement
+        from app.models.placeholders import Resource, Inventory, Procurement
+        if db.query(Resource).count() == 0:
+            res1 = Resource(name="Excavator Komatsu PC210", resource_type="Excavators", project_id=first_project.id if first_project else None, status="Allocated", utilization_percentage=85.0)
+            res2 = Resource(name="Asphalt Paver Volvo P6820C", resource_type="Concrete Mixers", project_id=second_project.id if second_project else None, status="Allocated", utilization_percentage=60.0)
+            res3 = Resource(name="Mobile Crane Tadano ATF 220G-5", resource_type="Cranes", project_id=first_project.id if first_project else None, status="Maintenance", utilization_percentage=0.0)
+            res4 = Resource(name="Safety Harness Kit", resource_type="Safety Equipment", project_id=None, status="Available", utilization_percentage=0.0)
+            db.add_all([res1, res2, res3, res4])
+            db.commit()
+
+        if db.query(Inventory).count() == 0:
+            inv1 = Inventory(item_name="Precast Concrete Panels", quantity=2500, project_id=first_project.id if first_project else None, status="In Stock")
+            inv2 = Inventory(item_name="Asphalt Binder (Barrels)", quantity=5, project_id=first_project.id if first_project else None, status="Low Stock")
+            inv3 = Inventory(item_name="Heavy-Duty Scaffolding Pipes", quantity=0, project_id=None, status="Out of Stock")
+            inv4 = Inventory(item_name="Fiber Optic Cables (Spools)", quantity=45, project_id=second_project.id if second_project else None, status="In Stock")
+            db.add_all([inv1, inv2, inv3, inv4])
+            db.commit()
+
+        if db.query(Procurement).count() == 0:
+            proc1 = Procurement(title="Emergency Cement Order", amount=1200.0, project_id=first_project.id if first_project else None, material_id=None, quantity=200, status="Approved", requested_by="David Miller")
+            proc2 = Procurement(title="Formwork Plywood Restock", amount=4500.0, project_id=None, material_id=None, quantity=500, status="Pending Approval", requested_by="Sarah Jenkins")
+            proc3 = Procurement(title="Safety Helmets Replacement", amount=850.0, project_id=second_project.id if second_project else None, material_id=None, quantity=100, status="Pending Approval", requested_by="Marcus Brody")
+            db.add_all([proc1, proc2, proc3])
+            db.commit()
 
     except Exception as err:
         print(f"[Seed Warning] Database seeding notice: {err}")

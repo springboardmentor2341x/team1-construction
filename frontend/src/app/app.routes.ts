@@ -241,6 +241,40 @@ export const routes: Routes = [
     loadComponent: () => import('./features/client/project-documents/project-documents.component').then(m => m.ProjectDocumentsComponent)
   },
 
+  // === RESOURCE PAGES ===
+  {
+    path: 'resource/allocation',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER] },
+    loadComponent: () => import('./features/resource/resource-allocation/resource-allocation.component').then(m => m.ResourceAllocationComponent)
+  },
+  {
+    path: 'resource/utilization',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER] },
+    loadComponent: () => import('./features/resource/resource-utilization/resource-utilization.component').then(m => m.ResourceUtilizationComponent)
+  },
+
+  // === INVENTORY & PROCUREMENT PAGES ===
+  {
+    path: 'inventory/materials',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER] },
+    loadComponent: () => import('./features/inventory/material-inventory/material-inventory.component').then(m => m.MaterialInventoryComponent)
+  },
+  {
+    path: 'inventory/stock',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER] },
+    loadComponent: () => import('./features/inventory/stock-monitoring/stock-monitoring.component').then(m => m.StockMonitoringComponent)
+  },
+  {
+    path: 'inventory/procurement',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR] },
+    loadComponent: () => import('./features/inventory/procurement-request/procurement-request.component').then(m => m.ProcurementRequestComponent)
+  },
+
   // Wildcard Route
   { path: '**', redirectTo: 'login' }
 ];

@@ -40,6 +40,9 @@ import { UserRole } from '../../../core/models/role.enum';
               <p class="text-muted small mb-0"><i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ project.location }}</p>
             </div>
             <div class="d-flex gap-2">
+              <button *ngIf="canClose()" (click)="closeProject()" class="btn btn-outline-danger btn-sm" [disabled]="project.status === 'Closed'">
+                <i class="bi bi-lock-fill me-1"></i> Close Project
+              </button>
               <a *ngIf="canEdit()" [routerLink]="['/projects/update', project.id]" class="btn btn-outline-warning btn-sm">
                 <i class="bi bi-pencil me-1"></i> Edit Information
               </a>
@@ -239,7 +242,32 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   canEdit(): boolean {
+    if (this.project?.status === 'Closed') return false;
     const role = this.authService.getRole();
     return role === UserRole.ADMINISTRATOR || role === UserRole.PROJECT_MANAGER;
+  }
+
+  canClose(): boolean {
+    const role = this.authService.getRole();
+    return role === UserRole.ADMINISTRATOR || role === UserRole.PROJECT_MANAGER;
+  }
+
+  closeProject(): void {
+    if (!this.project || this.project.status === 'Closed') return;
+    const reason = prompt('Please enter a reason for closing this project:');
+    if (reason === null) return;
+    
+    if (confirm('Are you sure you want to close this project? Operational updates will be disabled.')) {
+      this.projectService.closeProject(this.project.id, reason || 'Project completed').subscribe({
+        next: (updatedProj) => {
+          this.project = updatedProj;
+          alert('Project closed successfully.');
+        },
+        error: (err) => {
+          alert('Failed to close project.');
+          console.error(err);
+        }
+      });
+    }
   }
 }
