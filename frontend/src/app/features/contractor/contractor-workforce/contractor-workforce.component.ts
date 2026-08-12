@@ -6,18 +6,9 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
 import { UserService } from '../../../core/services/user.service';
-
-export interface Worker {
-  id: string;
-  name: string;
-  trade: string;
-  employeeId: string;
-  phone: string;
-  status: 'Active' | 'On Leave' | 'Inactive';
-  assignedProject: string;
-  attendanceRate: number;
-  tasksCompleted: number;
-}
+import { AuthService } from '../../../core/services/auth.service';
+import { ContractorService, ContractorWorker } from '../../../core/services/contractor.service';
+import { UserRead } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-contractor-workforce',
@@ -31,57 +22,82 @@ export interface Worker {
         <div class="col-lg-2 col-md-3 d-none d-md-block"><app-sidebar></app-sidebar></div>
         <div class="col-lg-10 col-md-9 p-4 bg-light-subtle min-vh-100 animate-fade-in">
 
-          <div class="d-flex align-items-center justify-content-between mb-4">
+          <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
             <div>
               <nav aria-label="breadcrumb"><ol class="breadcrumb small mb-1">
                 <li class="breadcrumb-item"><a routerLink="/dashboard/contractor" class="text-decoration-none text-warning">Contractor Hub</a></li>
                 <li class="breadcrumb-item active">Contractor Workforce</li>
               </ol></nav>
-              <h2 class="fw-bold text-dark mb-0"><i class="bi bi-person-badge-fill me-2 text-warning"></i>Contractor Workforce</h2>
-              <p class="text-muted small mb-0">Manage your crew members, assignments, and performance.</p>
+              <h2 class="fw-bold text-dark mb-0"><i class="bi bi-person-badge-fill me-2 text-warning"></i>Contractor Workforce Management</h2>
+              <p class="text-muted small mb-0">Assign, manage, and monitor field labor workers assigned to contractors.</p>
             </div>
-            <button class="btn btn-bt-accent shadow-sm"><i class="bi bi-person-plus me-1"></i>Add Worker</button>
+          </div>
+
+          <!-- Messages -->
+          <div *ngIf="error" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+            <button type="button" class="btn-close" (click)="error = ''"></button>
+          </div>
+          <div *ngIf="success" class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>{{ success }}
+            <button type="button" class="btn-close" (click)="success = ''"></button>
+          </div>
+
+          <!-- Contractor Selection (For Admin/PM) or Display -->
+          <div class="card card-custom border-0 p-3 mb-4">
+            <div class="row g-3 align-items-center">
+              <div class="col-md-5">
+                <label class="form-label small fw-bold text-muted mb-1">Active Contractor</label>
+                <select class="form-select" [(ngModel)]="selectedContractorId" (change)="loadAssignedWorkers()" [disabled]="isContractorUser">
+                  <option value="">-- Select Contractor --</option>
+                  <option *ngFor="let c of contractors" [value]="c.id">{{ c.fullName }} ({{ c.email }})</option>
+                </select>
+              </div>
+              <div class="col-md-7" *ngIf="selectedContractorId">
+                <label class="form-label small fw-bold text-muted mb-1">Assign New Worker</label>
+                <div class="input-group">
+                  <select class="form-select" [(ngModel)]="selectedWorkerIdToAssign">
+                    <option value="">-- Choose unassigned worker --</option>
+                    <option *ngFor="let w of availableWorkers" [value]="w.id">{{ w.fullName }} ({{ w.department || 'General' }} - {{ w.employeeId || w.email }})</option>
+                  </select>
+                  <button class="btn btn-warning fw-semibold px-3" (click)="assignWorker()" [disabled]="!selectedWorkerIdToAssign">
+                    <i class="bi bi-person-plus-fill me-1"></i>Assign Worker
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Stats Row -->
           <div class="row g-3 mb-4">
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md-4">
               <div class="card card-custom border-0 p-3 text-center">
-                <div class="fw-bold fs-4 text-dark">{{ workers().length }}</div>
-                <div class="small text-muted">Total Workers</div>
+                <div class="fw-bold fs-4 text-dark">{{ assignedWorkers().length }}</div>
+                <div class="small text-muted">Assigned Crew Members</div>
               </div>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md-4">
               <div class="card card-custom border-0 p-3 text-center">
                 <div class="fw-bold fs-4 text-success">{{ activeCount() }}</div>
-                <div class="small text-muted">Active</div>
+                <div class="small text-muted">Active Field Workers</div>
               </div>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md-4">
               <div class="card card-custom border-0 p-3 text-center">
-                <div class="fw-bold fs-4 text-warning">{{ leaveCount() }}</div>
-                <div class="small text-muted">On Leave</div>
-              </div>
-            </div>
-            <div class="col-6 col-md-3">
-              <div class="card card-custom border-0 p-3 text-center">
-                <div class="fw-bold fs-4 text-info">{{ avgAttendance() }}%</div>
-                <div class="small text-muted">Avg. Attendance</div>
+                <div class="fw-bold fs-4 text-info">{{ availableWorkers.length }}</div>
+                <div class="small text-muted">Available Workers</div>
               </div>
             </div>
           </div>
 
-          <!-- Filter Bar -->
+          <!-- Search Filter Bar -->
           <div class="card card-custom border-0 p-3 mb-4">
             <div class="d-flex gap-2 flex-wrap align-items-center">
-              <input type="text" class="form-control form-control-sm" style="max-width:220px" placeholder="Search by name or trade..." [(ngModel)]="searchTerm">
-              <select class="form-select form-select-sm" style="max-width:150px" [(ngModel)]="statusFilter">
-                <option value="">All Statuses</option>
-                <option value="Active">Active</option>
-                <option value="On Leave">On Leave</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-              <button class="btn btn-sm btn-outline-secondary" (click)="searchTerm=''; statusFilter=''">Reset</button>
+              <div class="input-group input-group-sm" style="max-width:280px">
+                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" placeholder="Search worker by name or trade..." [(ngModel)]="searchTerm">
+              </div>
+              <button class="btn btn-sm btn-outline-secondary" (click)="searchTerm=''">Reset Filter</button>
             </div>
           </div>
 
@@ -92,13 +108,11 @@ export interface Worker {
                 <thead class="table-light text-muted">
                   <tr>
                     <th>#</th>
-                    <th>Worker</th>
-                    <th>Trade</th>
+                    <th>Worker Name</th>
+                    <th>Trade / Specialization</th>
                     <th>Employee ID</th>
-                    <th>Assigned Project</th>
-                    <th>Attendance</th>
-                    <th>Tasks Done</th>
-                    <th>Status</th>
+                    <th>Email</th>
+                    <th>Assigned At</th>
                     <th class="text-end">Actions</th>
                   </tr>
                 </thead>
@@ -107,37 +121,27 @@ export interface Worker {
                     <td class="text-muted">{{ i + 1 }}</td>
                     <td>
                       <div class="d-flex align-items-center gap-2">
-                        <div class="rounded-circle bg-warning text-white fw-bold d-flex align-items-center justify-content-center" style="width:32px;height:32px;font-size:0.72rem">{{ getInitials(w.name) }}</div>
-                        <div>
-                          <div class="fw-semibold">{{ w.name }}</div>
-                          <div class="text-muted" style="font-size:0.72rem">{{ w.phone }}</div>
+                        <div class="rounded-circle bg-warning text-white fw-bold d-flex align-items-center justify-content-center" style="width:32px;height:32px;font-size:0.72rem">
+                          {{ getInitials(w.workerName) }}
                         </div>
+                        <div class="fw-semibold text-dark">{{ w.workerName }}</div>
                       </div>
                     </td>
-                    <td>{{ w.trade }}</td>
-                    <td><span class="badge bg-light text-dark font-monospace">{{ w.employeeId }}</span></td>
-                    <td class="small text-muted">{{ w.assignedProject }}</td>
-                    <td>
-                      <div class="d-flex align-items-center gap-2">
-                        <div class="progress" style="width:60px;height:6px">
-                          <div class="progress-bar" [ngClass]="w.attendanceRate >= 90 ? 'bg-success' : w.attendanceRate >= 75 ? 'bg-warning' : 'bg-danger'" [style.width]="w.attendanceRate + '%'"></div>
-                        </div>
-                        <span>{{ w.attendanceRate }}%</span>
-                      </div>
-                    </td>
-                    <td class="text-center"><span class="badge bg-primary rounded-pill">{{ w.tasksCompleted }}</span></td>
-                    <td>
-                      <span class="badge" [ngClass]="w.status === 'Active' ? 'bg-success' : w.status === 'On Leave' ? 'bg-warning text-dark' : 'bg-secondary'">{{ w.status }}</span>
-                    </td>
+                    <td><span class="badge bg-light text-dark border">{{ w.trade || 'General Labor' }}</span></td>
+                    <td><span class="badge bg-secondary font-monospace">{{ w.employeeId || w.workerId.slice(0, 8) }}</span></td>
+                    <td class="text-muted">{{ w.workerEmail }}</td>
+                    <td class="small text-muted">{{ w.assignedAt | date:'mediumDate' }}</td>
                     <td class="text-end">
-                      <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-secondary" title="View Profile"><i class="bi bi-eye"></i></button>
-                        <button class="btn btn-outline-warning" title="Assign Task"><i class="bi bi-card-checklist"></i></button>
-                      </div>
+                      <button class="btn btn-sm btn-outline-danger" title="Remove Worker" (click)="removeWorker(w)">
+                        <i class="bi bi-person-x-fill me-1"></i>Remove
+                      </button>
                     </td>
                   </tr>
                   <tr *ngIf="filteredWorkers().length === 0">
-                    <td colspan="9" class="text-center py-4 text-muted"><i class="bi bi-people d-block fs-2 mb-2 opacity-50"></i>No workers found.</td>
+                    <td colspan="7" class="text-center py-4 text-muted">
+                      <i class="bi bi-people d-block fs-2 mb-2 opacity-50"></i>
+                      {{ selectedContractorId ? 'No workers assigned to this contractor.' : 'Select a contractor above to view assigned workforce.' }}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -151,37 +155,120 @@ export interface Worker {
 })
 export class ContractorWorkforceComponent implements OnInit {
   searchTerm = '';
-  statusFilter = '';
+  selectedContractorId = '';
+  selectedWorkerIdToAssign = '';
+  isContractorUser = false;
 
-  workers = signal<Worker[]>([]);
+  contractors: UserRead[] = [];
+  allWorkers: UserRead[] = [];
+  availableWorkers: UserRead[] = [];
+  assignedWorkers = signal<ContractorWorker[]>([]);
 
-  constructor(private userService: UserService) {}
+  error = '';
+  success = '';
 
-ngOnInit(): void {
-    this.userService.getUsers('Worker').subscribe(users => {
-      this.workers.set(users.map(u => ({
-        id: u.id,
-        name: u.fullName,
-        trade: u.department || 'General',
-        employeeId: u.employeeId || u.id,
-        phone: u.mobileNumber || '',
-        status: u.isActive ? 'Active' : 'Inactive',
-        assignedProject: '',
-        attendanceRate: 0,
-        tasksCompleted: 0
-      })));
+  constructor(
+    private userService: UserService,
+    private contractorService: ContractorService,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    const userRole = this.authService.getRole();
+    const currentUser = this.authService.currentUser();
+
+    if (userRole === 'Contractor' && currentUser) {
+      this.isContractorUser = true;
+      this.selectedContractorId = currentUser.id;
+    }
+
+    // Load contractors & workers
+    this.userService.getUsers('Contractor').subscribe({
+      next: (list) => {
+        this.contractors = list;
+        if (!this.selectedContractorId && list.length > 0) {
+          this.selectedContractorId = list[0].id;
+        }
+        if (this.selectedContractorId) {
+          this.loadAssignedWorkers();
+        }
+      },
+      error: () => this.error = 'Failed to load contractors list.'
+    });
+
+    this.userService.getUsers('Worker').subscribe({
+      next: (list) => {
+        this.allWorkers = list;
+        this.updateAvailableWorkers();
+      }
     });
   }
 
-  filteredWorkers() {
-    return this.workers().filter(w =>
-      (!this.searchTerm || w.name.toLowerCase().includes(this.searchTerm.toLowerCase()) || w.trade.toLowerCase().includes(this.searchTerm.toLowerCase())) &&
-      (!this.statusFilter || w.status === this.statusFilter)
+  loadAssignedWorkers(): void {
+    if (!this.selectedContractorId) {
+      this.assignedWorkers.set([]);
+      this.updateAvailableWorkers();
+      return;
+    }
+
+    this.contractorService.getAssignedWorkers(this.selectedContractorId).subscribe({
+      next: (data) => {
+        this.assignedWorkers.set(data);
+        this.updateAvailableWorkers();
+      },
+      error: (err) => {
+        this.error = err?.error?.detail || 'Failed to fetch assigned workers.';
+        this.assignedWorkers.set([]);
+      }
+    });
+  }
+
+  updateAvailableWorkers(): void {
+    const assignedIds = new Set(this.assignedWorkers().map(w => w.workerId));
+    this.availableWorkers = this.allWorkers.filter(w => !assignedIds.has(w.id));
+  }
+
+  assignWorker(): void {
+    if (!this.selectedContractorId || !this.selectedWorkerIdToAssign) return;
+
+    this.error = '';
+    this.success = '';
+    this.contractorService.assignWorker(this.selectedContractorId, this.selectedWorkerIdToAssign).subscribe({
+      next: (created) => {
+        this.success = `Worker ${created.workerName} successfully assigned to contractor.`;
+        this.selectedWorkerIdToAssign = '';
+        this.loadAssignedWorkers();
+      },
+      error: (err) => {
+        this.error = err?.error?.detail || 'Failed to assign worker.';
+      }
+    });
+  }
+
+  removeWorker(w: ContractorWorker): void {
+    if (!confirm(`Are you sure you want to remove ${w.workerName} from this contractor?`)) return;
+
+    this.error = '';
+    this.success = '';
+    this.contractorService.removeWorker(w.contractorId, w.workerId).subscribe({
+      next: () => {
+        this.success = `Worker ${w.workerName} removed successfully.`;
+        this.loadAssignedWorkers();
+      },
+      error: (err) => {
+        this.error = err?.error?.detail || 'Failed to remove worker.';
+      }
+    });
+  }
+
+  filteredWorkers(): ContractorWorker[] {
+    return this.assignedWorkers().filter(w =>
+      !this.searchTerm ||
+      w.workerName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      (w.trade && w.trade.toLowerCase().includes(this.searchTerm.toLowerCase()))
     );
   }
 
-  activeCount = () => this.workers().filter(w => w.status === 'Active').length;
-  leaveCount = () => this.workers().filter(w => w.status === 'On Leave').length;
-  avgAttendance = () => Math.round(this.workers().reduce((acc, w) => acc + w.attendanceRate, 0) / this.workers().length);
-  getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  activeCount = () => this.assignedWorkers().length;
+  getInitials = (name: string) => name ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'WK';
 }

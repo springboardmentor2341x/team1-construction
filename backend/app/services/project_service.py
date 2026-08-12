@@ -72,6 +72,8 @@ class ProjectService:
         project = self.project_repo.get_by_id(project_id)
         if not project:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        if project.status == "Closed":
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot modify a closed project")
 
         changed = []
         if updates.projectName is not None:
@@ -119,6 +121,8 @@ class ProjectService:
         project = self.project_repo.get_by_id(project_id)
         if not project:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        if project.status == "Closed":
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot modify a closed project")
         self.project_repo.delete(project)
         return True
 
@@ -137,6 +141,8 @@ class ProjectService:
         project = self.project_repo.get_by_id(project_id)
         if not project:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        if project.status == "Closed":
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot modify a closed project")
 
         user = self.db.query(User).filter(User.id == user_id).first()
         if not user:
@@ -179,6 +185,8 @@ class ProjectService:
         project = self.project_repo.get_by_id(project_id)
         if not project:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        if project.status == "Closed":
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot modify a closed project")
 
         if kind == "engineer":
             row = self.db.query(ProjectSiteEngineer).filter(
@@ -231,6 +239,17 @@ class ProjectService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
         if project.status == "Closed":
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project is already closed")
+
+        # Closure validation: verify all project milestones are completed
+        from app.models.milestone import ProjectMilestone
+        milestones = self.db.query(ProjectMilestone).filter(ProjectMilestone.project_id == project_id).all()
+        pending_milestones = [m for m in milestones if m.completion_percentage < 100 and m.status != "Completed"]
+        if pending_milestones:
+            incomplete_names = ", ".join([f"'{m.milestone_name}' ({m.completion_percentage}%)" for m in pending_milestones])
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot close project: Incomplete milestones remain [{incomplete_names}]. All milestones must reach 100% completion before project closure."
+            )
 
         project.status = "Closed"
         updated = self.project_repo.update(project)

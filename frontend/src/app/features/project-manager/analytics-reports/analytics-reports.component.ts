@@ -158,7 +158,7 @@ export class AnalyticsReportsComponent implements OnInit {
   filterForm: FormGroup;
   projects = signal<any[]>([]);
 
-kpis = [
+  kpis = [
     { label: 'Projects On Schedule', value: '0%', change: 'derived from backend', colorClass: 'text-success', icon: 'bi-check-circle-fill', bgClass: 'bg-success-subtle text-success' },
     { label: 'Budget Adherence', value: '0%', change: 'derived from backend', colorClass: 'text-warning', icon: 'bi-cash-stack', bgClass: 'bg-warning-subtle text-warning' },
     { label: 'Milestones Completed', value: '0/0', change: 'pending this quarter', colorClass: 'text-primary', icon: 'bi-flag-fill', bgClass: 'bg-primary-subtle text-primary' },
@@ -175,7 +175,7 @@ kpis = [
   savedReports: any[] = [];
 
   constructor(
-    private fb: FormBuilder, 
+    private fb: FormBuilder,
     private projectService: ProjectService,
     private resourceService: ResourceService,
     private milestoneService: MilestoneService
@@ -211,7 +211,7 @@ kpis = [
 
     this.resourceService.getResources().subscribe(res => {
       if (res.length > 0) {
-        const util = res.reduce((sum, r) => sum + (r.utilization_percentage || 0), 0) / res.length;
+        const util = res.reduce((sum, r) => sum + (r.utilizationPercentage || 0), 0) / res.length;
         this.kpis[3].value = Math.round(util) + '%';
       }
     });
@@ -225,7 +225,7 @@ kpis = [
     });
   }
 
-getProgressWidth(status: string): string {
+  getProgressWidth(status: string): string {
     // No fabricated percentages. Only reflect real project status:
     // Completed = 100%, otherwise 0 until a real completion metric exists.
     return status === 'Completed' ? '100%' : '0%';

@@ -65,11 +65,18 @@ class SiteProgressService:
     # ------------------------------------------------------------------
     # Helper: validate project exists
     # ------------------------------------------------------------------
-    def _require_project(self, project_id: str) -> Project:
+    def _require_project(self, project_id: str, require_open: bool = False) -> Project:
         proj = self.db.query(Project).filter(Project.id == project_id).first()
         if not proj:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        if require_open and proj.status == "Closed":
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot log progress or modify data on a closed project")
         return proj
+
+    def _verify_project_not_closed(self, project_id: str):
+        proj = self.db.query(Project).filter(Project.id == project_id).first()
+        if proj and proj.status == "Closed":
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot log progress or modify data on a closed project")
 
     # ------------------------------------------------------------------
     # Integration helpers: update dependent modules from daily reports
@@ -182,7 +189,7 @@ class SiteProgressService:
         return self._to_daily_read(r)
 
     def create_daily_report(self, req: DailyProgressReportCreate, user_name: str, user_id: str) -> DailyProgressReportRead:
-        self._require_project(req.projectId)
+        self._require_project(req.projectId, require_open=True)
         new_report = DailyProgressReport(
             project_id=req.projectId,
             report_date=req.reportDate,
@@ -242,6 +249,7 @@ class SiteProgressService:
         r = self.daily_repo.get_by_id(report_id)
         if not r:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Daily progress report not found")
+        self._verify_project_not_closed(r.project_id)
 
         if updates.reportDate is not None: r.report_date = updates.reportDate
         if updates.progressCategory is not None:
@@ -274,6 +282,7 @@ class SiteProgressService:
         r = self.daily_repo.get_by_id(report_id)
         if not r:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Daily progress report not found")
+        self._verify_project_not_closed(r.project_id)
         project_id = r.project_id
         self.daily_repo.delete(r)
         self.recompute_completion(project_id)
@@ -315,7 +324,7 @@ class SiteProgressService:
         return self._to_weekly_read(w)
 
     def create_weekly_report(self, req: WeeklyProgressReportCreate, user_name: str) -> WeeklyProgressReportRead:
-        self._require_project(req.projectId)
+        self._require_project(req.projectId, require_open=True)
         # Aggregate daily reports in the week range to auto-fill summary fields.
         daily_reports = self.daily_repo.get_in_date_range(req.projectId, req.weekStartDate, req.weekEndDate)
         if daily_reports:
@@ -362,6 +371,7 @@ class SiteProgressService:
         w = self.weekly_repo.get_by_id(report_id)
         if not w:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Weekly progress report not found")
+        self._verify_project_not_closed(w.project_id)
         self.weekly_repo.delete(w)
         return True
 
@@ -548,7 +558,7 @@ class SiteProgressService:
         return [self._to_delay_read(d) for d in delays]
 
     def create_delay(self, req: DelayTrackingCreate, user_name: str) -> DelayTrackingRead:
-        self._require_project(req.projectId)
+        self._require_project(req.projectId, require_open=True)
         new_delay = DelayTracking(
             project_id=req.projectId,
             reason=req.reason,
@@ -567,6 +577,7 @@ class SiteProgressService:
         d = self.delay_repo.get_by_id(delay_id)
         if not d:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Delay record not found")
+        self._verify_project_not_closed(d.project_id)
         if updates.reason is not None: d.reason = updates.reason
         if updates.durationDays is not None: d.duration_days = updates.durationDays
         if updates.affectedWorkCategory is not None: d.affected_work_category = updates.affectedWorkCategory
@@ -581,6 +592,7 @@ class SiteProgressService:
         d = self.delay_repo.get_by_id(delay_id)
         if not d:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Delay record not found")
+        self._verify_project_not_closed(d.project_id)
         self.delay_repo.delete(d)
         return True
 
@@ -607,7 +619,7 @@ class SiteProgressService:
         return [self._to_activity_read(a) for a in logs]
 
     def create_activity_log(self, req: SiteActivityLogCreate, user_name: str) -> SiteActivityLogRead:
-        self._require_project(req.projectId)
+        self._require_project(req.projectId, require_open=True)
         new_log = SiteActivityLog(
             project_id=req.projectId,
             activity_date=req.activityDate,
@@ -623,6 +635,7 @@ class SiteProgressService:
         a = self.activity_repo.get_by_id(log_id)
         if not a:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Site activity log not found")
+        self._verify_project_not_closed(a.project_id)
         if updates.activityDate is not None: a.activity_date = updates.activityDate
         if updates.activityTime is not None: a.activity_time = updates.activityTime
         if updates.description is not None: a.description = updates.description
@@ -635,6 +648,7 @@ class SiteProgressService:
         a = self.activity_repo.get_by_id(log_id)
         if not a:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Site activity log not found")
+        self._verify_project_not_closed(a.project_id)
         self.activity_repo.delete(a)
         return True
 
@@ -645,6 +659,7 @@ class SiteProgressService:
         report = self.daily_repo.get_by_id(req.reportId)
         if not report:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Daily progress report not found")
+        self._verify_project_not_closed(report.project_id)
         photo = ProgressPhotograph(
             report_id=req.reportId,
             photo_url=req.photoUrl,
@@ -674,6 +689,11 @@ class SiteProgressService:
         ]
 
     def delete_photograph(self, photo_id: str) -> bool:
+        photo = self.photo_repo.get_by_id(photo_id)
+        if photo:
+            report = self.daily_repo.get_by_id(photo.report_id)
+            if report:
+                self._verify_project_not_closed(report.project_id)
         self.photo_repo.delete(photo_id)
         return True
 

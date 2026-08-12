@@ -19,6 +19,8 @@ export class RoleService {
         return [
           { label: 'Executive Dashboard', icon: 'bi-grid-1x2-fill', route: '/dashboard/admin' },
           { label: 'Project Directory', icon: 'bi-building-gear', route: '/projects' },
+          { label: 'Resource Management', icon: 'bi-tools', route: '/resource/allocation' },
+          { label: 'Resource Utilization', icon: 'bi-pie-chart-fill', route: '/resource/utilization' },
           { label: 'Create New Project', icon: 'bi-plus-circle-fill', route: '/projects/create' },
           { label: 'Project Assignments', icon: 'bi-people-fill', route: '/projects/assignments' },
           { label: 'User Management', icon: 'bi-person-badge', route: '/users' },
@@ -35,6 +37,8 @@ export class RoleService {
         return [
           { label: 'Manager Dashboard', icon: 'bi-speedometer2', route: '/dashboard/project-manager' },
           { label: 'My Managed Projects', icon: 'bi-kanban-fill', route: '/projects' },
+          { label: 'Resource Management', icon: 'bi-tools', route: '/resource/allocation' },
+          { label: 'Resource Utilization', icon: 'bi-pie-chart-fill', route: '/resource/utilization' },
           { label: 'Project Assignments', icon: 'bi-people-fill', route: '/projects/assignments' },
           { label: 'Project Schedules', icon: 'bi-calendar3-range', route: '/projects/schedules' },
           { label: 'Milestone Tracker', icon: 'bi-flag-fill', route: '/projects/milestones' },
@@ -52,8 +56,9 @@ export class RoleService {
         return [
           { label: 'Engineering Hub', icon: 'bi-tools', route: '/dashboard/site-engineer' },
           { label: 'Assigned Site Projects', icon: 'bi-building-fill-check', route: '/projects' },
+          { label: 'Resource Management', icon: 'bi-truck-front-fill', route: '/resource/allocation' },
           { label: 'Daily Activity Logs', icon: 'bi-journal-check', route: '/site-activity' },
-          { label: 'Equipment Status', icon: 'bi-truck-front-fill', route: '/equipment' },
+          { label: 'Equipment Status', icon: 'bi-wrench-adjustable', route: '/equipment' },
           { label: 'Daily Progress Reports', icon: 'bi-journal-text', route: '/daily-progress-reports' },
           { label: 'Site Activity Logs', icon: 'bi-clipboard-data', route: '/site-activity-logs' },
           { label: 'Milestone Tracking', icon: 'bi-flag-fill', route: '/milestone-tracking' },

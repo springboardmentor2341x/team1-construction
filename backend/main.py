@@ -29,7 +29,7 @@ from app.models.site_progress import (
 from app.core.security import get_password_hash
 
 from app.routers import auth, users, projects, schedules, milestones, site_engineer, tasks_router, attendance, notifications, shifts, site_progress
-from app.routers import resources, inventory, procurement
+from app.routers import resources, inventory, procurement, contractors
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -67,6 +67,7 @@ app.include_router(site_progress.router, prefix=settings.API_V1_STR)
 app.include_router(resources.router, prefix=settings.API_V1_STR)
 app.include_router(inventory.router, prefix=settings.API_V1_STR)
 app.include_router(procurement.router, prefix=settings.API_V1_STR)
+app.include_router(contractors.router, prefix=settings.API_V1_STR)
 
 
 @app.on_event("startup")
@@ -99,8 +100,10 @@ def ensure_columns():
     db = SessionLocal()
     try:
 # Drop the stale tables so they can be recreated to match the models.
-        # Drop child tables first (progress_photographs -> daily_progress_reports)
-        # to satisfy foreign-key dependencies.
+        # Drop child tables first (resource_maintenances, resource_utilizations, resource_allocations -> resources)
+        db.execute(text("DROP TABLE IF EXISTS resource_maintenances"))
+        db.execute(text("DROP TABLE IF EXISTS resource_utilizations"))
+        db.execute(text("DROP TABLE IF EXISTS resource_allocations"))
         db.execute(text("DROP TABLE IF EXISTS progress_photographs"))
         db.execute(text("DROP TABLE IF EXISTS daily_progress_reports"))
         db.execute(text("DROP TABLE IF EXISTS weekly_progress_reports"))
@@ -122,7 +125,13 @@ def ensure_columns():
 
         # Recreate using SQLAlchemy metadata (matches the model definitions).
         from app.database.session import engine
-        from app.models.placeholders import Attendance, Notification, Resource, Inventory, Procurement  # noqa: F401
+        from app.models.placeholders import Attendance, Notification, Inventory, Procurement  # noqa: F401
+        from app.models.resource import (  # noqa: F401
+            ResourceModel,
+            ResourceAllocationModel,
+            ResourceUtilizationModel,
+            ResourceMaintenanceModel,
+        )
         from app.models.site_progress import (  # noqa: F401
             DailyProgressReport,
             WeeklyProgressReport,
@@ -138,14 +147,16 @@ def ensure_columns():
         from app.models.activity_log import ActivityLogModel  # noqa: F401
         Base.metadata.create_all(bind=engine, tables=[
             Attendance.__table__, Notification.__table__,
-            Resource.__table__, Inventory.__table__, Procurement.__table__,
+            ResourceModel.__table__, ResourceAllocationModel.__table__,
+            ResourceUtilizationModel.__table__, ResourceMaintenanceModel.__table__,
+            Inventory.__table__, Procurement.__table__,
             DailyProgressReport.__table__, WeeklyProgressReport.__table__,
             WorkCompletionStatus.__table__, DelayTracking.__table__,
             SiteActivityLog.__table__, ProgressPhotograph.__table__,
             TaskModel.__table__, DocumentModel.__table__, ShiftModel.__table__,
             EquipmentModel.__table__, ActivityLogModel.__table__,
         ])
-        print("[Migration] Recreated attendance, notifications, resources, inventory, procurements, tasks & site-progress tables to match models.")
+        print("[Migration] Recreated attendance, notifications, resources & module 4 tables to match models.")
     except Exception as e:
         print(f"[Warning] Column migration notice: {e}")
     finally:

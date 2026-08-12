@@ -7,7 +7,14 @@ from app.repositories.schedule_repository import ScheduleRepository
 
 class ScheduleService:
     def __init__(self, db: Session):
+        self.db = db
         self.repo = ScheduleRepository(db)
+
+    def _verify_project_not_closed(self, project_id: str):
+        from app.models.project import Project
+        p = self.db.query(Project).filter(Project.id == project_id).first()
+        if p and p.status == "Closed":
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot modify a closed project")
 
     def get_by_project(self, project_id: str) -> List[ScheduleRead]:
         schedules = self.repo.get_by_project(project_id)
@@ -24,6 +31,7 @@ class ScheduleService:
         ]
 
     def create_schedule(self, req: ScheduleCreate) -> ScheduleRead:
+        self._verify_project_not_closed(req.projectId)
         new_s = ProjectSchedule(
             project_id=req.projectId,
             phase_name=req.phaseName,
@@ -47,6 +55,7 @@ class ScheduleService:
         sch = self.repo.get_by_id(schedule_id)
         if not sch:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Schedule phase not found")
+        self._verify_project_not_closed(sch.project_id)
 
         if updates.phaseName is not None: sch.phase_name = updates.phaseName
         if updates.description is not None: sch.description = updates.description
@@ -69,5 +78,6 @@ class ScheduleService:
         sch = self.repo.get_by_id(schedule_id)
         if not sch:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Schedule phase not found")
+        self._verify_project_not_closed(sch.project_id)
         self.repo.delete(sch)
         return True

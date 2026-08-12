@@ -7,7 +7,14 @@ from app.repositories.milestone_repository import MilestoneRepository
 
 class MilestoneService:
     def __init__(self, db: Session):
+        self.db = db
         self.repo = MilestoneRepository(db)
+
+    def _verify_project_not_closed(self, project_id: str):
+        from app.models.project import Project
+        p = self.db.query(Project).filter(Project.id == project_id).first()
+        if p and p.status == "Closed":
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot modify a closed project")
 
     def get_by_project(self, project_id: str) -> List[MilestoneRead]:
         milestones = self.repo.get_by_project(project_id)
@@ -25,6 +32,7 @@ class MilestoneService:
         ]
 
     def create_milestone(self, req: MilestoneCreate) -> MilestoneRead:
+        self._verify_project_not_closed(req.projectId)
         new_m = ProjectMilestone(
             project_id=req.projectId,
             milestone_name=req.milestoneName,
@@ -50,6 +58,7 @@ class MilestoneService:
         ms = self.repo.get_by_id(milestone_id)
         if not ms:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Milestone not found")
+        self._verify_project_not_closed(ms.project_id)
 
         if updates.milestoneName is not None: ms.milestone_name = updates.milestoneName
         if updates.description is not None: ms.description = updates.description
@@ -74,5 +83,6 @@ class MilestoneService:
         ms = self.repo.get_by_id(milestone_id)
         if not ms:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Milestone not found")
+        self._verify_project_not_closed(ms.project_id)
         self.repo.delete(ms)
         return True
