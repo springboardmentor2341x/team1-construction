@@ -438,7 +438,9 @@ class SiteProgressService:
         Completion percentage on a milestone is advanced when a daily report's
         progress category matches the milestone name or category. The status is
         derived: 0% -> Pending, 0 < x < 100 -> In Progress, 100 -> Completed.
+        Sets actual_completion_date when completed.
         """
+        from datetime import date
         milestones = self.db.query(ProjectMilestone).filter(ProjectMilestone.project_id == project_id).all()
         reports = self.daily_repo.get_by_project(project_id)
         category_max: Dict[str, int] = {}
@@ -460,6 +462,8 @@ class SiteProgressService:
                 ms.completion_percentage = matched_pct
             if ms.completion_percentage >= 100:
                 ms.status = "Completed"
+                if not ms.actual_completion_date:
+                    ms.actual_completion_date = date.today().isoformat()
             elif ms.completion_percentage > 0:
                 ms.status = "In Progress"
             else:
@@ -467,6 +471,29 @@ class SiteProgressService:
             self.db.commit()
             result.append(self._to_milestone_read(ms))
         return result
+
+    def update_milestone(self, milestone_id: str, updates) -> MilestoneTrackingRead:
+        from datetime import date
+        ms = self.db.query(ProjectMilestone).filter(ProjectMilestone.id == milestone_id).first()
+        if not ms:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Milestone not found")
+        if updates.completionPercentage is not None:
+            ms.completion_percentage = updates.completionPercentage
+        if updates.status is not None:
+            ms.status = updates.status
+        if updates.plannedDate is not None:
+            ms.planned_date = updates.plannedDate
+        if updates.actualCompletionDate is not None:
+            ms.actual_completion_date = updates.actualCompletionDate
+
+        if ms.completion_percentage >= 100 or ms.status == "Completed":
+            ms.status = "Completed"
+            if not ms.actual_completion_date:
+                ms.actual_completion_date = date.today().isoformat()
+
+        self.db.commit()
+        self.db.refresh(ms)
+        return self._to_milestone_read(ms)
 
     def _to_milestone_read(self, ms) -> MilestoneTrackingRead:
         category = None
@@ -508,6 +535,7 @@ class SiteProgressService:
             impactOnTimeline=d.impact_on_timeline,
             reportedDate=d.reported_date,
             reportedBy=d.reported_by,
+            remarks=d.remarks,
             status=d.status,
         )
 
@@ -529,6 +557,7 @@ class SiteProgressService:
             impact_on_timeline=req.impactOnTimeline,
             reported_date=req.reportedDate,
             reported_by=user_name,
+            remarks=req.remarks,
             status=req.status or "Open",
         )
         created = self.delay_repo.create(new_delay)
@@ -543,6 +572,7 @@ class SiteProgressService:
         if updates.affectedWorkCategory is not None: d.affected_work_category = updates.affectedWorkCategory
         if updates.impactOnTimeline is not None: d.impact_on_timeline = updates.impactOnTimeline
         if updates.reportedDate is not None: d.reported_date = updates.reportedDate
+        if updates.remarks is not None: d.remarks = updates.remarks
         if updates.status is not None: d.status = updates.status
         updated = self.delay_repo.update(d)
         return self._to_delay_read(updated)

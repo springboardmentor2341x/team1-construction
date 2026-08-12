@@ -112,6 +112,11 @@ def ensure_columns():
         db.execute(text("DROP TABLE IF EXISTS resources"))
         db.execute(text("DROP TABLE IF EXISTS inventory"))
         db.execute(text("DROP TABLE IF EXISTS procurements"))
+        db.execute(text("DROP TABLE IF EXISTS assigned_tasks"))
+        db.execute(text("DROP TABLE IF EXISTS documents"))
+        db.execute(text("DROP TABLE IF EXISTS shifts"))
+        db.execute(text("DROP TABLE IF EXISTS equipment"))
+        db.execute(text("DROP TABLE IF EXISTS activity_logs"))
         db.commit()
         db.close()
 
@@ -126,14 +131,21 @@ def ensure_columns():
             SiteActivityLog,
             ProgressPhotograph,
         )
+        from app.models.task import TaskModel  # noqa: F401
+        from app.models.document import DocumentModel  # noqa: F401
+        from app.models.shift import ShiftModel  # noqa: F401
+        from app.models.equipment import EquipmentModel  # noqa: F401
+        from app.models.activity_log import ActivityLogModel  # noqa: F401
         Base.metadata.create_all(bind=engine, tables=[
             Attendance.__table__, Notification.__table__,
             Resource.__table__, Inventory.__table__, Procurement.__table__,
             DailyProgressReport.__table__, WeeklyProgressReport.__table__,
             WorkCompletionStatus.__table__, DelayTracking.__table__,
             SiteActivityLog.__table__, ProgressPhotograph.__table__,
+            TaskModel.__table__, DocumentModel.__table__, ShiftModel.__table__,
+            EquipmentModel.__table__, ActivityLogModel.__table__,
         ])
-        print("[Migration] Recreated attendance, notifications, resources, inventory, procurements & site-progress tables to match models.")
+        print("[Migration] Recreated attendance, notifications, resources, inventory, procurements, tasks & site-progress tables to match models.")
     except Exception as e:
         print(f"[Warning] Column migration notice: {e}")
     finally:
@@ -248,6 +260,17 @@ def seed_database():
                     project_manager_id=pm_user_id
                 )
                 db.add(proj)
+                db.commit()
+
+        # Seed Milestones for projects
+        all_projs = db.query(Project).all()
+        for p in all_projs:
+            if db.query(ProjectMilestone).filter(ProjectMilestone.project_id == p.id).count() == 0:
+                ms1 = ProjectMilestone(project_id=p.id, milestone_name="Foundation Completion", description="Pile cap & foundation excavation", planned_date="2026-08-15", completion_percentage=85, status="In Progress")
+                ms2 = ProjectMilestone(project_id=p.id, milestone_name="Structural Superstructure", description="Columns & slab pours up to Level 10", planned_date="2026-11-30", completion_percentage=40, status="In Progress")
+                ms3 = ProjectMilestone(project_id=p.id, milestone_name="Electrical Rough-in", description="Electrical conduit & wiring", planned_date="2027-02-28", completion_percentage=0, status="Pending")
+                ms4 = ProjectMilestone(project_id=p.id, milestone_name="Finishing Work & Inspection", description="Interior finishing and safety inspection", planned_date="2027-05-30", completion_percentage=0, status="Pending")
+                db.add_all([ms1, ms2, ms3, ms4])
                 db.commit()
 
         # 4. Seed Daily Activity Logs in PostgreSQL

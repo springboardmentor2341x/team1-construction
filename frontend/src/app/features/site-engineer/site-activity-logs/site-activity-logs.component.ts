@@ -30,9 +30,9 @@ import { SiteActivityLog } from '../../../core/models/site-progress.model';
           <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
             <div>
               <h2 class="fw-bold text-dark mb-0"><i class="bi bi-clipboard-data me-2 text-warning"></i>Site Activity Logs</h2>
-              <p class="text-muted small mb-0">Log important site events: material deliveries, inspections, safety meetings, client visits, and more.</p>
+              <p class="text-muted small mb-0">Log important site events: material deliveries, equipment servicing, safety training, client visits, and more.</p>
             </div>
-            <button *ngIf="canManage()" (click)="openForm()" class="btn btn-bt-accent d-flex align-items-center gap-2 shadow-sm">
+            <button *ngIf="canManage()" (click)="openCreateForm()" class="btn btn-bt-accent d-flex align-items-center gap-2 shadow-sm">
               <i class="bi bi-plus-lg"></i> Log Site Event
             </button>
           </div>
@@ -62,9 +62,12 @@ import { SiteActivityLog } from '../../../core/models/site-progress.model';
             </div>
           </div>
 
-          <!-- Create Form -->
+          <!-- Create / Edit Form -->
           <div class="card card-custom border-0 p-4 mb-4" *ngIf="showForm()">
-            <h6 class="fw-bold mb-3"><i class="bi bi-pencil-square me-2 text-warning"></i>Log New Site Event</h6>
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h6 class="fw-bold mb-0"><i class="bi bi-pencil-square me-2 text-warning"></i>{{ editingLogId() ? 'Edit Site Event Log' : 'Log New Site Event' }}</h6>
+              <button class="btn-close" (click)="cancelForm()"></button>
+            </div>
             <form [formGroup]="logForm" (ngSubmit)="submitLog()">
               <div class="row g-3">
                 <div class="col-md-3">
@@ -90,10 +93,10 @@ import { SiteActivityLog } from '../../../core/models/site-progress.model';
                   <textarea class="form-control form-control-sm" rows="3" formControlName="description" placeholder="Describe the site event..."></textarea>
                 </div>
                 <div class="col-12 d-flex gap-2 justify-content-end">
-                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="showForm.set(false)">Cancel</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelForm()">Cancel</button>
                   <button type="submit" class="btn btn-bt-accent btn-sm" [disabled]="logForm.invalid || submitting()">
                     <span *ngIf="submitting()" class="spinner-border spinner-border-sm me-1"></span>
-                    Save Event
+                    {{ editingLogId() ? 'Update Event' : 'Save Event' }}
                   </button>
                 </div>
               </div>
@@ -118,7 +121,8 @@ import { SiteActivityLog } from '../../../core/models/site-progress.model';
                     <td class="text-muted" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ log.description }}</td>
                     <td><i class="bi bi-person me-1"></i>{{ log.responsiblePerson }}</td>
                     <td class="text-end">
-                      <button *ngIf="canDelete()" (click)="deleteLog(log.id)" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                      <button *ngIf="canManage()" (click)="openEditForm(log)" class="btn btn-sm btn-outline-warning me-1" title="Edit Log"><i class="bi bi-pencil"></i></button>
+                      <button *ngIf="canDelete()" (click)="deleteLog(log.id)" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
                     </td>
                   </tr>
                   <tr *ngIf="filteredLogs().length === 0">
@@ -139,6 +143,7 @@ export class SiteActivityLogsComponent implements OnInit {
   eventTypes: string[] = [];
   logForm: FormGroup;
   showForm = signal(false);
+  editingLogId = signal<string | null>(null);
   submitting = signal(false);
   typeFilter = '';
   logs = signal<SiteActivityLog[]>([]);
@@ -160,7 +165,11 @@ export class SiteActivityLogsComponent implements OnInit {
 
   ngOnInit(): void {
     this.siteProgressService.getActivityEventTypes().subscribe(t => {
-      this.eventTypes = t.length ? t : ['Material Delivery', 'Machinery Maintenance', 'Safety Meeting', 'Inspection', 'Client Visit', 'Quality Audit', 'Accident', 'Contractor Meeting'];
+      this.eventTypes = t.length ? t : [
+        'Material Arrival', 'Material Delivery', 'Machinery Maintenance', 'Equipment Servicing',
+        'Safety Training', 'Safety Meeting', 'Client Visit', 'Government Inspection',
+        'Inspection', 'Quality Audit', 'Accident Report', 'Accident', 'Contractor Meeting', 'Other Site Event'
+      ];
     });
     this.projectService.getProjects().subscribe(projs => {
       this.projects = projs;
@@ -180,7 +189,8 @@ export class SiteActivityLogsComponent implements OnInit {
     this.siteProgressService.getSiteActivityLogs(this.selectedProjectId).subscribe(l => this.logs.set(l));
   }
 
-  openForm(): void {
+  openCreateForm(): void {
+    this.editingLogId.set(null);
     this.logForm.reset({
       activityDate: new Date().toISOString().split('T')[0],
       activityTime: '',
@@ -191,18 +201,47 @@ export class SiteActivityLogsComponent implements OnInit {
     this.showForm.set(true);
   }
 
+  openEditForm(log: SiteActivityLog): void {
+    this.editingLogId.set(log.id);
+    this.showForm.set(true);
+    this.logForm.patchValue({
+      activityDate: log.activityDate,
+      activityTime: log.activityTime || '',
+      eventType: log.eventType,
+      description: log.description,
+      responsiblePerson: log.responsiblePerson
+    });
+  }
+
+  cancelForm(): void {
+    this.showForm.set(false);
+    this.editingLogId.set(null);
+  }
+
   submitLog(): void {
     if (this.logForm.invalid || !this.selectedProjectId) return;
     this.submitting.set(true);
     const payload = { projectId: this.selectedProjectId, ...this.logForm.value };
-    this.siteProgressService.createSiteActivityLog(payload).subscribe({
-      next: () => {
-        this.loadLogs();
-        this.showForm.set(false);
-        this.submitting.set(false);
-      },
-      error: () => this.submitting.set(false)
-    });
+
+    if (this.editingLogId()) {
+      this.siteProgressService.updateSiteActivityLog(this.editingLogId()!, payload).subscribe({
+        next: () => {
+          this.loadLogs();
+          this.cancelForm();
+          this.submitting.set(false);
+        },
+        error: () => this.submitting.set(false)
+      });
+    } else {
+      this.siteProgressService.createSiteActivityLog(payload).subscribe({
+        next: () => {
+          this.loadLogs();
+          this.cancelForm();
+          this.submitting.set(false);
+        },
+        error: () => this.submitting.set(false)
+      });
+    }
   }
 
   deleteLog(id: string): void {
@@ -228,14 +267,20 @@ export class SiteActivityLogsComponent implements OnInit {
 
   getEventBadge(type: string): string {
     const map: Record<string, string> = {
+      'Material Arrival': 'bg-primary-subtle text-primary border',
       'Material Delivery': 'bg-primary',
       'Machinery Maintenance': 'bg-secondary',
+      'Equipment Servicing': 'bg-secondary-subtle text-dark border',
+      'Safety Training': 'bg-success-subtle text-success border',
       'Safety Meeting': 'bg-success',
       'Inspection': 'bg-info text-dark',
+      'Government Inspection': 'bg-info-subtle text-info border',
       'Client Visit': 'bg-warning text-dark',
       'Quality Audit': 'bg-dark',
+      'Accident Report': 'bg-danger-subtle text-danger border',
       'Accident': 'bg-danger',
-      'Contractor Meeting': 'bg-purple'
+      'Contractor Meeting': 'bg-dark-subtle text-dark border',
+      'Other Site Event': 'bg-light text-dark border'
     };
     return map[type] || 'bg-light text-dark';
   }

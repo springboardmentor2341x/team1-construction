@@ -1,18 +1,21 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { SiteProgressService } from '../../../core/services/site-progress.service';
 import { ProjectService } from '../../../core/services/project.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { UserRole } from '../../../core/models/role.enum';
 import { Project } from '../../../core/models/project.model';
 
 @Component({
   selector: 'app-milestone-tracking',
   standalone: true,
-  imports: [CommonModule, RouterModule, NavbarComponent, SidebarComponent, RoleSimulatorComponent, StatusBadgeComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, NavbarComponent, SidebarComponent, RoleSimulatorComponent, StatusBadgeComponent],
   template: `
     <app-role-simulator></app-role-simulator>
     <app-navbar></app-navbar>
@@ -27,7 +30,7 @@ import { Project } from '../../../core/models/project.model';
           <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
             <div>
               <h2 class="fw-bold text-dark mb-0"><i class="bi bi-flag-fill me-2 text-warning"></i>Milestone Tracking</h2>
-              <p class="text-muted small mb-0">Milestones are auto-synced from daily progress reports and the project management system.</p>
+              <p class="text-muted small mb-0">Milestones are auto-synced from daily progress reports and can be manually verified.</p>
             </div>
             <button (click)="syncMilestones()" class="btn btn-outline-warning btn-sm d-flex align-items-center gap-2">
               <i class="bi bi-arrow-repeat"></i> Sync from Progress
@@ -85,7 +88,12 @@ import { Project } from '../../../core/models/project.model';
                       <h6 class="fw-bold text-dark mb-0">{{ m.milestoneName }}</h6>
                       <app-status-badge [status]="m.status"></app-status-badge>
                     </div>
-                    <span *ngIf="m.category" class="badge bg-light text-dark border">{{ m.category }}</span>
+                    <div class="d-flex align-items-center gap-2">
+                      <span *ngIf="m.category" class="badge bg-light text-dark border">{{ m.category }}</span>
+                      <button *ngIf="canManage()" (click)="openUpdateModal(m)" class="btn btn-sm btn-outline-warning" title="Verify & Edit Milestone">
+                        <i class="bi bi-pencil-square me-1"></i> Verify / Update
+                      </button>
+                    </div>
                   </div>
                   <p class="text-muted small mb-2">{{ m.description }}</p>
                   <div class="progress mb-2" style="height: 10px;">
@@ -102,10 +110,55 @@ import { Project } from '../../../core/models/project.model';
               </div>
               <div *ngIf="milestones().length === 0" class="col-12 text-center py-4 text-muted">
                 <i class="bi bi-flag d-block fs-3 mb-2"></i>
-                No milestones created for this project. Create them in Milestone Management under Project Management.
+                No milestones created for this project.
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verify / Update Milestone Modal -->
+    <div class="modal fade show d-block bg-dark bg-opacity-50" tabindex="-1" *ngIf="selectedMilestone">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title fw-bold text-dark"><i class="bi bi-check2-circle me-2 text-success"></i>Verify & Update Milestone</h5>
+            <button type="button" class="btn-close" (click)="selectedMilestone = null"></button>
+          </div>
+          <form [formGroup]="msForm" (ngSubmit)="submitMilestoneUpdate()">
+            <div class="modal-body p-4 small">
+              <h6 class="fw-bold mb-3 text-dark">{{ selectedMilestone.milestoneName }}</h6>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Completion Percentage *</label>
+                <input type="number" min="0" max="100" class="form-control form-control-sm" formControlName="completionPercentage">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Status *</label>
+                <select class="form-select form-select-sm" formControlName="status">
+                  <option value="Pending">Pending</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Delayed">Delayed</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Planned Date</label>
+                <input type="date" class="form-control form-control-sm" formControlName="plannedDate">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Actual Completion Date</label>
+                <input type="date" class="form-control form-control-sm" formControlName="actualCompletionDate">
+              </div>
+            </div>
+            <div class="modal-footer bg-light">
+              <button type="button" class="btn btn-secondary btn-sm" (click)="selectedMilestone = null">Cancel</button>
+              <button type="submit" class="btn btn-bt-accent btn-sm" [disabled]="msForm.invalid || updating()">
+                <span *ngIf="updating()" class="spinner-border spinner-border-sm me-1"></span>
+                Save Verification
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -117,10 +170,23 @@ export class MilestoneTrackingComponent implements OnInit {
   selectedProjectId = '';
   milestones = signal<any[]>([]);
 
+  selectedMilestone: any = null;
+  msForm: FormGroup;
+  updating = signal(false);
+
   constructor(
+    private fb: FormBuilder,
     private siteProgressService: SiteProgressService,
-    private projectService: ProjectService
-  ) {}
+    private projectService: ProjectService,
+    public authService: AuthService
+  ) {
+    this.msForm = this.fb.group({
+      completionPercentage: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
+      status: ['Pending', Validators.required],
+      plannedDate: [''],
+      actualCompletionDate: ['']
+    });
+  }
 
   ngOnInit(): void {
     this.projectService.getProjects().subscribe(projs => {
@@ -144,6 +210,49 @@ export class MilestoneTrackingComponent implements OnInit {
   syncMilestones(): void {
     if (!this.selectedProjectId) return;
     this.siteProgressService.syncMilestones(this.selectedProjectId).subscribe(m => this.milestones.set(m));
+  }
+
+  openUpdateModal(milestone: any): void {
+    this.selectedMilestone = milestone;
+    this.msForm.patchValue({
+      completionPercentage: milestone.completionPercentage,
+      status: milestone.status,
+      plannedDate: milestone.plannedDate || '',
+      actualCompletionDate: milestone.actualCompletionDate || ''
+    });
+  }
+
+  submitMilestoneUpdate(): void {
+    if (this.msForm.invalid || !this.selectedMilestone) return;
+    this.updating.set(true);
+    const val = this.msForm.value;
+    const updates: any = {
+      completionPercentage: Number(val.completionPercentage) || 0,
+      status: val.status,
+      plannedDate: val.plannedDate || null,
+      actualCompletionDate: val.actualCompletionDate || null
+    };
+
+    if (updates.completionPercentage >= 100 || updates.status === 'Completed') {
+      updates.status = 'Completed';
+      if (!updates.actualCompletionDate) {
+        updates.actualCompletionDate = new Date().toISOString().split('T')[0];
+      }
+    }
+
+    this.siteProgressService.updateMilestone(this.selectedMilestone.id, updates).subscribe({
+      next: () => {
+        this.loadMilestones();
+        this.selectedMilestone = null;
+        this.updating.set(false);
+      },
+      error: () => this.updating.set(false)
+    });
+  }
+
+  canManage(): boolean {
+    const role = this.authService.getRole();
+    return role === UserRole.SITE_ENGINEER || role === UserRole.ADMINISTRATOR || role === UserRole.PROJECT_MANAGER;
   }
 
   get pendingCount(): number { return this.milestones().filter(m => m.status === 'Pending').length; }

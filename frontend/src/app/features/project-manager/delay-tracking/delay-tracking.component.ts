@@ -30,9 +30,9 @@ import { DelayTracking } from '../../../core/models/site-progress.model';
           <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
             <div>
               <h2 class="fw-bold text-dark mb-0"><i class="bi bi-exclamation-octagon me-2 text-danger"></i>Delay Tracking</h2>
-              <p class="text-muted small mb-0">Record project delays, reasons, durations, impacted work category, and timeline impact.</p>
+              <p class="text-muted small mb-0">Record project delays, reasons, durations, impacted work category, timeline impact, and remarks.</p>
             </div>
-            <button *ngIf="canManage()" (click)="openForm()" class="btn btn-bt-accent d-flex align-items-center gap-2 shadow-sm">
+            <button *ngIf="canManage()" (click)="openCreateForm()" class="btn btn-bt-accent d-flex align-items-center gap-2 shadow-sm">
               <i class="bi bi-plus-lg"></i> Log Delay
             </button>
           </div>
@@ -77,9 +77,12 @@ import { DelayTracking } from '../../../core/models/site-progress.model';
             </div>
           </div>
 
-          <!-- Create Form -->
+          <!-- Create / Edit Form -->
           <div class="card card-custom border-0 p-4 mb-4" *ngIf="showForm()">
-            <h6 class="fw-bold mb-3"><i class="bi bi-pencil-square me-2 text-danger"></i>Log New Delay</h6>
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h6 class="fw-bold mb-0"><i class="bi bi-pencil-square me-2 text-danger"></i>{{ editingDelayId() ? 'Edit Delay Record' : 'Log New Delay' }}</h6>
+              <button class="btn-close" (click)="cancelForm()"></button>
+            </div>
             <form [formGroup]="delayForm" (ngSubmit)="submitDelay()">
               <div class="row g-3">
                 <div class="col-md-6">
@@ -111,11 +114,15 @@ import { DelayTracking } from '../../../core/models/site-progress.model';
                   <label class="form-label small fw-semibold">Impact on Timeline</label>
                   <input type="text" class="form-control form-control-sm" formControlName="impactOnTimeline" placeholder="e.g. 2-day slip on structural phase">
                 </div>
+                <div class="col-12">
+                  <label class="form-label small fw-semibold">Additional Remarks</label>
+                  <textarea class="form-control form-control-sm" rows="2" formControlName="remarks" placeholder="Additional details or mitigation actions..."></textarea>
+                </div>
                 <div class="col-12 d-flex gap-2 justify-content-end">
-                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="showForm.set(false)">Cancel</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelForm()">Cancel</button>
                   <button type="submit" class="btn btn-bt-accent btn-sm" [disabled]="delayForm.invalid || submitting()">
                     <span *ngIf="submitting()" class="spinner-border spinner-border-sm me-1"></span>
-                    Save Delay
+                    {{ editingDelayId() ? 'Update Delay' : 'Save Delay' }}
                   </button>
                 </div>
               </div>
@@ -129,7 +136,14 @@ import { DelayTracking } from '../../../core/models/site-progress.model';
               <table class="table table-hover small align-middle">
                 <thead class="table-light text-muted">
                   <tr>
-                    <th>Reason</th><th>Category</th><th>Days</th><th>Reported Date</th><th>Timeline Impact</th><th>Status</th><th class="text-end">Actions</th>
+                    <th>Reason</th>
+                    <th>Category</th>
+                    <th>Days</th>
+                    <th>Reported Date</th>
+                    <th>Timeline Impact</th>
+                    <th>Remarks</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -138,15 +152,17 @@ import { DelayTracking } from '../../../core/models/site-progress.model';
                     <td><span class="badge bg-light text-dark border">{{ d.affectedWorkCategory }}</span></td>
                     <td><span class="badge bg-warning text-dark">{{ d.durationDays }}d</span></td>
                     <td>{{ d.reportedDate }}</td>
-                    <td class="text-muted" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.impactOnTimeline || 'N/A' }}</td>
+                    <td class="text-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.impactOnTimeline || 'N/A' }}</td>
+                    <td class="text-muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.remarks || 'None' }}</td>
                     <td><span class="badge rounded-pill" [ngClass]="d.status === 'Open' ? 'bg-danger' : 'bg-success'">{{ d.status }}</span></td>
                     <td class="text-end">
+                      <button *ngIf="canManage()" (click)="openEditForm(d)" class="btn btn-sm btn-outline-warning me-1" title="Edit Delay"><i class="bi bi-pencil"></i></button>
                       <button *ngIf="canManage() && d.status === 'Open'" (click)="resolveDelay(d)" class="btn btn-sm btn-outline-success me-1" title="Mark Resolved"><i class="bi bi-check2-circle"></i></button>
-                      <button *ngIf="canDelete()" (click)="deleteDelay(d.id)" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                      <button *ngIf="canDelete()" (click)="deleteDelay(d.id)" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
                     </td>
                   </tr>
                   <tr *ngIf="delays().length === 0">
-                    <td colspan="7" class="text-center py-4 text-muted"><i class="bi bi-check2-all d-block fs-3 mb-2"></i>No delays recorded for this project.</td>
+                    <td colspan="8" class="text-center py-4 text-muted"><i class="bi bi-check2-all d-block fs-3 mb-2"></i>No delays recorded for this project.</td>
                   </tr>
                 </tbody>
               </table>
@@ -163,6 +179,7 @@ export class DelayTrackingComponent implements OnInit {
   categories: string[] = [];
   delayForm: FormGroup;
   showForm = signal(false);
+  editingDelayId = signal<string | null>(null);
   submitting = signal(false);
   delays = signal<DelayTracking[]>([]);
 
@@ -178,6 +195,7 @@ export class DelayTrackingComponent implements OnInit {
       affectedWorkCategory: ['Foundation', Validators.required],
       impactOnTimeline: [''],
       reportedDate: [new Date().toISOString().split('T')[0], Validators.required],
+      remarks: [''],
       status: ['Open']
     });
   }
@@ -204,16 +222,37 @@ export class DelayTrackingComponent implements OnInit {
     this.siteProgressService.getDelays(this.selectedProjectId).subscribe(d => this.delays.set(d));
   }
 
-  openForm(): void {
+  openCreateForm(): void {
+    this.editingDelayId.set(null);
     this.delayForm.reset({
       reason: '',
       durationDays: 1,
       affectedWorkCategory: 'Foundation',
       impactOnTimeline: '',
       reportedDate: new Date().toISOString().split('T')[0],
+      remarks: '',
       status: 'Open'
     });
     this.showForm.set(true);
+  }
+
+  openEditForm(delay: DelayTracking): void {
+    this.editingDelayId.set(delay.id);
+    this.showForm.set(true);
+    this.delayForm.patchValue({
+      reason: delay.reason,
+      durationDays: delay.durationDays,
+      affectedWorkCategory: delay.affectedWorkCategory,
+      impactOnTimeline: delay.impactOnTimeline || '',
+      reportedDate: delay.reportedDate,
+      remarks: delay.remarks || '',
+      status: delay.status
+    });
+  }
+
+  cancelForm(): void {
+    this.showForm.set(false);
+    this.editingDelayId.set(null);
   }
 
   submitDelay(): void {
@@ -224,14 +263,26 @@ export class DelayTrackingComponent implements OnInit {
       ...this.delayForm.value,
       durationDays: Number(this.delayForm.value.durationDays) || 0
     };
-    this.siteProgressService.createDelay(payload).subscribe({
-      next: () => {
-        this.loadDelays();
-        this.showForm.set(false);
-        this.submitting.set(false);
-      },
-      error: () => this.submitting.set(false)
-    });
+
+    if (this.editingDelayId()) {
+      this.siteProgressService.updateDelay(this.editingDelayId()!, payload).subscribe({
+        next: () => {
+          this.loadDelays();
+          this.cancelForm();
+          this.submitting.set(false);
+        },
+        error: () => this.submitting.set(false)
+      });
+    } else {
+      this.siteProgressService.createDelay(payload).subscribe({
+        next: () => {
+          this.loadDelays();
+          this.cancelForm();
+          this.submitting.set(false);
+        },
+        error: () => this.submitting.set(false)
+      });
+    }
   }
 
   resolveDelay(d: DelayTracking): void {

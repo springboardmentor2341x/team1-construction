@@ -101,6 +101,10 @@ export class SiteProgressService {
     return this.http.post<any[]>(`${this.apiUrl}/milestone-tracking/sync/${projectId}`, {});
   }
 
+  updateMilestone(id: string, updates: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/milestone-tracking/${id}`, updates);
+  }
+
   // ------------------------------------------------------------------
   // Delay Tracking
   // ------------------------------------------------------------------

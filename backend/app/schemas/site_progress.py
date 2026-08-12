@@ -11,14 +11,20 @@ PROGRESS_CATEGORIES = [
 ]
 
 ACTIVITY_EVENT_TYPES = [
+    "Material Arrival",
     "Material Delivery",
     "Machinery Maintenance",
+    "Equipment Servicing",
+    "Safety Training",
     "Safety Meeting",
-    "Inspection",
     "Client Visit",
+    "Government Inspection",
+    "Inspection",
     "Quality Audit",
+    "Accident Report",
     "Accident",
     "Contractor Meeting",
+    "Other Site Event",
 ]
 
 
@@ -122,9 +128,9 @@ class WeeklyProgressReportCreate(BaseModel):
     weekStartDate: str
     weekEndDate: str
     completedWork: Optional[str] = None
-    weeklyProgressPercentage: Optional[int] = Field(default=0, ge=0, le=100)
-    workerHours: Optional[float] = Field(default=0.0, ge=0.0)
-    workerCount: Optional[int] = Field(default=0, ge=0)
+    weeklyProgressPercentage: Optional[int] = Field(default=None, ge=0, le=100)
+    workerHours: Optional[float] = Field(default=None, ge=0.0)
+    workerCount: Optional[int] = Field(default=None, ge=0)
     majorActivities: Optional[str] = None
     delays: Optional[str] = None
     safetyIncidents: Optional[str] = None
@@ -168,6 +174,7 @@ class DelayTrackingCreate(BaseModel):
     affectedWorkCategory: str
     impactOnTimeline: Optional[str] = None
     reportedDate: str
+    remarks: Optional[str] = None
     status: str = "Open"
 
 
@@ -177,6 +184,7 @@ class DelayTrackingUpdate(BaseModel):
     affectedWorkCategory: Optional[str] = None
     impactOnTimeline: Optional[str] = None
     reportedDate: Optional[str] = None
+    remarks: Optional[str] = None
     status: Optional[str] = None
 
 
@@ -189,6 +197,7 @@ class DelayTrackingRead(BaseModel):
     impactOnTimeline: Optional[str] = None
     reportedDate: str
     reportedBy: str
+    remarks: Optional[str] = None
     status: str
 
     class Config:
@@ -248,6 +257,13 @@ class MilestoneTrackingRead(BaseModel):
     completionPercentage: int
     status: str
     category: Optional[str] = None
+
+
+class MilestoneUpdate(BaseModel):
+    completionPercentage: Optional[int] = Field(default=None, ge=0, le=100)
+    status: Optional[str] = None
+    plannedDate: Optional[str] = None
+    actualCompletionDate: Optional[str] = None
 
 
 class SiteProgressDashboardRead(BaseModel):

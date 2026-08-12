@@ -8,14 +8,20 @@ export const PROGRESS_CATEGORIES = [
 ] as const;
 
 export const ACTIVITY_EVENT_TYPES = [
+  'Material Arrival',
   'Material Delivery',
   'Machinery Maintenance',
+  'Equipment Servicing',
+  'Safety Training',
   'Safety Meeting',
-  'Inspection',
   'Client Visit',
+  'Government Inspection',
+  'Inspection',
   'Quality Audit',
+  'Accident Report',
   'Accident',
   'Contractor Meeting',
+  'Other Site Event',
 ] as const;
 
 export type ProgressCategory = typeof PROGRESS_CATEGORIES[number];
@@ -61,6 +67,8 @@ export interface WeeklyProgressReport {
   weekEndDate: string;
   completedWork?: string;
   weeklyProgressPercentage: number;
+  workerHours?: number;
+  workerCount?: number;
   majorActivities?: string;
   delays?: string;
   safetyIncidents?: string;
@@ -85,6 +93,7 @@ export interface DelayTracking {
   impactOnTimeline?: string;
   reportedDate: string;
   reportedBy: string;
+  remarks?: string;
   status: string;
 }
 

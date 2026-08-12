@@ -23,6 +23,7 @@ from app.schemas.site_progress import (
     ProgressPhotographRead,
     WorkCompletionStatusRead,
     MilestoneTrackingRead,
+    MilestoneUpdate,
     SiteProgressDashboardRead,
 )
 from app.services.site_progress_service import SiteProgressService
@@ -177,6 +178,17 @@ def sync_milestones(
 ):
     service = SiteProgressService(db)
     return service.sync_milestones_from_reports(project_id)
+
+
+@router.put("/milestone-tracking/{milestone_id}", response_model=MilestoneTrackingRead)
+def update_milestone(
+    milestone_id: str,
+    updates: MilestoneUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(RequireRole(SITE_WRITERS)),
+):
+    service = SiteProgressService(db)
+    return service.update_milestone(milestone_id, updates)
 
 
 # ----------------------------------------------------------------------

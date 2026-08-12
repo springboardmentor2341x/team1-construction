@@ -97,6 +97,7 @@ class DelayTracking(Base):
     impact_on_timeline: Mapped[str] = mapped_column(Text, nullable=True)
     reported_date: Mapped[str] = mapped_column(String(20), nullable=False)
     reported_by: Mapped[str] = mapped_column(String(100), nullable=False, default="Site Engineer")
+    remarks: Mapped[str] = mapped_column(Text, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="Open")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
