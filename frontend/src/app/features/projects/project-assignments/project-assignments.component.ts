@@ -75,7 +75,9 @@ import { UserRole } from '../../../core/models/role.enum';
                     <div class="space-y-2 mb-3">
                       <div *ngFor="let eng of selectedProject.assignedEngineers || []" class="d-flex align-items-center justify-content-between p-2 border rounded-3 bg-light">
                         <div class="d-flex align-items-center">
-                          <img [src]="eng.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40'" class="rounded-circle me-2" width="32" height="32">
+                          <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center me-2" style="width:28px; height:28px;">
+                            <i class="bi bi-person-fill small"></i>
+                          </div>
                           <div>
                             <div class="small fw-bold text-dark">{{ eng.name }}</div>
                             <div class="extra-small text-muted">{{ eng.role }}</div>
@@ -107,7 +109,9 @@ import { UserRole } from '../../../core/models/role.enum';
                     <div class="space-y-2 mb-3">
                       <div *ngFor="let con of selectedProject.assignedContractors || []" class="d-flex align-items-center justify-content-between p-2 border rounded-3 bg-light">
                         <div class="d-flex align-items-center">
-                          <img [src]="con.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40'" class="rounded-circle me-2" width="32" height="32">
+                          <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center me-2" style="width:28px; height:28px;">
+                            <i class="bi bi-person-fill small"></i>
+                          </div>
                           <div>
                             <div class="small fw-bold text-dark">{{ con.name }}</div>
                             <div class="extra-small text-muted">{{ con.role }}</div>
@@ -139,7 +143,9 @@ import { UserRole } from '../../../core/models/role.enum';
                     <div class="space-y-2 mb-3">
                       <div *ngFor="let cli of selectedProject.assignedClients || []" class="d-flex align-items-center justify-content-between p-2 border rounded-3 bg-light">
                         <div class="d-flex align-items-center">
-                          <img [src]="cli.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40'" class="rounded-circle me-2" width="32" height="32">
+                          <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center me-2" style="width:28px; height:28px;">
+                            <i class="bi bi-person-fill small"></i>
+                          </div>
                           <div>
                             <div class="small fw-bold text-dark">{{ cli.name }}</div>
                             <div class="extra-small text-muted">{{ cli.role }}</div>

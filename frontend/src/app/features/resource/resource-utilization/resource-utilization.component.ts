@@ -44,22 +44,53 @@ import {
 
           <!-- Real KPI Summary Cards -->
           <div class="row g-3 mb-4" *ngIf="dashboard">
-            <div class="col-md-4">
-              <div class="card card-custom border-0 p-3 bg-white shadow-sm">
-                <span class="text-muted small">Total Managed Equipment</span>
+            <div class="col-md-2 col-6">
+              <div class="card card-custom border-0 p-3 bg-white shadow-sm text-center">
+                <span class="text-muted small fw-semibold">Total Equipment</span>
                 <h3 class="fw-bold mb-0 text-dark">{{ dashboard.totalResources }}</h3>
               </div>
             </div>
-            <div class="col-md-4">
-              <div class="card card-custom border-0 p-3 bg-white shadow-sm">
-                <span class="text-muted small">Average System Utilization</span>
+            <div class="col-md-2 col-6">
+              <div class="card card-custom border-0 p-3 bg-white shadow-sm text-center">
+                <span class="text-muted small fw-semibold">Avg System Utilization</span>
                 <h3 class="fw-bold mb-0 text-success">{{ dashboard.avgUtilizationPercentage }}%</h3>
               </div>
             </div>
-            <div class="col-md-4">
-              <div class="card card-custom border-0 p-3 bg-white shadow-sm">
-                <span class="text-muted small">Available Equipment</span>
+            <div class="col-md-2 col-6">
+              <div class="card card-custom border-0 p-3 bg-white shadow-sm text-center">
+                <span class="text-muted small fw-semibold">Idle %</span>
+                <h3 class="fw-bold mb-0 text-warning">{{ dashboard.idlePercentage || 0 }}%</h3>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="card card-custom border-0 p-3 bg-white shadow-sm text-center">
+                <span class="text-muted small fw-semibold">Available Equipment</span>
                 <h3 class="fw-bold mb-0 text-primary">{{ dashboard.availableCount }}</h3>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="card card-custom border-0 p-3 bg-white shadow-sm text-center">
+                <span class="text-muted small fw-semibold">Under Maintenance</span>
+                <h3 class="fw-bold mb-0 text-danger">{{ dashboard.underMaintenanceCount }}</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Filter Bar -->
+          <div class="card card-custom border-0 p-3 mb-4 bg-white shadow-sm">
+            <div class="row align-items-center">
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold mb-1">Filter by Category</label>
+                <select class="form-select form-select-sm" [(ngModel)]="categoryFilter" (change)="filterResources()">
+                  <option value="">All Categories</option>
+                  <option value="Heavy Machinery">Heavy Machinery</option>
+                  <option value="Labor">Labor</option>
+                  <option value="Equipment">Equipment</option>
+                  <option value="Excavators">Excavators</option>
+                  <option value="Concrete Mixers">Concrete Mixers</option>
+                  <option value="Cranes">Cranes</option>
+                  <option value="Dump Trucks">Dump Trucks</option>
+                </select>
               </div>
             </div>
           </div>
@@ -79,7 +110,7 @@ import {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let res of resources">
+                  <tr *ngFor="let res of filteredResources()">
                     <td class="fw-bold text-primary">{{ res.equipmentCode }}</td>
                     <td class="fw-semibold">{{ res.name }}</td>
                     <td><span class="badge bg-light text-dark border">{{ res.category }}</span></td>
@@ -100,8 +131,8 @@ import {
                       </div>
                     </td>
                   </tr>
-                  <tr *ngIf="!resources.length">
-                    <td colspan="5" class="text-center py-3 text-muted">No equipment found.</td>
+                  <tr *ngIf="!filteredResources().length">
+                    <td colspan="5" class="text-center py-3 text-muted">No equipment found for selected category.</td>
                   </tr>
                 </tbody>
               </table>
@@ -207,6 +238,7 @@ export class ResourceUtilizationComponent implements OnInit {
   utilizationLogs: ResourceUtilization[] = [];
   dashboard: ResourceDashboard | null = null;
 
+  categoryFilter = '';
   showModal = false;
   utilForm: Partial<ResourceUtilization> = {};
 
@@ -233,6 +265,15 @@ export class ResourceUtilizationComponent implements OnInit {
       totalAvailableHours: 10,
       notes: ''
     };
+  }
+
+  filterResources(): void {
+    // Triggers change detection
+  }
+
+  filteredResources(): Resource[] {
+    if (!this.categoryFilter) return this.resources;
+    return this.resources.filter(r => r.category === this.categoryFilter);
   }
 
   saveUtilization(): void {

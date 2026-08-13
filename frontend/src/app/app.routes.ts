@@ -257,6 +257,36 @@ export const routes: Routes = [
 
   // === INVENTORY & PROCUREMENT PAGES ===
   {
+    path: 'materials',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER] },
+    loadComponent: () => import('./features/material/material-list/material-list.component').then(m => m.MaterialListComponent)
+  },
+  {
+    path: 'inventory',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR, UserRole.CLIENT] },
+    loadComponent: () => import('./features/material/inventory-management/inventory-management.component').then(m => m.InventoryManagementComponent)
+  },
+  {
+    path: 'material-requests',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER] },
+    loadComponent: () => import('./features/material/material-request/material-request.component').then(m => m.MaterialRequestComponent)
+  },
+  {
+    path: 'material-allocations',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER] },
+    loadComponent: () => import('./features/material/material-allocation/material-allocation.component').then(m => m.MaterialAllocationComponent)
+  },
+  {
+    path: 'stock-movements',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER] },
+    loadComponent: () => import('./features/material/stock-movements/stock-movements.component').then(m => m.StockMovementsComponent)
+  },
+  {
     path: 'inventory/materials',
     canActivate: [authGuard, roleGuard],
     data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER] },
@@ -273,6 +303,11 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
     data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR] },
     loadComponent: () => import('./features/inventory/procurement-request/procurement-request.component').then(m => m.ProcurementRequestComponent)
+  },
+  {
+    path: 'procurement',
+    redirectTo: 'inventory/procurement',
+    pathMatch: 'full'
   },
 
   // Wildcard Route

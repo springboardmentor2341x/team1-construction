@@ -45,11 +45,9 @@ import { User } from '../../../core/models/user.model';
             <div class="col-lg-4">
               <div class="card card-custom border-0 p-4 text-center">
                 <div class="position-relative d-inline-block mx-auto mb-3">
-                  <img [src]="currentUser.profilePicture" alt="Profile Picture" class="rounded-circle object-fit-cover shadow" width="130" height="130">
-                  <label class="position-absolute bottom-0 end-0 bg-warning text-dark rounded-circle p-2 shadow cursor-pointer" title="Change Picture">
-                    <i class="bi bi-camera-fill"></i>
-                    <input type="file" (change)="onAvatarUpload($event)" accept="image/*" class="d-none">
-                  </label>
+                  <div class="rounded-circle bg-warning-subtle text-dark d-flex align-items-center justify-content-center shadow mx-auto" style="width:130px; height:130px; border: 3px solid #ffc107;">
+                    <i class="bi bi-person-fill display-3 text-warning"></i>
+                  </div>
                 </div>
 
                 <h4 class="fw-bold text-dark mb-1">{{ currentUser.fullName }}</h4>

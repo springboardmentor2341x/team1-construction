@@ -123,7 +123,7 @@ import { UserRole } from '../../../core/models/role.enum';
                       <div><i class="bi bi-calendar-event text-success me-1"></i> Start: {{ p.startDate }}</div>
                       <div><i class="bi bi-calendar-check text-muted me-1"></i> Due: {{ p.expectedCompletionDate }}</div>
                     </td>
-                    <td class="fw-bold text-dark">\${{ p.estimatedBudget | number }}</td>
+                    <td class="fw-bold text-dark">₹{{ p.estimatedBudget | number }}</td>
                     <td class="text-end">
                       <div class="btn-group">
                         <a [routerLink]="['/projects', p.id]" class="btn btn-sm btn-outline-secondary" title="View Details">

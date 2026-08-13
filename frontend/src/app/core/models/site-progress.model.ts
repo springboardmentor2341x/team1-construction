@@ -1,4 +1,5 @@
 export const PROGRESS_CATEGORIES = [
+  'Civil Work',
   'Foundation',
   'Structural Work',
   'Electrical Work',
@@ -67,6 +68,8 @@ export interface WeeklyProgressReport {
   weekEndDate: string;
   completedWork?: string;
   weeklyProgressPercentage: number;
+  plannedProgressPercentage?: number;
+  nextWeekTargets?: string;
   workerHours?: number;
   workerCount?: number;
   majorActivities?: string;
@@ -90,6 +93,9 @@ export interface DelayTracking {
   reason: string;
   durationDays: number;
   affectedWorkCategory: string;
+  category?: string;
+  severity?: string;
+  mitigation?: string;
   impactOnTimeline?: string;
   reportedDate: string;
   reportedBy: string;
@@ -105,6 +111,9 @@ export interface SiteActivityLog {
   description: string;
   eventType: string;
   responsiblePerson: string;
+  location?: string;
+  workersCount?: number;
+  weather?: string;
 }
 
 export interface SiteProgressDashboard {

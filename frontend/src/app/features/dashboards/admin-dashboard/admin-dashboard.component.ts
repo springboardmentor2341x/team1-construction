@@ -105,8 +105,8 @@ import { Project } from '../../../core/models/project.model';
             <div class="col-md-6">
 <div class="card card-custom p-4 border-0">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                  <h5 class="fw-bold text-dark mb-0"><i class="bi bi-currency-dollar me-1 text-warning"></i> Budget Utilization</h5>
-                  <span class="fw-bold text-dark">\${{ portfolioTotal | number }} Portfolio Total</span>
+                  <h5 class="fw-bold text-dark mb-0"><i class="bi bi-currency-rupee me-1 text-warning"></i> Budget Utilization</h5>
+                  <span class="fw-bold text-dark">₹{{ portfolioTotal | number }} Portfolio Total</span>
                 </div>
                 <div class="progress mb-2" style="height: 12px;">
                   <div class="progress-bar bg-warning" role="progressbar" [style.width]="portfolioUtilization + '%'" [attr.aria-valuenow]="portfolioUtilization" aria-valuemin="0" aria-valuemax="100">{{ portfolioUtilization }}% Utilized</div>
@@ -163,7 +163,7 @@ import { Project } from '../../../core/models/project.model';
                         <td>{{ p.category }}</td>
                         <td>{{ p.projectManagerName }}</td>
                         <td><app-status-badge [status]="p.status"></app-status-badge></td>
-                        <td class="fw-semibold">\${{ p.estimatedBudget | number }}</td>
+                        <td class="fw-semibold">₹{{ p.estimatedBudget | number }}</td>
                       </tr>
                     </tbody>
                   </table>

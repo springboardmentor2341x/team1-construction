@@ -72,8 +72,20 @@ import { WeeklyProgressReport } from '../../../core/models/site-progress.model';
                   </select>
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Weekly Progress %</label>
+                  <label class="form-label small fw-semibold">Planned Progress %</label>
+                  <input type="number" min="0" max="100" class="form-control form-control-sm" formControlName="plannedProgressPercentage">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-semibold">Actual Progress %</label>
                   <input type="number" min="0" max="100" class="form-control form-control-sm" formControlName="weeklyProgressPercentage">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Completed Work / Achievements</label>
+                  <input type="text" class="form-control form-control-sm" formControlName="completedWork" placeholder="e.g. Completed foundation & column pouring for Block A">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Next Week's Targets</label>
+                  <input type="text" class="form-control form-control-sm" formControlName="nextWeekTargets" placeholder="e.g. Prepare shuttering for slab B2">
                 </div>
                 <div class="col-md-12">
                   <label class="form-label small fw-semibold">Safety Incidents / Notes</label>
@@ -90,7 +102,7 @@ import { WeeklyProgressReport } from '../../../core/models/site-progress.model';
             </form>
             <p class="text-muted small mt-3 mb-0">
               <i class="bi bi-info-circle me-1"></i>
-              Completed work, worker-hours, worker count, major activities, and delays are auto-aggregated from daily progress reports in the selected week.
+              Worker-hours, worker count, major activities, and delays are auto-aggregated from daily progress reports in the selected week if fields are left empty.
             </p>
           </div>
 
@@ -99,7 +111,7 @@ import { WeeklyProgressReport } from '../../../core/models/site-progress.model';
             <h6 class="fw-bold mb-3"><i class="bi bi-collection me-2 text-success"></i>Generated Weekly Reports <span class="badge bg-secondary ms-1">{{ reports().length }}</span></h6>
             <div class="row g-3">
               <div class="col-12" *ngFor="let w of reports()">
-                <div class="border rounded-3 p-3 bg-white">
+                <div class="border rounded-3 p-3 bg-white shadow-sm">
                   <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
                     <div>
                       <h6 class="fw-bold text-dark mb-0"><i class="bi bi-calendar-week me-1 text-warning"></i>{{ w.weekStartDate }} → {{ w.weekEndDate }}</h6>
@@ -109,18 +121,37 @@ import { WeeklyProgressReport } from '../../../core/models/site-progress.model';
                       <button *ngIf="canGenerate()" (click)="deleteReport(w.id)" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                     </div>
                   </div>
-                  <div class="d-flex align-items-center gap-2 mb-2">
-                    <div class="progress flex-grow-1" style="height:10px">
-                      <div class="progress-bar bg-warning" [style.width.%]="w.weeklyProgressPercentage">{{ w.weeklyProgressPercentage }}%</div>
+
+                  <!-- Progress Comparison -->
+                  <div class="row g-2 mb-3 align-items-center">
+                    <div class="col-md-6">
+                      <div class="d-flex justify-content-between small text-muted mb-1">
+                        <span>Planned Progress:</span>
+                        <strong class="text-primary">{{ w.plannedProgressPercentage || 0 }}%</strong>
+                      </div>
+                      <div class="progress" style="height:8px">
+                        <div class="progress-bar bg-primary" [style.width.%]="w.plannedProgressPercentage || 0"></div>
+                      </div>
                     </div>
-                    <strong class="small">{{ w.weeklyProgressPercentage }}%</strong>
+                    <div class="col-md-6">
+                      <div class="d-flex justify-content-between small text-muted mb-1">
+                        <span>Actual Progress:</span>
+                        <strong class="text-success">{{ w.weeklyProgressPercentage }}%</strong>
+                      </div>
+                      <div class="progress" style="height:8px">
+                        <div class="progress-bar bg-success" [style.width.%]="w.weeklyProgressPercentage"></div>
+                      </div>
+                    </div>
                   </div>
+
                   <div class="row g-2 small">
                     <div class="col-md-6">
-                      <div class="text-muted mb-1"><i class="bi bi-check2-square me-1 text-success"></i><strong>Completed Work:</strong></div>
+                      <div class="text-muted mb-1"><i class="bi bi-check2-square me-1 text-success"></i><strong>Completed Work / Summary:</strong></div>
                       <pre class="bg-light rounded-3 p-2 mb-0" style="white-space:pre-wrap">{{ w.completedWork }}</pre>
                     </div>
                     <div class="col-md-6">
+                      <div class="text-muted mb-1"><i class="bi bi-crosshair me-1 text-info"></i><strong>Next Week's Targets:</strong></div>
+                      <div class="bg-light rounded-3 p-2 mb-2">{{ w.nextWeekTargets || 'No targets specified' }}</div>
                       <div class="text-muted mb-1"><i class="bi bi-flag me-1 text-primary"></i><strong>Major Activities:</strong></div>
                       <div class="bg-light rounded-3 p-2 mb-2">{{ w.majorActivities || 'N/A' }}</div>
                       <div class="text-muted mb-1"><i class="bi bi-exclamation-triangle me-1 text-danger"></i><strong>Delays:</strong></div>
@@ -165,7 +196,10 @@ export class WeeklyProgressReportsComponent implements OnInit {
     this.weeklyForm = this.fb.group({
       weekStartDate: ['', Validators.required],
       weekEndDate: ['', Validators.required],
+      plannedProgressPercentage: [0, [Validators.min(0), Validators.max(100)]],
       weeklyProgressPercentage: [0, [Validators.min(0), Validators.max(100)]],
+      completedWork: [''],
+      nextWeekTargets: [''],
       safetyIncidents: ['No major safety incidents recorded.'],
       overallStatus: ['On Track']
     });
@@ -201,7 +235,10 @@ export class WeeklyProgressReportsComponent implements OnInit {
     this.weeklyForm.reset({
       weekStartDate: fmt(monday),
       weekEndDate: fmt(sunday),
-      weeklyProgressPercentage: 0,
+      plannedProgressPercentage: 50,
+      weeklyProgressPercentage: 50,
+      completedWork: '',
+      nextWeekTargets: '',
       safetyIncidents: 'No major safety incidents recorded.',
       overallStatus: 'On Track'
     });
@@ -214,6 +251,7 @@ export class WeeklyProgressReportsComponent implements OnInit {
     const payload = {
       projectId: this.selectedProjectId,
       ...this.weeklyForm.value,
+      plannedProgressPercentage: Number(this.weeklyForm.value.plannedProgressPercentage) || 0,
       weeklyProgressPercentage: Number(this.weeklyForm.value.weeklyProgressPercentage) || 0
     };
     this.siteProgressService.createWeeklyReport(payload).subscribe({

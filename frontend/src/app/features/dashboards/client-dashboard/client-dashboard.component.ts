@@ -65,7 +65,7 @@ import { Milestone } from '../../../core/models/milestone.model';
             <div class="col-xl-3 col-md-6">
               <div class="card card-custom p-3 border-0">
                 <span class="text-muted small fw-semibold">Budget Status</span>
-                <h3 class="fw-bold text-primary mb-0 mt-1">\${{ portfolioTotal | number }}</h3>
+                <h3 class="fw-bold text-primary mb-0 mt-1">₹{{ portfolioTotal | number }}</h3>
                 <small class="text-muted">total portfolio budget</small>
               </div>
             </div>

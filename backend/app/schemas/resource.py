@@ -2,6 +2,9 @@ from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict, Any
 
 RESOURCE_CATEGORIES = [
+    "Heavy Machinery",
+    "Labor",
+    "Equipment",
     "Excavators",
     "Concrete Mixers",
     "Cranes",
@@ -268,6 +271,7 @@ class ResourceDashboardRead(BaseModel):
     outOfServiceCount: int
     upcomingMaintenanceCount: int
     avgUtilizationPercentage: float
+    idlePercentage: float = 0.0
     categoryCounts: Dict[str, int]
     statusCounts: Dict[str, int]
     recentAllocations: List[ResourceAllocationRead] = []

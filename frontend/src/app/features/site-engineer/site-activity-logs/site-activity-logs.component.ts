@@ -74,7 +74,7 @@ import { SiteActivityLog } from '../../../core/models/site-progress.model';
                   <label class="form-label small fw-semibold">Date *</label>
                   <input type="date" class="form-control form-control-sm" formControlName="activityDate">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                   <label class="form-label small fw-semibold">Time</label>
                   <input type="time" class="form-control form-control-sm" formControlName="activityTime">
                 </div>
@@ -84,13 +84,30 @@ import { SiteActivityLog } from '../../../core/models/site-progress.model';
                     <option *ngFor="let t of eventTypes" [value]="t">{{ t }}</option>
                   </select>
                 </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Location / Zone *</label>
+                  <input type="text" class="form-control form-control-sm" formControlName="location" placeholder="e.g. Block B - 3rd Floor">
+                </div>
                 <div class="col-md-3">
                   <label class="form-label small fw-semibold">Responsible Person *</label>
                   <input type="text" class="form-control form-control-sm" formControlName="responsiblePerson" placeholder="e.g. James Watson">
                 </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-semibold">Workers Count</label>
+                  <input type="number" min="0" class="form-control form-control-sm" formControlName="workersCount">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-semibold">Weather Conditions</label>
+                  <select class="form-select form-select-sm" formControlName="weather">
+                    <option value="Sunny">Sunny</option>
+                    <option value="Cloudy">Cloudy</option>
+                    <option value="Rainy">Rainy</option>
+                    <option value="Windy">Windy</option>
+                  </select>
+                </div>
                 <div class="col-12">
                   <label class="form-label small fw-semibold">Description *</label>
-                  <textarea class="form-control form-control-sm" rows="3" formControlName="description" placeholder="Describe the site event..."></textarea>
+                  <textarea class="form-control form-control-sm" rows="2" formControlName="description" placeholder="Describe the site event..."></textarea>
                 </div>
                 <div class="col-12 d-flex gap-2 justify-content-end">
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelForm()">Cancel</button>
@@ -110,15 +127,24 @@ import { SiteActivityLog } from '../../../core/models/site-progress.model';
               <table class="table table-hover small align-middle">
                 <thead class="table-light text-muted">
                   <tr>
-                    <th>Date</th><th>Time</th><th>Event Type</th><th>Description</th><th>Responsible</th><th class="text-end">Actions</th>
+                    <th>Date / Time</th>
+                    <th>Event Type</th>
+                    <th>Location</th>
+                    <th>Description</th>
+                    <th>Workers</th>
+                    <th>Weather</th>
+                    <th>Responsible</th>
+                    <th class="text-end">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let log of filteredLogs()">
-                    <td class="fw-semibold">{{ log.activityDate }}</td>
-                    <td>{{ log.activityTime || '—' }}</td>
+                    <td class="fw-semibold">{{ log.activityDate }} <span class="text-muted small ms-1">{{ log.activityTime }}</span></td>
                     <td><span class="badge" [ngClass]="getEventBadge(log.eventType)">{{ log.eventType }}</span></td>
-                    <td class="text-muted" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ log.description }}</td>
+                    <td><span class="badge bg-light text-dark border"><i class="bi bi-geo-alt me-1 text-primary"></i>{{ log.location || 'Site' }}</span></td>
+                    <td class="text-muted" style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ log.description }}</td>
+                    <td><span class="badge bg-info-subtle text-info"><i class="bi bi-people me-1"></i>{{ log.workersCount || 0 }}</span></td>
+                    <td><span class="badge bg-warning-subtle text-dark"><i class="bi bi-sun me-1"></i>{{ log.weather || 'Sunny' }}</span></td>
                     <td><i class="bi bi-person me-1"></i>{{ log.responsiblePerson }}</td>
                     <td class="text-end">
                       <button *ngIf="canManage()" (click)="openEditForm(log)" class="btn btn-sm btn-outline-warning me-1" title="Edit Log"><i class="bi bi-pencil"></i></button>
@@ -126,7 +152,7 @@ import { SiteActivityLog } from '../../../core/models/site-progress.model';
                     </td>
                   </tr>
                   <tr *ngIf="filteredLogs().length === 0">
-                    <td colspan="6" class="text-center py-4 text-muted"><i class="bi bi-journal-x d-block fs-3 mb-2"></i>No site activity logs recorded.</td>
+                    <td colspan="8" class="text-center py-4 text-muted"><i class="bi bi-journal-x d-block fs-3 mb-2"></i>No site activity logs recorded.</td>
                   </tr>
                 </tbody>
               </table>
@@ -158,6 +184,9 @@ export class SiteActivityLogsComponent implements OnInit {
       activityDate: [new Date().toISOString().split('T')[0], Validators.required],
       activityTime: [''],
       eventType: ['Material Delivery', Validators.required],
+      location: ['Main Site'],
+      workersCount: [0, [Validators.min(0)]],
+      weather: ['Sunny'],
       description: ['', Validators.required],
       responsiblePerson: ['', Validators.required]
     });
@@ -195,6 +224,9 @@ export class SiteActivityLogsComponent implements OnInit {
       activityDate: new Date().toISOString().split('T')[0],
       activityTime: '',
       eventType: 'Material Delivery',
+      location: 'Main Site',
+      workersCount: 0,
+      weather: 'Sunny',
       description: '',
       responsiblePerson: ''
     });
@@ -208,6 +240,9 @@ export class SiteActivityLogsComponent implements OnInit {
       activityDate: log.activityDate,
       activityTime: log.activityTime || '',
       eventType: log.eventType,
+      location: log.location || 'Main Site',
+      workersCount: log.workersCount || 0,
+      weather: log.weather || 'Sunny',
       description: log.description,
       responsiblePerson: log.responsiblePerson
     });

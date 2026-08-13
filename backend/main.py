@@ -29,7 +29,7 @@ from app.models.site_progress import (
 from app.core.security import get_password_hash
 
 from app.routers import auth, users, projects, schedules, milestones, site_engineer, tasks_router, attendance, notifications, shifts, site_progress
-from app.routers import resources, inventory, procurement, contractors
+from app.routers import resources, inventory, procurement, contractors, materials
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -66,6 +66,7 @@ app.include_router(shifts.router, prefix=settings.API_V1_STR)
 app.include_router(site_progress.router, prefix=settings.API_V1_STR)
 app.include_router(resources.router, prefix=settings.API_V1_STR)
 app.include_router(inventory.router, prefix=settings.API_V1_STR)
+app.include_router(materials.router, prefix=settings.API_V1_STR)
 app.include_router(procurement.router, prefix=settings.API_V1_STR)
 app.include_router(contractors.router, prefix=settings.API_V1_STR)
 
@@ -140,6 +141,14 @@ def ensure_columns():
             SiteActivityLog,
             ProgressPhotograph,
         )
+        from app.models.material import (
+            MaterialCategoryModel,
+            MaterialModel,
+            MaterialInventoryModel,
+            MaterialRequestModel,
+            MaterialAllocationModel,
+            StockMovementModel,
+        )
         from app.models.task import TaskModel  # noqa: F401
         from app.models.document import DocumentModel  # noqa: F401
         from app.models.shift import ShiftModel  # noqa: F401
@@ -149,14 +158,17 @@ def ensure_columns():
             Attendance.__table__, Notification.__table__,
             ResourceModel.__table__, ResourceAllocationModel.__table__,
             ResourceUtilizationModel.__table__, ResourceMaintenanceModel.__table__,
-            Inventory.__table__, Procurement.__table__,
+            MaterialCategoryModel.__table__, MaterialModel.__table__,
+            MaterialInventoryModel.__table__, MaterialRequestModel.__table__,
+            MaterialAllocationModel.__table__, StockMovementModel.__table__,
+            Procurement.__table__,
             DailyProgressReport.__table__, WeeklyProgressReport.__table__,
             WorkCompletionStatus.__table__, DelayTracking.__table__,
             SiteActivityLog.__table__, ProgressPhotograph.__table__,
             TaskModel.__table__, DocumentModel.__table__, ShiftModel.__table__,
             EquipmentModel.__table__, ActivityLogModel.__table__,
         ])
-        print("[Migration] Recreated attendance, notifications, resources & module 4 tables to match models.")
+        print("[Migration] Recreated Module 4 and Module 5 tables to match models.")
     except Exception as e:
         print(f"[Warning] Column migration notice: {e}")
     finally:
@@ -212,7 +224,7 @@ def seed_database():
                     department=dept,
                     designation=r_name,
                     role_id=role_map[r_name].id,
-                    profile_picture="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+                    profile_picture=None
                 )
                 db.add(user)
                 db.commit()
@@ -508,10 +520,10 @@ def seed_database():
         # 12. Seed Resources, Inventory, and Procurement
         from app.models.placeholders import Resource, Inventory, Procurement
         if db.query(Resource).count() == 0:
-            res1 = Resource(name="Excavator Komatsu PC210", resource_type="Excavators", project_id=first_project.id if first_project else None, status="Allocated", utilization_percentage=85.0)
-            res2 = Resource(name="Asphalt Paver Volvo P6820C", resource_type="Concrete Mixers", project_id=second_project.id if second_project else None, status="Allocated", utilization_percentage=60.0)
-            res3 = Resource(name="Mobile Crane Tadano ATF 220G-5", resource_type="Cranes", project_id=first_project.id if first_project else None, status="Maintenance", utilization_percentage=0.0)
-            res4 = Resource(name="Safety Harness Kit", resource_type="Safety Equipment", project_id=None, status="Available", utilization_percentage=0.0)
+            res1 = Resource(equipment_code="EXC-101", name="Excavator Komatsu PC210", category="Excavators", project_id=first_project.id if first_project else None, status="Allocated", utilization_percentage=85.0)
+            res2 = Resource(equipment_code="MIX-101", name="Asphalt Paver Volvo P6820C", category="Concrete Mixers", project_id=second_project.id if second_project else None, status="Allocated", utilization_percentage=60.0)
+            res3 = Resource(equipment_code="CRN-101", name="Mobile Crane Tadano ATF 220G-5", category="Cranes", project_id=first_project.id if first_project else None, status="Under Maintenance", utilization_percentage=0.0)
+            res4 = Resource(equipment_code="SAF-101", name="Safety Harness Kit", category="Safety Equipment", project_id=None, status="Available", utilization_percentage=0.0)
             db.add_all([res1, res2, res3, res4])
             db.commit()
 

@@ -26,7 +26,9 @@ import { UserRole } from '../../../core/models/role.enum';
           <ng-container *ngIf="authService.currentUser() as user">
             <div class="dropdown">
               <button class="btn btn-outline-light border-0 d-flex align-items-center gap-2 py-1 px-2 rounded-3 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <img [src]="user.profilePicture" alt="User Avatar" class="rounded-circle object-fit-cover" width="36" height="36">
+                <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center fw-bold me-1" style="width:34px; height:34px;">
+                  <i class="bi bi-person-fill fs-6"></i>
+                </div>
                 <div class="text-start d-none d-sm-block">
                   <div class="fw-semibold text-white small lh-1 mb-1">{{ user.fullName }}</div>
                   <span class="badge" [ngClass]="getRoleBadgeClass(user.role)">{{ user.role }}</span>

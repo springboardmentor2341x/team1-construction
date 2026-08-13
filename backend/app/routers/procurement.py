@@ -13,18 +13,26 @@ router = APIRouter(prefix="/procurements", tags=["Procurement"])
 class ProcurementRead(BaseModel):
     id: str
     title: str
+    supplier: Optional[str] = None
+    material_name: Optional[str] = None
+    expected_delivery_date: Optional[str] = None
+    po_number: Optional[str] = None
     amount: float
-    project_id: Optional[str]
-    material_id: Optional[str]
+    project_id: Optional[str] = None
+    material_id: Optional[str] = None
     quantity: float
     status: str
-    requested_by: Optional[str]
+    requested_by: Optional[str] = None
 
     class Config:
         from_attributes = True
 
 class ProcurementCreate(BaseModel):
     title: str
+    supplier: Optional[str] = None
+    material_name: Optional[str] = None
+    expected_delivery_date: Optional[str] = None
+    po_number: Optional[str] = None
     amount: float = 0.0
     project_id: Optional[str] = None
     material_id: Optional[str] = None
@@ -33,6 +41,10 @@ class ProcurementCreate(BaseModel):
 
 class ProcurementUpdate(BaseModel):
     title: Optional[str] = None
+    supplier: Optional[str] = None
+    material_name: Optional[str] = None
+    expected_delivery_date: Optional[str] = None
+    po_number: Optional[str] = None
     amount: Optional[float] = None
     project_id: Optional[str] = None
     material_id: Optional[str] = None
@@ -80,6 +92,39 @@ def update_procurement(
     for key, value in update_data.items():
         setattr(proc, key, value)
         
+    db.commit()
+    db.refresh(proc)
+    return proc
+
+@router.put("/{procurement_id}/issue-po", response_model=ProcurementRead)
+def issue_po(
+    procurement_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager"]))
+):
+    import uuid
+    proc = db.query(Procurement).filter(Procurement.id == procurement_id).first()
+    if not proc:
+        raise HTTPException(status_code=404, detail="Procurement request not found")
+    
+    proc.status = "PO Issued"
+    if not proc.po_number:
+        proc.po_number = f"PO-{uuid.uuid4().hex[:6].upper()}"
+    db.commit()
+    db.refresh(proc)
+    return proc
+
+@router.put("/{procurement_id}/mark-received", response_model=ProcurementRead)
+def mark_received(
+    procurement_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
+):
+    proc = db.query(Procurement).filter(Procurement.id == procurement_id).first()
+    if not proc:
+        raise HTTPException(status_code=404, detail="Procurement request not found")
+    
+    proc.status = "Received"
     db.commit()
     db.refresh(proc)
     return proc

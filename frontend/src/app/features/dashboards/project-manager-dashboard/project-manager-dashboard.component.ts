@@ -111,7 +111,7 @@ import { Milestone } from '../../../core/models/milestone.model';
                       </div>
                       <p class="text-muted extra-small mb-2">{{ p.description | slice:0:70 }}...</p>
                       <div class="d-flex justify-content-between align-items-center extra-small border-top pt-2 mt-2">
-                        <span>Budget: <strong>\${{ p.estimatedBudget | number }}</strong></span>
+                        <span>Budget: <strong>₹{{ p.estimatedBudget | number }}</strong></span>
                         <a [routerLink]="['/projects', p.id]" class="btn btn-xs btn-outline-warning">Project Hub</a>
                       </div>
                     </div>

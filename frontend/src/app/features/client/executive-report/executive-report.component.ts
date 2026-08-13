@@ -74,7 +74,7 @@ import { Milestone } from '../../../core/models/milestone.model';
                   </div>
                   <div class="d-flex justify-content-between small mb-1">
                     <span class="text-muted">Budget</span>
-                    <span class="fw-semibold">\${{ p.estimatedBudget | number }}</span>
+                    <span class="fw-semibold">₹{{ p.estimatedBudget | number }}</span>
                   </div>
                   <div class="progress" style="height:6px">
                     <div class="progress-bar bg-warning" [style.width]="getProgressPct(p.status)"></div>

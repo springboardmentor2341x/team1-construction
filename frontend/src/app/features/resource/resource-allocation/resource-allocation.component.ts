@@ -579,7 +579,10 @@ export class ResourceAllocationComponent implements OnInit {
   }
 
   loadCategories(): void {
-    this.resourceService.getCategories().subscribe(c => this.categories = c);
+    this.resourceService.getCategories().subscribe(c => {
+      const defaults = ['Heavy Machinery', 'Labor', 'Equipment', 'Excavators', 'Concrete Mixers', 'Cranes', 'Dump Trucks', 'Generators', 'Safety Equipment'];
+      this.categories = Array.from(new Set([...(c || []), ...defaults]));
+    });
   }
 
   loadDashboard(): void {

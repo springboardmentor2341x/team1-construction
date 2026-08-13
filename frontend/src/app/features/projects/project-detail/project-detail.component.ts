@@ -60,7 +60,7 @@ import { UserRole } from '../../../core/models/role.enum';
             <div class="col-md-3 col-6">
               <div class="card card-custom p-3 border-0">
                 <span class="text-muted extra-small">Estimated Budget</span>
-                <h4 class="fw-bold text-dark mb-0">\${{ project.estimatedBudget | number }}</h4>
+                <h4 class="fw-bold text-dark mb-0">₹{{ project.estimatedBudget | number }}</h4>
               </div>
             </div>
             <div class="col-md-3 col-6">

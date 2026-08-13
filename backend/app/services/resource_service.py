@@ -637,6 +637,7 @@ class ResourceService:
                 status_counts[r.status] = 1
 
         avg_util = round(sum(r.utilization_percentage or 0.0 for r in resources) / max(total, 1), 1)
+        idle_pct = round(max(0.0, 100.0 - avg_util), 1)
 
         recent_allocs = self.get_allocations()[:5]
         recent_maints = self.get_maintenances()[:5]
@@ -650,6 +651,7 @@ class ResourceService:
             outOfServiceCount=out_of_service,
             upcomingMaintenanceCount=due_info["dueSoonCount"] + due_info["overdueCount"],
             avgUtilizationPercentage=avg_util,
+            idlePercentage=idle_pct,
             categoryCounts=cat_counts,
             statusCounts=status_counts,
             recentAllocations=recent_allocs,

@@ -84,6 +84,7 @@ export interface ResourceDashboard {
   outOfServiceCount: number;
   upcomingMaintenanceCount: number;
   avgUtilizationPercentage: number;
+  idlePercentage?: number;
   categoryCounts: Record<string, number>;
   statusCounts: Record<string, number>;
   recentAllocations: ResourceAllocation[];

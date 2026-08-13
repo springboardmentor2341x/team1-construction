@@ -300,6 +300,8 @@ class SiteProgressService:
             weekEndDate=w.week_end_date,
             completedWork=w.completed_work,
             weeklyProgressPercentage=w.weekly_progress_percentage,
+            plannedProgressPercentage=getattr(w, 'planned_progress_percentage', 0) or 0,
+            nextWeekTargets=getattr(w, 'next_week_targets', None),
             workerHours=w.worker_hours,
             workerCount=w.worker_count,
             majorActivities=w.major_activities,
@@ -338,15 +340,14 @@ class SiteProgressService:
                 if delayed_days else "No delays recorded"
             )
             avg_progress = round(sum(d.progress_percentage for d in daily_reports) / len(daily_reports))
-            weekly_percentage = req.weeklyProgressPercentage if req.weeklyProgressPercentage else avg_progress
-            # Aggregate workforce metrics from daily reports in the week.
+            weekly_percentage = req.weeklyProgressPercentage if req.weeklyProgressPercentage is not None else avg_progress
             total_worker_hours = round(sum((d.worker_hours or 0.0) for d in daily_reports), 2)
             total_worker_count = sum((d.worker_count or 0) for d in daily_reports)
         else:
             completed_work = req.completedWork or "No daily progress reports recorded for this week."
             major_activities = req.majorActivities or ""
             delays_text = req.delays or "No delays recorded"
-            weekly_percentage = req.weeklyProgressPercentage or 0
+            weekly_percentage = req.weeklyProgressPercentage if req.weeklyProgressPercentage is not None else 0
             total_worker_hours = 0.0
             total_worker_count = 0
 
@@ -356,6 +357,8 @@ class SiteProgressService:
             week_end_date=req.weekEndDate,
             completed_work=req.completedWork or completed_work,
             weekly_progress_percentage=weekly_percentage,
+            planned_progress_percentage=req.plannedProgressPercentage or 0,
+            next_week_targets=req.nextWeekTargets or "",
             worker_hours=req.workerHours if req.workerHours is not None else total_worker_hours,
             worker_count=req.workerCount if req.workerCount is not None else total_worker_count,
             major_activities=req.majorActivities or major_activities,
@@ -379,13 +382,6 @@ class SiteProgressService:
     # Work Completion Status (auto-computed)
     # ------------------------------------------------------------------
     def recompute_completion(self, project_id: str) -> WorkCompletionStatusRead:
-        """Recompute overall project completion from daily reports.
-
-        Uses a weighted business rule: each progress category contributes to
-        overall completion proportionally to its configuration weight. For each
-        category the max reported progress % drives the category completion, and
-        the overall % = sum(weight * category_completion) / sum(weights).
-        """
         reports = self.daily_repo.get_by_project(project_id)
         category_max: Dict[str, int] = {}
         for r in reports:
@@ -393,7 +389,6 @@ class SiteProgressService:
             if r.progress_percentage > current:
                 category_max[r.progress_category] = r.progress_percentage
 
-        # Weighted overall completion per category, normalized by total weight.
         weight_sum = sum(self.CATEGORY_WEIGHTS.values()) or 1.0
         weighted_sum = 0.0
         for cat, pct in category_max.items():
@@ -443,13 +438,6 @@ class SiteProgressService:
     # Milestone Tracking (reuses existing project_milestones table)
     # ------------------------------------------------------------------
     def sync_milestones_from_reports(self, project_id: str) -> List[MilestoneTrackingRead]:
-        """Sync milestone status from existing ProjectMilestone records.
-
-        Completion percentage on a milestone is advanced when a daily report's
-        progress category matches the milestone name or category. The status is
-        derived: 0% -> Pending, 0 < x < 100 -> In Progress, 100 -> Completed.
-        Sets actual_completion_date when completed.
-        """
         from datetime import date
         milestones = self.db.query(ProjectMilestone).filter(ProjectMilestone.project_id == project_id).all()
         reports = self.daily_repo.get_by_project(project_id)
@@ -461,7 +449,6 @@ class SiteProgressService:
 
         result = []
         for ms in milestones:
-            # Attempt a keyword/category match against report categories.
             keyword = (ms.milestone_name or "").lower()
             matched_pct = None
             for cat, pct in category_max.items():
@@ -542,6 +529,9 @@ class SiteProgressService:
             reason=d.reason,
             durationDays=d.duration_days,
             affectedWorkCategory=d.affected_work_category,
+            category=getattr(d, 'category', 'Weather') or 'Weather',
+            severity=getattr(d, 'severity', 'High') or 'High',
+            mitigation=getattr(d, 'mitigation', None),
             impactOnTimeline=d.impact_on_timeline,
             reportedDate=d.reported_date,
             reportedBy=d.reported_by,
@@ -564,6 +554,9 @@ class SiteProgressService:
             reason=req.reason,
             duration_days=req.durationDays,
             affected_work_category=req.affectedWorkCategory,
+            category=req.category or "Weather",
+            severity=req.severity or "High",
+            mitigation=req.mitigation,
             impact_on_timeline=req.impactOnTimeline,
             reported_date=req.reportedDate,
             reported_by=user_name,
@@ -581,6 +574,9 @@ class SiteProgressService:
         if updates.reason is not None: d.reason = updates.reason
         if updates.durationDays is not None: d.duration_days = updates.durationDays
         if updates.affectedWorkCategory is not None: d.affected_work_category = updates.affectedWorkCategory
+        if updates.category is not None: d.category = updates.category
+        if updates.severity is not None: d.severity = updates.severity
+        if updates.mitigation is not None: d.mitigation = updates.mitigation
         if updates.impactOnTimeline is not None: d.impact_on_timeline = updates.impactOnTimeline
         if updates.reportedDate is not None: d.reported_date = updates.reportedDate
         if updates.remarks is not None: d.remarks = updates.remarks
@@ -608,6 +604,9 @@ class SiteProgressService:
             description=a.description,
             eventType=a.event_type,
             responsiblePerson=a.responsible_person,
+            location=getattr(a, 'location', None),
+            workersCount=getattr(a, 'workers_count', 0) or 0,
+            weather=getattr(a, 'weather', 'Sunny') or 'Sunny',
         )
 
     def get_activity_logs(self, project_id: Optional[str] = None) -> List[SiteActivityLogRead]:
@@ -627,6 +626,9 @@ class SiteProgressService:
             description=req.description,
             event_type=req.eventType,
             responsible_person=req.responsiblePerson,
+            location=req.location,
+            workers_count=req.workersCount or 0,
+            weather=req.weather or "Sunny",
         )
         created = self.activity_repo.create(new_log)
         return self._to_activity_read(created)
@@ -641,6 +643,9 @@ class SiteProgressService:
         if updates.description is not None: a.description = updates.description
         if updates.eventType is not None: a.event_type = updates.eventType
         if updates.responsiblePerson is not None: a.responsible_person = updates.responsiblePerson
+        if updates.location is not None: a.location = updates.location
+        if updates.workersCount is not None: a.workers_count = updates.workersCount
+        if updates.weather is not None: a.weather = updates.weather
         updated = self.activity_repo.update(a)
         return self._to_activity_read(updated)
 
@@ -721,6 +726,7 @@ class SiteProgressService:
             "total": len(delays),
             "open": sum(1 for d in delays if d.status == "Open"),
             "resolved": sum(1 for d in delays if d.status == "Resolved"),
+            "critical": sum(1 for d in delays if (getattr(d, 'severity', '') or '').lower() == 'high'),
             "totalDurationDays": sum(d.duration_days for d in delays),
         }
 

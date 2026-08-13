@@ -90,6 +90,10 @@ class TestModule1And2FullAudit(unittest.TestCase):
         contractor_id = self.contractor.id
         worker_id = self.worker.id
 
+        # Clean any existing assignment for test idempotency
+        self.db.query(ContractorWorker).filter(ContractorWorker.contractor_id == contractor_id, ContractorWorker.worker_id == worker_id).delete()
+        self.db.commit()
+
         # 1. Assign worker
         assign_res = self.client.post(
             f"/api/v1/contractors/{contractor_id}/workers",

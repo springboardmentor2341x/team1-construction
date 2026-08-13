@@ -362,7 +362,7 @@ export class DailyProgressReportsComponent implements OnInit {
 
   ngOnInit(): void {
     this.siteProgressService.getProgressCategories().subscribe(c => {
-      this.categories = c.length ? c : ['Foundation', 'Structural Work', 'Electrical Work', 'Plumbing Work', 'Finishing Work', 'Inspection Work'];
+      this.categories = c.length ? c : ['Civil Work', 'Foundation', 'Structural Work', 'Electrical Work', 'Plumbing Work', 'Finishing Work', 'Inspection Work'];
     });
     this.projectService.getProjects().subscribe(projs => {
       this.projects = projs;

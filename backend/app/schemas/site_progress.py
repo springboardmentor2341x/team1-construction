@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict, Any
 
 PROGRESS_CATEGORIES = [
+    "Civil Work",
     "Foundation",
     "Structural Work",
     "Electrical Work",
@@ -129,6 +130,8 @@ class WeeklyProgressReportCreate(BaseModel):
     weekEndDate: str
     completedWork: Optional[str] = None
     weeklyProgressPercentage: Optional[int] = Field(default=None, ge=0, le=100)
+    plannedProgressPercentage: Optional[int] = Field(default=None, ge=0, le=100)
+    nextWeekTargets: Optional[str] = None
     workerHours: Optional[float] = Field(default=None, ge=0.0)
     workerCount: Optional[int] = Field(default=None, ge=0)
     majorActivities: Optional[str] = None
@@ -144,6 +147,8 @@ class WeeklyProgressReportRead(BaseModel):
     weekEndDate: str
     completedWork: Optional[str] = None
     weeklyProgressPercentage: int
+    plannedProgressPercentage: Optional[int] = 0
+    nextWeekTargets: Optional[str] = None
     workerHours: Optional[float] = None
     workerCount: Optional[int] = None
     majorActivities: Optional[str] = None
@@ -172,6 +177,9 @@ class DelayTrackingCreate(BaseModel):
     reason: str
     durationDays: int = Field(default=0, ge=0)
     affectedWorkCategory: str
+    category: Optional[str] = "Weather"
+    severity: Optional[str] = "High"
+    mitigation: Optional[str] = None
     impactOnTimeline: Optional[str] = None
     reportedDate: str
     remarks: Optional[str] = None
@@ -182,6 +190,9 @@ class DelayTrackingUpdate(BaseModel):
     reason: Optional[str] = None
     durationDays: Optional[int] = Field(default=None, ge=0)
     affectedWorkCategory: Optional[str] = None
+    category: Optional[str] = None
+    severity: Optional[str] = None
+    mitigation: Optional[str] = None
     impactOnTimeline: Optional[str] = None
     reportedDate: Optional[str] = None
     remarks: Optional[str] = None
@@ -194,6 +205,9 @@ class DelayTrackingRead(BaseModel):
     reason: str
     durationDays: int
     affectedWorkCategory: str
+    category: Optional[str] = "Weather"
+    severity: Optional[str] = "High"
+    mitigation: Optional[str] = None
     impactOnTimeline: Optional[str] = None
     reportedDate: str
     reportedBy: str
@@ -211,6 +225,9 @@ class SiteActivityLogCreate(BaseModel):
     description: str
     eventType: str
     responsiblePerson: str
+    location: Optional[str] = None
+    workersCount: Optional[int] = Field(default=0, ge=0)
+    weather: Optional[str] = "Sunny"
 
     @field_validator("eventType")
     @classmethod
@@ -226,6 +243,9 @@ class SiteActivityLogUpdate(BaseModel):
     description: Optional[str] = None
     eventType: Optional[str] = None
     responsiblePerson: Optional[str] = None
+    location: Optional[str] = None
+    workersCount: Optional[int] = Field(default=None, ge=0)
+    weather: Optional[str] = None
 
 
 class SiteActivityLogRead(BaseModel):
@@ -236,6 +256,9 @@ class SiteActivityLogRead(BaseModel):
     description: str
     eventType: str
     responsiblePerson: str
+    location: Optional[str] = None
+    workersCount: Optional[int] = 0
+    weather: Optional[str] = "Sunny"
 
     class Config:
         from_attributes = True

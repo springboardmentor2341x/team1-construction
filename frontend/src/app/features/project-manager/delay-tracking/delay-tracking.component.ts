@@ -51,26 +51,32 @@ import { DelayTracking } from '../../../core/models/site-progress.model';
 
           <!-- Summary Cards -->
           <div class="row g-3 mb-4">
-            <div class="col-md-3 col-6">
-              <div class="card card-custom p-3 border-0">
+            <div class="col-md-2 col-6">
+              <div class="card card-custom p-3 border-0 shadow-sm">
                 <span class="text-muted small fw-semibold">Total Delays</span>
                 <h3 class="fw-bold text-dark mb-0 mt-1">{{ delays().length }}</h3>
               </div>
             </div>
-            <div class="col-md-3 col-6">
-              <div class="card card-custom p-3 border-0">
+            <div class="col-md-2 col-6">
+              <div class="card card-custom p-3 border-0 shadow-sm">
                 <span class="text-muted small fw-semibold">Open</span>
                 <h3 class="fw-bold text-danger mb-0 mt-1">{{ openCount }}</h3>
               </div>
             </div>
             <div class="col-md-3 col-6">
-              <div class="card card-custom p-3 border-0">
+              <div class="card card-custom p-3 border-0 shadow-sm">
+                <span class="text-muted small fw-semibold">Critical Delays</span>
+                <h3 class="fw-bold text-danger mb-0 mt-1"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ criticalCount }}</h3>
+              </div>
+            </div>
+            <div class="col-md-2 col-6">
+              <div class="card card-custom p-3 border-0 shadow-sm">
                 <span class="text-muted small fw-semibold">Resolved</span>
                 <h3 class="fw-bold text-success mb-0 mt-1">{{ resolvedCount }}</h3>
               </div>
             </div>
             <div class="col-md-3 col-6">
-              <div class="card card-custom p-3 border-0">
+              <div class="card card-custom p-3 border-0 shadow-sm">
                 <span class="text-muted small fw-semibold">Total Impact (Days)</span>
                 <h3 class="fw-bold text-warning mb-0 mt-1">{{ totalDurationDays }}</h3>
               </div>
@@ -85,38 +91,62 @@ import { DelayTracking } from '../../../core/models/site-progress.model';
             </div>
             <form [formGroup]="delayForm" (ngSubmit)="submitDelay()">
               <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label small fw-semibold">Delay Reason *</label>
-                  <input type="text" class="form-control form-control-sm" formControlName="reason" placeholder="e.g. Material supply shortage">
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Delay Category *</label>
+                  <select class="form-select form-select-sm" formControlName="category">
+                    <option value="Weather">Weather</option>
+                    <option value="Material Shortage">Material Shortage</option>
+                    <option value="Equipment Failure">Equipment Failure</option>
+                    <option value="Labor Shortage">Labor Shortage</option>
+                    <option value="Site Condition">Site Condition</option>
+                    <option value="Design Change">Design Change</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label small fw-semibold">Reason / Cause *</label>
+                  <input type="text" class="form-control form-control-sm" formControlName="reason" placeholder="e.g. Heavy rainfall flooded foundation excavation">
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Duration (Days) *</label>
+                  <label class="form-label small fw-semibold">Impact Duration (Days) *</label>
                   <input type="number" min="0" class="form-control form-control-sm" formControlName="durationDays">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-semibold">Severity Level *</label>
+                  <select class="form-select form-select-sm" formControlName="severity">
+                    <option value="High">High (Critical)</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
                 </div>
                 <div class="col-md-3">
                   <label class="form-label small fw-semibold">Reported Date *</label>
                   <input type="date" class="form-control form-control-sm" formControlName="reportedDate">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                   <label class="form-label small fw-semibold">Affected Work Category *</label>
                   <select class="form-select form-select-sm" formControlName="affectedWorkCategory">
                     <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
                   </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                   <label class="form-label small fw-semibold">Status</label>
                   <select class="form-select form-select-sm" formControlName="status">
                     <option value="Open">Open</option>
                     <option value="Resolved">Resolved</option>
                   </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Mitigation Action Plan</label>
+                  <input type="text" class="form-control form-control-sm" formControlName="mitigation" placeholder="e.g. Deployed water pumps and extended evening shift">
+                </div>
+                <div class="col-md-6">
                   <label class="form-label small fw-semibold">Impact on Timeline</label>
                   <input type="text" class="form-control form-control-sm" formControlName="impactOnTimeline" placeholder="e.g. 2-day slip on structural phase">
                 </div>
                 <div class="col-12">
                   <label class="form-label small fw-semibold">Additional Remarks</label>
-                  <textarea class="form-control form-control-sm" rows="2" formControlName="remarks" placeholder="Additional details or mitigation actions..."></textarea>
+                  <textarea class="form-control form-control-sm" rows="2" formControlName="remarks" placeholder="Additional details..."></textarea>
                 </div>
                 <div class="col-12 d-flex gap-2 justify-content-end">
                   <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelForm()">Cancel</button>
@@ -136,24 +166,28 @@ import { DelayTracking } from '../../../core/models/site-progress.model';
               <table class="table table-hover small align-middle">
                 <thead class="table-light text-muted">
                   <tr>
-                    <th>Reason</th>
                     <th>Category</th>
-                    <th>Days</th>
-                    <th>Reported Date</th>
-                    <th>Timeline Impact</th>
-                    <th>Remarks</th>
+                    <th>Reason / Cause</th>
+                    <th>Severity</th>
+                    <th>Work Phase</th>
+                    <th>Impact Days</th>
+                    <th>Mitigation Plan</th>
                     <th>Status</th>
                     <th class="text-end">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let d of delays()">
+                    <td><span class="badge bg-secondary-subtle text-dark border">{{ d.category || 'Weather' }}</span></td>
                     <td class="fw-semibold">{{ d.reason }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="{'bg-danger': (d.severity || 'High') === 'High', 'bg-warning text-dark': d.severity === 'Medium', 'bg-info text-dark': d.severity === 'Low'}">
+                        {{ d.severity || 'High' }}
+                      </span>
+                    </td>
                     <td><span class="badge bg-light text-dark border">{{ d.affectedWorkCategory }}</span></td>
                     <td><span class="badge bg-warning text-dark">{{ d.durationDays }}d</span></td>
-                    <td>{{ d.reportedDate }}</td>
-                    <td class="text-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.impactOnTimeline || 'N/A' }}</td>
-                    <td class="text-muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.remarks || 'None' }}</td>
+                    <td class="text-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.mitigation || d.impactOnTimeline || 'N/A' }}</td>
                     <td><span class="badge rounded-pill" [ngClass]="d.status === 'Open' ? 'bg-danger' : 'bg-success'">{{ d.status }}</span></td>
                     <td class="text-end">
                       <button *ngIf="canManage()" (click)="openEditForm(d)" class="btn btn-sm btn-outline-warning me-1" title="Edit Delay"><i class="bi bi-pencil"></i></button>
@@ -190,8 +224,11 @@ export class DelayTrackingComponent implements OnInit {
     public authService: AuthService
   ) {
     this.delayForm = this.fb.group({
+      category: ['Weather', Validators.required],
       reason: ['', Validators.required],
       durationDays: [1, [Validators.required, Validators.min(0)]],
+      severity: ['High', Validators.required],
+      mitigation: [''],
       affectedWorkCategory: ['Foundation', Validators.required],
       impactOnTimeline: [''],
       reportedDate: [new Date().toISOString().split('T')[0], Validators.required],
@@ -202,7 +239,7 @@ export class DelayTrackingComponent implements OnInit {
 
   ngOnInit(): void {
     this.siteProgressService.getProgressCategories().subscribe(c => {
-      this.categories = c.length ? c : ['Foundation', 'Structural Work', 'Electrical Work', 'Plumbing Work', 'Finishing Work', 'Inspection Work'];
+      this.categories = c.length ? c : ['Civil Work', 'Foundation', 'Structural Work', 'Electrical Work', 'Plumbing Work', 'Finishing Work', 'Inspection Work'];
     });
     this.projectService.getProjects().subscribe(projs => {
       this.projects = projs;
@@ -225,8 +262,11 @@ export class DelayTrackingComponent implements OnInit {
   openCreateForm(): void {
     this.editingDelayId.set(null);
     this.delayForm.reset({
+      category: 'Weather',
       reason: '',
       durationDays: 1,
+      severity: 'High',
+      mitigation: '',
       affectedWorkCategory: 'Foundation',
       impactOnTimeline: '',
       reportedDate: new Date().toISOString().split('T')[0],
@@ -240,8 +280,11 @@ export class DelayTrackingComponent implements OnInit {
     this.editingDelayId.set(delay.id);
     this.showForm.set(true);
     this.delayForm.patchValue({
+      category: delay.category || 'Weather',
       reason: delay.reason,
       durationDays: delay.durationDays,
+      severity: delay.severity || 'High',
+      mitigation: delay.mitigation || '',
       affectedWorkCategory: delay.affectedWorkCategory,
       impactOnTimeline: delay.impactOnTimeline || '',
       reportedDate: delay.reportedDate,
@@ -306,6 +349,7 @@ export class DelayTrackingComponent implements OnInit {
   }
 
   get openCount(): number { return this.delays().filter(d => d.status === 'Open').length; }
+  get criticalCount(): number { return this.delays().filter(d => (d.severity || 'High') === 'High').length; }
   get resolvedCount(): number { return this.delays().filter(d => d.status === 'Resolved').length; }
   get totalDurationDays(): number { return this.delays().reduce((sum, d) => sum + (d.durationDays || 0), 0); }
 }

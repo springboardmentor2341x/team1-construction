@@ -86,7 +86,9 @@ import { AuthService } from '../../../core/services/auth.service';
             <div class="col-lg-4">
               <div class="card card-custom border-0 p-4" *ngIf="authService.currentUser() as user">
                 <div class="text-center mb-3">
-                  <img [src]="user.profilePicture" class="rounded-circle mb-2 shadow" width="80" height="80">
+                  <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center mx-auto mb-2 shadow" style="width:70px; height:70px;">
+                    <i class="bi bi-person-fill fs-2"></i>
+                  </div>
                   <h6 class="fw-bold text-dark mb-0">{{ user.fullName }}</h6>
                   <span class="badge bg-light text-dark font-monospace">{{ user.employeeId }}</span>
                 </div>

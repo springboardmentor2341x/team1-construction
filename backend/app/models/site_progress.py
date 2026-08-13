@@ -55,6 +55,8 @@ class WeeklyProgressReport(Base):
     week_end_date: Mapped[str] = mapped_column(String(20), nullable=False)
     completed_work: Mapped[str] = mapped_column(Text, nullable=True)
     weekly_progress_percentage: Mapped[int] = mapped_column(Integer, default=0)
+    planned_progress_percentage: Mapped[int] = mapped_column(Integer, default=0)
+    next_week_targets: Mapped[str] = mapped_column(Text, nullable=True)
     worker_hours: Mapped[float] = mapped_column(Float, default=0.0)
     worker_count: Mapped[int] = mapped_column(Integer, default=0)
     major_activities: Mapped[str] = mapped_column(Text, nullable=True)
@@ -94,6 +96,9 @@ class DelayTracking(Base):
     reason: Mapped[str] = mapped_column(Text, nullable=False)
     duration_days: Mapped[int] = mapped_column(Integer, default=0)
     affected_work_category: Mapped[str] = mapped_column(String(50), nullable=False)
+    category: Mapped[str] = mapped_column(String(50), default="Weather")
+    severity: Mapped[str] = mapped_column(String(20), default="High")
+    mitigation: Mapped[str] = mapped_column(Text, nullable=True)
     impact_on_timeline: Mapped[str] = mapped_column(Text, nullable=True)
     reported_date: Mapped[str] = mapped_column(String(20), nullable=False)
     reported_by: Mapped[str] = mapped_column(String(100), nullable=False, default="Site Engineer")
@@ -116,7 +121,12 @@ class SiteActivityLog(Base):
     description: Mapped[str] = mapped_column(Text, nullable=False)
     event_type: Mapped[str] = mapped_column(String(50), nullable=False)
     responsible_person: Mapped[str] = mapped_column(String(100), nullable=False)
+    location: Mapped[str] = mapped_column(String(150), nullable=True)
+    workers_count: Mapped[int] = mapped_column(Integer, default=0)
+    weather: Mapped[str] = mapped_column(String(50), default="Sunny")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    project = relationship("Project", back_populates="site_activity_logs")
 
     project = relationship("Project", back_populates="site_activity_logs")
 
