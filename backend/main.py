@@ -26,10 +26,31 @@ from app.models.site_progress import (
     SiteActivityLog,
     ProgressPhotograph,
 )
+from app.models.workforce import (
+    WorkforceCategory,
+    Worker,
+    WorkerProjectAssignment,
+    WorkerShiftAssignment,
+    AttendanceModel,
+    WorkforcePayroll,
+)
+from app.models.procurement import (
+    ProcurementCategoryModel,
+    VendorModel,
+    ProcurementRequestModel,
+    ProcurementRequestItemModel,
+    PurchaseOrderModel,
+    PurchaseOrderItemModel,
+    InvoiceModel,
+)
+
+
+
 from app.core.security import get_password_hash
 
 from app.routers import auth, users, projects, schedules, milestones, site_engineer, tasks_router, attendance, notifications, shifts, site_progress
-from app.routers import resources, inventory, procurement, contractors, materials
+from app.routers import resources, inventory, procurement, contractors, materials, workforce
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -69,6 +90,7 @@ app.include_router(inventory.router, prefix=settings.API_V1_STR)
 app.include_router(materials.router, prefix=settings.API_V1_STR)
 app.include_router(procurement.router, prefix=settings.API_V1_STR)
 app.include_router(contractors.router, prefix=settings.API_V1_STR)
+app.include_router(workforce.router, prefix=settings.API_V1_STR)
 
 
 @app.on_event("startup")
@@ -100,33 +122,55 @@ def ensure_columns():
     from sqlalchemy import text
     db = SessionLocal()
     try:
-# Drop the stale tables so they can be recreated to match the models.
-        # Drop child tables first (resource_maintenances, resource_utilizations, resource_allocations -> resources)
-        db.execute(text("DROP TABLE IF EXISTS resource_maintenances"))
-        db.execute(text("DROP TABLE IF EXISTS resource_utilizations"))
-        db.execute(text("DROP TABLE IF EXISTS resource_allocations"))
-        db.execute(text("DROP TABLE IF EXISTS progress_photographs"))
-        db.execute(text("DROP TABLE IF EXISTS daily_progress_reports"))
-        db.execute(text("DROP TABLE IF EXISTS weekly_progress_reports"))
-        db.execute(text("DROP TABLE IF EXISTS delay_tracking"))
-        db.execute(text("DROP TABLE IF EXISTS site_activity_logs"))
-        db.execute(text("DROP TABLE IF EXISTS work_completion_status"))
-        db.execute(text("DROP TABLE IF EXISTS attendance"))
-        db.execute(text("DROP TABLE IF EXISTS notifications"))
-        db.execute(text("DROP TABLE IF EXISTS resources"))
-        db.execute(text("DROP TABLE IF EXISTS inventory"))
-        db.execute(text("DROP TABLE IF EXISTS procurements"))
-        db.execute(text("DROP TABLE IF EXISTS assigned_tasks"))
-        db.execute(text("DROP TABLE IF EXISTS documents"))
-        db.execute(text("DROP TABLE IF EXISTS shifts"))
-        db.execute(text("DROP TABLE IF EXISTS equipment"))
-        db.execute(text("DROP TABLE IF EXISTS activity_logs"))
+        # Drop Module 7 procurement tables
+        db.execute(text("DROP TABLE IF EXISTS invoices CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS purchase_order_items CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS purchase_orders CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS procurement_request_items CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS procurement_requests CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS vendors CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS procurement_categories CASCADE"))
+
+        # Drop child workforce tables first
+        db.execute(text("DROP TABLE IF EXISTS workforce_payrolls CASCADE"))
+
+        db.execute(text("DROP TABLE IF EXISTS worker_shift_assignments CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS worker_project_assignments CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS attendance CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS workers CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS workforce_categories CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS resource_maintenances CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS resource_utilizations CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS resource_allocations CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS progress_photographs CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS daily_progress_reports CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS weekly_progress_reports CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS delay_tracking CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS site_activity_logs CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS work_completion_status CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS notifications CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS resources CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS inventory CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS procurements CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS assigned_tasks CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS documents CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS shifts CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS equipment CASCADE"))
+        db.execute(text("DROP TABLE IF EXISTS activity_logs CASCADE"))
         db.commit()
         db.close()
 
         # Recreate using SQLAlchemy metadata (matches the model definitions).
         from app.database.session import engine
-        from app.models.placeholders import Attendance, Notification, Inventory, Procurement  # noqa: F401
+        from app.models.workforce import (  # noqa: F401
+            WorkforceCategory,
+            Worker,
+            WorkerProjectAssignment,
+            WorkerShiftAssignment,
+            AttendanceModel,
+            WorkforcePayroll,
+        )
+        from app.models.placeholders import Notification, Inventory, Procurement  # noqa: F401
         from app.models.resource import (  # noqa: F401
             ResourceModel,
             ResourceAllocationModel,
@@ -153,22 +197,38 @@ def ensure_columns():
         from app.models.document import DocumentModel  # noqa: F401
         from app.models.shift import ShiftModel  # noqa: F401
         from app.models.equipment import EquipmentModel  # noqa: F401
-        from app.models.activity_log import ActivityLogModel  # noqa: F401
+        from app.models.procurement import (
+            ProcurementCategoryModel,
+            VendorModel,
+            ProcurementRequestModel,
+            ProcurementRequestItemModel,
+            PurchaseOrderModel,
+            PurchaseOrderItemModel,
+            InvoiceModel,
+        )
         Base.metadata.create_all(bind=engine, tables=[
-            Attendance.__table__, Notification.__table__,
+            WorkforceCategory.__table__, Worker.__table__, WorkerProjectAssignment.__table__,
+            WorkerShiftAssignment.__table__, AttendanceModel.__table__, WorkforcePayroll.__table__,
+            Notification.__table__,
             ResourceModel.__table__, ResourceAllocationModel.__table__,
             ResourceUtilizationModel.__table__, ResourceMaintenanceModel.__table__,
             MaterialCategoryModel.__table__, MaterialModel.__table__,
             MaterialInventoryModel.__table__, MaterialRequestModel.__table__,
             MaterialAllocationModel.__table__, StockMovementModel.__table__,
             Procurement.__table__,
+            ProcurementCategoryModel.__table__, VendorModel.__table__,
+            ProcurementRequestModel.__table__, ProcurementRequestItemModel.__table__,
+            PurchaseOrderModel.__table__, PurchaseOrderItemModel.__table__,
+            InvoiceModel.__table__,
             DailyProgressReport.__table__, WeeklyProgressReport.__table__,
             WorkCompletionStatus.__table__, DelayTracking.__table__,
             SiteActivityLog.__table__, ProgressPhotograph.__table__,
             TaskModel.__table__, DocumentModel.__table__, ShiftModel.__table__,
             EquipmentModel.__table__, ActivityLogModel.__table__,
         ])
-        print("[Migration] Recreated Module 4 and Module 5 tables to match models.")
+        print("[Migration] Recreated Module 4, Module 5, Module 6, and Module 7 tables to match models.")
+
+
     except Exception as e:
         print(f"[Warning] Column migration notice: {e}")
     finally:
@@ -535,17 +595,92 @@ def seed_database():
             db.add_all([inv1, inv2, inv3, inv4])
             db.commit()
 
-        if db.query(Procurement).count() == 0:
-            proc1 = Procurement(title="Emergency Cement Order", amount=1200.0, project_id=first_project.id if first_project else None, material_id=None, quantity=200, status="Approved", requested_by="David Miller")
-            proc2 = Procurement(title="Formwork Plywood Restock", amount=4500.0, project_id=None, material_id=None, quantity=500, status="Pending Approval", requested_by="Sarah Jenkins")
-            proc3 = Procurement(title="Safety Helmets Replacement", amount=850.0, project_id=second_project.id if second_project else None, material_id=None, quantity=100, status="Pending Approval", requested_by="Marcus Brody")
-            db.add_all([proc1, proc2, proc3])
+        # 13. Seed Module 6 - Workforce Management Data
+        from app.services.workforce_service import WorkforceService
+        wf_service = WorkforceService(db)
+        wf_service.seed_default_categories()
+
+        contractor_user = db.query(User).join(User.role_rel).filter(User.role_rel.has(name="Contractor")).first()
+        contractor_id = contractor_user.id if contractor_user else None
+
+        cats = {c.name: c.id for c in db.query(WorkforceCategory).all()}
+
+        if db.query(Worker).count() == 0:
+            workers_data = [
+                ("WRK-2026-001", "Robert Thorne", "+1 555-0181", cats.get("Skilled Workers"), "Structural Masonry & Steel", contractor_id, "2026-01-10", "Active", 650.0),
+                ("WRK-2026-002", "Carlos Mendez", "+1 555-0182", cats.get("Skilled Workers"), "Concrete Pouring & Formwork", contractor_id, "2026-01-15", "Active", 600.0),
+                ("WRK-2026-003", "Maria Gonzalez", "+1 555-0183", cats.get("Supervisors"), "Site Safety & Crew Inspection", contractor_id, "2026-02-01", "Active", 850.0),
+                ("WRK-2026-004", "David Vance", "+1 555-0184", cats.get("Engineers"), "Structural Design Engineer", None, "2026-02-10", "Active", 1200.0),
+                ("WRK-2026-005", "James Watson", "+1 555-0185", cats.get("Skilled Workers"), "Tower Crane Operator", contractor_id, "2026-03-01", "Active", 750.0),
+                ("WRK-2026-006", "Anita Roy", "+1 555-0186", cats.get("Unskilled Workers"), "General Site Laborer", contractor_id, "2026-03-15", "Active", 400.0),
+            ]
+            seeded_workers = []
+            for wcode, wname, wphone, cat_id, skill, c_id, jdate, status_val, prate in workers_data:
+                if cat_id:
+                    w = Worker(
+                        worker_id=wcode,
+                        worker_name=wname,
+                        contact_information=wphone,
+                        workforce_category_id=cat_id,
+                        skill_or_work_type=skill,
+                        contractor_id=c_id,
+                        joining_date=jdate,
+                        worker_status=status_val,
+                        pay_rate=prate
+                    )
+                    db.add(w)
+                    seeded_workers.append(w)
             db.commit()
+
+            # Seed assignments for seeded workers
+            all_w = db.query(Worker).all()
+            if first_project and all_w:
+                for w in all_w:
+                    assign = WorkerProjectAssignment(
+                        worker_id=w.id,
+                        project_id=first_project.id,
+                        contractor_id=w.contractor_id,
+                        work_activity=w.skill_or_work_type,
+                        assignment_start_date="2026-04-01",
+                        assignment_status="Active"
+                    )
+                    db.add(assign)
+                db.commit()
+
+                # Seed Attendance for seeded workers
+                att_today = [
+                    AttendanceModel(worker_id=all_w[0].id, project_id=first_project.id, date="2026-08-03", day_name="Monday", shift_type="Morning", check_in="08:00", check_out="17:00", status="Present", hours_worked=9.0, overtime_hours=1.0, remarks="Shift completed on time"),
+                    AttendanceModel(worker_id=all_w[1].id, project_id=first_project.id, date="2026-08-03", day_name="Monday", shift_type="Morning", check_in="08:15", check_out="17:15", status="Present", hours_worked=9.0, overtime_hours=1.0, remarks="Formwork pour done"),
+                    AttendanceModel(worker_id=all_w[2].id, project_id=first_project.id, date="2026-08-03", day_name="Monday", shift_type="Morning", check_in="07:45", check_out="16:45", status="Present", hours_worked=9.0, overtime_hours=1.0, remarks="Safety audit conducted"),
+                    AttendanceModel(worker_id=all_w[5].id, project_id=first_project.id, date="2026-08-03", day_name="Monday", shift_type="Morning", check_in=None, check_out=None, status="Absent", hours_worked=0.0, overtime_hours=0.0, remarks="Medical leave"),
+                ]
+                db.add_all(att_today)
+                db.commit()
+
+                # Seed Payroll records for seeded workers
+                for w in all_w[:3]:
+                    pay_rec = WorkforcePayroll(
+                        worker_id=w.id,
+                        project_id=first_project.id,
+                        pay_period_start="2026-08-01",
+                        pay_period_end="2026-08-07",
+                        pay_rate=w.pay_rate or 600.0,
+                        working_days=6.0,
+                        working_hours=48.0,
+                        overtime_hours=4.0,
+                        leave_days=0.0,
+                        attendance_reference="Weekly auto-calculated attendance",
+                        estimated_pay=(6.0 * (w.pay_rate or 600.0)) + (4.0 * ((w.pay_rate or 600.0) / 8.0) * 1.5),
+                        payroll_status="Approved"
+                    )
+                    db.add(pay_rec)
+                db.commit()
 
     except Exception as err:
         print(f"[Seed Warning] Database seeding notice: {err}")
     finally:
         db.close()
+
 
 
 @app.get("/")

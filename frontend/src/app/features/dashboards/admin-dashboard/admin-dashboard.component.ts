@@ -239,13 +239,14 @@ export class AdminDashboardComponent implements OnInit {
     });
 
     this.procurementService.getProcurements().subscribe({
-      next: (data) => {
-        this.procurementCount = data.filter(p => p.status === 'Pending Approval').length;
+      next: (data: any[]) => {
+        this.procurementCount = data.filter((p: any) => p.status === 'Pending Approval' || p.status === 'Pending').length;
       },
       error: () => {
         this.procurementCount = 0;
       }
     });
+
   }
 
   get activeProjectsCount(): number {

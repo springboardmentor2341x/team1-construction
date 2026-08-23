@@ -1,144 +1,336 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.dependencies.database import get_db
 from app.dependencies.auth import get_current_user
-from app.dependencies.rbac import RequireRole
 from app.models.user import User
-from app.models.placeholders import Procurement
-from pydantic import BaseModel
+from app.services.procurement_service import ProcurementService
+from app.schemas.procurement import (
+    ProcurementCategoryRead,
+    VendorCreate,
+    VendorUpdate,
+    VendorStatusUpdate,
+    VendorRead,
+    PaginatedVendorsResponse,
+    InventoryCheckItemRequest,
+    InventoryCheckResponse,
+    ProcurementRequestCreate,
+    ProcurementRequestApproveReject,
+    ProcurementRequestRead,
+    PaginatedProcurementRequestsResponse,
+    PurchaseOrderCreate,
+    PurchaseOrderStatusUpdate,
+    PurchaseOrderRead,
+    PaginatedPurchaseOrdersResponse,
+    GoodsReceiptInput,
+    InvoiceCreate,
+    InvoicePaymentStatusUpdate,
+    InvoiceRead,
+    PaginatedInvoicesResponse,
+    ProcurementDashboardStats,
+)
 
-router = APIRouter(prefix="/procurements", tags=["Procurement"])
+router = APIRouter(prefix="/procurement", tags=["Procurement Management"])
 
-class ProcurementRead(BaseModel):
-    id: str
-    title: str
-    supplier: Optional[str] = None
-    material_name: Optional[str] = None
-    expected_delivery_date: Optional[str] = None
-    po_number: Optional[str] = None
-    amount: float
-    project_id: Optional[str] = None
-    material_id: Optional[str] = None
-    quantity: float
-    status: str
-    requested_by: Optional[str] = None
 
-    class Config:
-        from_attributes = True
-
-class ProcurementCreate(BaseModel):
-    title: str
-    supplier: Optional[str] = None
-    material_name: Optional[str] = None
-    expected_delivery_date: Optional[str] = None
-    po_number: Optional[str] = None
-    amount: float = 0.0
-    project_id: Optional[str] = None
-    material_id: Optional[str] = None
-    quantity: float = 0.0
-    status: Optional[str] = "Pending Approval"
-
-class ProcurementUpdate(BaseModel):
-    title: Optional[str] = None
-    supplier: Optional[str] = None
-    material_name: Optional[str] = None
-    expected_delivery_date: Optional[str] = None
-    po_number: Optional[str] = None
-    amount: Optional[float] = None
-    project_id: Optional[str] = None
-    material_id: Optional[str] = None
-    quantity: Optional[float] = None
-    status: Optional[str] = None
-
-@router.get("", response_model=List[ProcurementRead])
-def get_procurements(
-    project_id: Optional[str] = None,
+# ---------------------------------------------------------
+# Categories
+# ---------------------------------------------------------
+@router.get("/categories", response_model=List[ProcurementCategoryRead])
+def get_categories(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    query = db.query(Procurement)
-    if project_id:
-        query = query.filter(Procurement.project_id == project_id)
-    return query.all()
+    service = ProcurementService(db)
+    return service.get_categories()
 
-@router.post("", response_model=ProcurementRead, status_code=status.HTTP_201_CREATED)
-def create_procurement(
-    req: ProcurementCreate,
+
+# ---------------------------------------------------------
+# Vendors
+# ---------------------------------------------------------
+@router.get("/vendors", response_model=PaginatedVendorsResponse)
+def get_vendors(
+    search: Optional[str] = Query(None, description="Search by vendor ID, name, or contact"),
+    vendorCategory: Optional[str] = Query(None, alias="vendorCategory"),
+    vendorStatus: Optional[str] = Query(None, alias="vendorStatus"),
+    page: int = Query(1, ge=1),
+    pageSize: int = Query(10, ge=1, le=1000, alias="pageSize"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer", "Contractor"]))
+    current_user: User = Depends(get_current_user)
 ):
-    new_req = Procurement(
-        **req.model_dump(),
-        requested_by=current_user.full_name
+    service = ProcurementService(db)
+    return service.get_vendors(
+        search=search,
+        vendorCategory=vendorCategory,
+        vendorStatus=vendorStatus,
+        page=page,
+        pageSize=pageSize,
+        current_user=current_user
     )
-    db.add(new_req)
-    db.commit()
-    db.refresh(new_req)
-    return new_req
 
-@router.put("/{procurement_id}", response_model=ProcurementRead)
-def update_procurement(
-    procurement_id: str,
-    req: ProcurementUpdate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager"]))
-):
-    proc = db.query(Procurement).filter(Procurement.id == procurement_id).first()
-    if not proc:
-        raise HTTPException(status_code=404, detail="Procurement request not found")
-    
-    update_data = req.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(proc, key, value)
-        
-    db.commit()
-    db.refresh(proc)
-    return proc
 
-@router.put("/{procurement_id}/issue-po", response_model=ProcurementRead)
-def issue_po(
-    procurement_id: str,
+@router.get("/vendors/{vendor_id}", response_model=VendorRead)
+def get_vendor_by_id(
+    vendor_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager"]))
+    current_user: User = Depends(get_current_user)
 ):
-    import uuid
-    proc = db.query(Procurement).filter(Procurement.id == procurement_id).first()
-    if not proc:
-        raise HTTPException(status_code=404, detail="Procurement request not found")
-    
-    proc.status = "PO Issued"
-    if not proc.po_number:
-        proc.po_number = f"PO-{uuid.uuid4().hex[:6].upper()}"
-    db.commit()
-    db.refresh(proc)
-    return proc
+    service = ProcurementService(db)
+    return service.get_vendor_by_id(vendor_id, current_user)
 
-@router.put("/{procurement_id}/mark-received", response_model=ProcurementRead)
-def mark_received(
-    procurement_id: str,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
-):
-    proc = db.query(Procurement).filter(Procurement.id == procurement_id).first()
-    if not proc:
-        raise HTTPException(status_code=404, detail="Procurement request not found")
-    
-    proc.status = "Received"
-    db.commit()
-    db.refresh(proc)
-    return proc
 
-@router.delete("/{procurement_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_procurement(
-    procurement_id: str,
+@router.post("/vendors", response_model=VendorRead, status_code=status.HTTP_201_CREATED)
+def create_vendor(
+    req: VendorCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager"]))
+    current_user: User = Depends(get_current_user)
 ):
-    proc = db.query(Procurement).filter(Procurement.id == procurement_id).first()
-    if not proc:
-        raise HTTPException(status_code=404, detail="Procurement request not found")
-    
-    db.delete(proc)
-    db.commit()
-    return None
+    service = ProcurementService(db)
+    return service.create_vendor(req, current_user)
+
+
+@router.put("/vendors/{vendor_id}", response_model=VendorRead)
+def update_vendor(
+    vendor_id: str,
+    req: VendorUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.update_vendor(vendor_id, req, current_user)
+
+
+@router.put("/vendors/{vendor_id}/status", response_model=VendorRead)
+def update_vendor_status(
+    vendor_id: str,
+    req: VendorStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.update_vendor_status(vendor_id, req.vendorStatus, current_user)
+
+
+# ---------------------------------------------------------
+# Module 5 Inventory Check
+# ---------------------------------------------------------
+@router.post("/requests/check-inventory", response_model=InventoryCheckResponse)
+def check_inventory(
+    items: List[InventoryCheckItemRequest],
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.check_inventory_stock(items)
+
+
+# ---------------------------------------------------------
+# Procurement Requests & Approvals
+# ---------------------------------------------------------
+@router.get("/requests", response_model=PaginatedProcurementRequestsResponse)
+def get_procurement_requests(
+    projectId: Optional[str] = Query(None, alias="projectId"),
+    categoryName: Optional[str] = Query(None, alias="categoryName"),
+    requestStatus: Optional[str] = Query(None, alias="requestStatus"),
+    priority: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
+    page: int = Query(1, ge=1),
+    pageSize: int = Query(10, ge=1, le=1000, alias="pageSize"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.get_procurement_requests(
+        projectId=projectId,
+        categoryName=categoryName,
+        requestStatus=requestStatus,
+        priority=priority,
+        search=search,
+        page=page,
+        pageSize=pageSize,
+        current_user=current_user
+    )
+
+
+@router.get("/requests/{request_id}", response_model=ProcurementRequestRead)
+def get_request_by_id(
+    request_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.get_request_by_id(request_id, current_user)
+
+
+@router.post("/requests", response_model=ProcurementRequestRead, status_code=status.HTTP_201_CREATED)
+def create_procurement_request(
+    req: ProcurementRequestCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.create_procurement_request(req, current_user)
+
+
+@router.post("/requests/{request_id}/approve", response_model=ProcurementRequestRead)
+def approve_procurement_request(
+    request_id: str,
+    req: Optional[ProcurementRequestApproveReject] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    remarks = req.remarks if req else None
+    return service.approve_procurement_request(request_id, remarks, current_user)
+
+
+@router.post("/requests/{request_id}/reject", response_model=ProcurementRequestRead)
+def reject_procurement_request(
+    request_id: str,
+    req: ProcurementRequestApproveReject,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    reason = req.rejectionReason or "Rejected by management"
+    return service.reject_procurement_request(request_id, reason, current_user)
+
+
+# ---------------------------------------------------------
+# Purchase Orders & Goods Receiving
+# ---------------------------------------------------------
+@router.get("/purchase-orders", response_model=PaginatedPurchaseOrdersResponse)
+def get_purchase_orders(
+    projectId: Optional[str] = Query(None, alias="projectId"),
+    vendorId: Optional[str] = Query(None, alias="vendorId"),
+    purchaseOrderStatus: Optional[str] = Query(None, alias="purchaseOrderStatus"),
+    search: Optional[str] = Query(None),
+    page: int = Query(1, ge=1),
+    pageSize: int = Query(10, ge=1, le=1000, alias="pageSize"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.get_purchase_orders(
+        projectId=projectId,
+        vendorId=vendorId,
+        purchaseOrderStatus=purchaseOrderStatus,
+        search=search,
+        page=page,
+        pageSize=pageSize,
+        current_user=current_user
+    )
+
+
+@router.get("/purchase-orders/{po_id}", response_model=PurchaseOrderRead)
+def get_purchase_order_by_id(
+    po_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.get_purchase_order_by_id(po_id, current_user)
+
+
+@router.post("/purchase-orders", response_model=PurchaseOrderRead, status_code=status.HTTP_201_CREATED)
+def create_purchase_order(
+    req: PurchaseOrderCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.create_purchase_order(req, current_user)
+
+
+@router.put("/purchase-orders/{po_id}/status", response_model=PurchaseOrderRead)
+def update_po_status(
+    po_id: str,
+    req: PurchaseOrderStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.update_po_status(po_id, req.purchaseOrderStatus, current_user)
+
+
+@router.post("/purchase-orders/{po_id}/receive", response_model=PurchaseOrderRead)
+def receive_goods(
+    po_id: str,
+    input_data: GoodsReceiptInput,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.receive_goods_for_po(po_id, input_data, current_user)
+
+
+# ---------------------------------------------------------
+# Invoices & Payment Status
+# ---------------------------------------------------------
+@router.get("/invoices", response_model=PaginatedInvoicesResponse)
+def get_invoices(
+    projectId: Optional[str] = Query(None, alias="projectId"),
+    vendorId: Optional[str] = Query(None, alias="vendorId"),
+    paymentStatus: Optional[str] = Query(None, alias="paymentStatus"),
+    invoiceStatus: Optional[str] = Query(None, alias="invoiceStatus"),
+    search: Optional[str] = Query(None),
+    page: int = Query(1, ge=1),
+    pageSize: int = Query(10, ge=1, le=1000, alias="pageSize"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.get_invoices(
+        projectId=projectId,
+        vendorId=vendorId,
+        paymentStatus=paymentStatus,
+        invoiceStatus=invoiceStatus,
+        search=search,
+        page=page,
+        pageSize=pageSize,
+        current_user=current_user
+    )
+
+
+@router.post("/invoices", response_model=InvoiceRead, status_code=status.HTTP_201_CREATED)
+def create_invoice(
+    req: InvoiceCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.create_invoice(req, current_user)
+
+
+@router.put("/invoices/{invoice_id}/payment-status", response_model=InvoiceRead)
+def update_invoice_payment_status(
+    invoice_id: str,
+    req: InvoicePaymentStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.update_invoice_payment_status(invoice_id, req.paymentStatus, req.remarks, current_user)
+
+
+# ---------------------------------------------------------
+# Executive Dashboard & Lifecycle Details
+# ---------------------------------------------------------
+@router.get("/dashboard", response_model=ProcurementDashboardStats)
+def get_dashboard_stats(
+    projectId: Optional[str] = Query(None, alias="projectId"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.get_dashboard_stats(projectId=projectId, current_user=current_user)
+
+
+@router.get("/workflow/{request_id}")
+def get_procurement_workflow_detail(
+    request_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.get_procurement_lifecycle_detail(request_id, current_user)

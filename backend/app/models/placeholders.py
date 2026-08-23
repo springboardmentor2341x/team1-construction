@@ -11,20 +11,8 @@ from app.models.resource import ResourceModel as Resource
 from app.models.material import MaterialInventoryModel as Inventory
 
 
-class Attendance(Base):
-    __tablename__ = "attendance"
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id: Mapped[str] = mapped_column(String(36), nullable=False, default="")
-    user_name: Mapped[str] = mapped_column(String(100), default="Robert Thorne")
-    date: Mapped[str] = mapped_column(String(20), nullable=False)
-    day_name: Mapped[str] = mapped_column(String(20), default="")
-    shift_type: Mapped[str] = mapped_column(String(20), default="Morning")
-    check_in: Mapped[str] = mapped_column(String(10), nullable=True)
-    check_out: Mapped[str] = mapped_column(String(10), nullable=True)
-    status: Mapped[str] = mapped_column(String(20), default="Present")
-    hours_worked: Mapped[float] = mapped_column(Float, default=0.0)
-    location: Mapped[str] = mapped_column(String(150), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+from app.models.workforce import AttendanceModel as Attendance
+
 
 
 class Procurement(Base):

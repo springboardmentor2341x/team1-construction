@@ -4,10 +4,25 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
-import { ProcurementService, ProcurementRequest } from '../../../core/services/procurement.service';
+import { ProcurementService } from '../../../core/services/procurement.service';
 import { ProjectService } from '../../../core/services/project.service';
 import { Project } from '../../../core/models/project.model';
 import { AuthService } from '../../../core/services/auth.service';
+
+export interface LegacyProcurement {
+  id: string;
+  title: string;
+  supplier?: string;
+  material_name?: string;
+  expected_delivery_date?: string;
+  po_number?: string;
+  amount: number;
+  project_id?: string;
+  material_id?: string;
+  quantity: number;
+  status: string;
+  requested_by?: string;
+}
 
 @Component({
   selector: 'app-procurement-request',
@@ -60,8 +75,8 @@ import { AuthService } from '../../../core/services/auth.service';
                   <option *ngFor="let p of projects" [value]="p.id">{{ p.projectName }}</option>
                 </select>
               </div>
-              <div class="col-md-4" *ngIf="canApprove()">
-                <label class="form-label small fw-semibold">Status (Approval Workflow)</label>
+              <div class="col-md-3" *ngIf="editingId && canApprove()">
+                <label class="form-label small fw-semibold">Status</label>
                 <select class="form-select form-select-sm" [(ngModel)]="currentReq.status" name="status">
                   <option value="Pending Approval">Pending Approval</option>
                   <option value="Approved">Approved</option>
@@ -70,31 +85,31 @@ import { AuthService } from '../../../core/services/auth.service';
                   <option value="Rejected">Rejected</option>
                 </select>
               </div>
-              <div class="col-12 text-end">
+              <div class="col-12 text-end mt-3">
                 <button type="button" class="btn btn-sm btn-outline-secondary me-2" (click)="showForm = false">Cancel</button>
-                <button type="submit" class="btn btn-sm btn-bt-primary">Save Request</button>
+                <button type="submit" class="btn btn-sm btn-bt-accent">Save Request</button>
               </div>
             </form>
           </div>
 
-          <div class="card card-custom border-0 p-4 shadow-sm bg-white">
-            <div class="table-responsive">
-              <table class="table table-hover align-middle small">
-                <thead class="table-light text-muted">
-                  <tr>
-                    <th>PO Number</th>
+          <div class="card card-custom border-0 p-4">
+            <div class="table-responsive" *ngIf="procurements.length; else emptyState">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr class="text-muted small">
+                    <th>PO / ID</th>
                     <th>Title & Material</th>
                     <th>Supplier</th>
                     <th>Project</th>
-                    <th>Qty / Cost</th>
-                    <th>Expected Delivery</th>
+                    <th>Amount & Qty</th>
+                    <th>Delivery Date</th>
                     <th>Status</th>
-                    <th class="text-end">Actions Workflow</th>
+                    <th class="text-end">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let req of procurements">
-                    <td><span class="badge bg-dark-subtle text-dark font-monospace">{{ req.po_number || 'Pending PO' }}</span></td>
+                    <td><span class="badge bg-light text-dark font-monospace">{{ req.po_number || 'Pending PO' }}</span></td>
                     <td>
                       <div class="fw-bold text-dark">{{ req.title }}</div>
                       <div class="text-muted extra-small">{{ req.material_name || 'Standard Material' }}</div>
@@ -118,20 +133,25 @@ import { AuthService } from '../../../core/services/auth.service';
                       </span>
                     </td>
                     <td class="text-end">
-                      <button *ngIf="canApprove() && req.status !== 'PO Issued' && req.status !== 'Received'" (click)="issuePO(req.id)" class="btn btn-sm btn-outline-primary me-1" title="Issue Purchase Order">
-                        <i class="bi bi-file-earmark-check me-1"></i>Issue PO
+                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="edit(req)"><i class="bi bi-pencil"></i></button>
+                      <button *ngIf="canApprove() && req.status !== 'PO Issued' && req.status !== 'Received'" (click)="issuePO(req.id)" class="btn btn-sm btn-outline-primary me-1" title="Issue PO">
+                        <i class="bi bi-receipt"></i> PO
                       </button>
-                      <button *ngIf="req.status === 'PO Issued'" (click)="markReceived(req.id)" class="btn btn-sm btn-outline-success me-1" title="Mark Goods Received">
-                        <i class="bi bi-box-arrow-in-down me-1"></i>Mark Received
+                      <button *ngIf="req.status === 'PO Issued'" (click)="markReceived(req.id)" class="btn btn-sm btn-outline-success me-1" title="Mark Received">
+                        <i class="bi bi-check2-circle"></i>
                       </button>
-                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="edit(req)" title="Edit"><i class="bi bi-pencil"></i></button>
-                      <button *ngIf="canApprove()" class="btn btn-sm btn-outline-danger" (click)="delete(req.id)" title="Delete"><i class="bi bi-trash"></i></button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="delete(req.id)"><i class="bi bi-trash"></i></button>
                     </td>
                   </tr>
-                  <tr *ngIf="!procurements.length"><td colspan="8" class="text-center py-4 text-muted"><i class="bi bi-cart-x d-block fs-3 mb-2"></i>No procurement requests found.</td></tr>
                 </tbody>
               </table>
             </div>
+            <ng-template #emptyState>
+              <div class="text-center py-5 text-muted">
+                <i class="bi bi-cart d-block fs-1 opacity-50 mb-2"></i>
+                <p>No procurement requests found. Click "New Request" to create one.</p>
+              </div>
+            </ng-template>
           </div>
         </div>
       </div>
@@ -140,11 +160,11 @@ import { AuthService } from '../../../core/services/auth.service';
   styles: ['.extra-small { font-size: 0.78rem; }']
 })
 export class ProcurementRequestComponent implements OnInit {
-  procurements: ProcurementRequest[] = [];
+  procurements: LegacyProcurement[] = [];
   projects: Project[] = [];
   showForm = false;
   editingId: string | null = null;
-  currentReq: Partial<ProcurementRequest> = {};
+  currentReq: Partial<LegacyProcurement> = {};
 
   constructor(
     private procurementService: ProcurementService,
@@ -158,7 +178,7 @@ export class ProcurementRequestComponent implements OnInit {
   }
 
   loadData(): void {
-    this.procurementService.getProcurements().subscribe((data: ProcurementRequest[]) => this.procurements = data);
+    this.procurementService.getProcurements().subscribe((data: LegacyProcurement[]) => this.procurements = data);
   }
 
   getProjectName(id?: string): string {
@@ -185,7 +205,7 @@ export class ProcurementRequestComponent implements OnInit {
     this.showForm = true;
   }
 
-  edit(req: ProcurementRequest): void {
+  edit(req: LegacyProcurement): void {
     this.editingId = req.id;
     this.currentReq = { ...req };
     this.showForm = true;

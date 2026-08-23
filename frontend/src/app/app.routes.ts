@@ -310,6 +310,98 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
 
+  // === MODULE 6: WORKFORCE MANAGEMENT ===
+  {
+    path: 'workforce',
+    redirectTo: 'workforce/dashboard',
+    pathMatch: 'full'
+  },
+  {
+    path: 'workforce/dashboard',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR, UserRole.CLIENT] },
+    loadComponent: () => import('./features/workforce/workforce-dashboard/workforce-dashboard.component').then(m => m.WorkforceDashboardComponent)
+  },
+  {
+    path: 'workforce/workers',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR] },
+    loadComponent: () => import('./features/workforce/worker-list/worker-list.component').then(m => m.WorkerListComponent)
+  },
+  {
+    path: 'workforce/workers/:id',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/workforce/worker-detail/worker-detail.component').then(m => m.WorkerDetailComponent)
+  },
+  {
+    path: 'workforce/allocations',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.CONTRACTOR] },
+    loadComponent: () => import('./features/workforce/workforce-allocation/workforce-allocation.component').then(m => m.WorkforceAllocationComponent)
+  },
+  {
+    path: 'workforce/attendance',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR, UserRole.WORKER] },
+    loadComponent: () => import('./features/workforce/attendance-management/attendance-management.component').then(m => m.AttendanceManagementComponent)
+  },
+  {
+    path: 'workforce/shifts',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR, UserRole.WORKER] },
+    loadComponent: () => import('./features/workforce/shift-management/shift-management.component').then(m => m.ShiftManagementComponent)
+  },
+  {
+    path: 'workforce/payroll',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.CONTRACTOR] },
+    loadComponent: () => import('./features/workforce/payroll-monitoring/payroll-monitoring.component').then(m => m.PayrollMonitoringComponent)
+  },
+
+  // === MODULE 7: PROCUREMENT MANAGEMENT ===
+  {
+    path: 'procurement/dashboard',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR, UserRole.CLIENT] },
+    loadComponent: () => import('./features/procurement/procurement-dashboard/procurement-dashboard.component').then(m => m.ProcurementDashboardComponent)
+  },
+  {
+    path: 'procurement/vendors',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR] },
+    loadComponent: () => import('./features/procurement/vendor-list/vendor-list.component').then(m => m.VendorListComponent)
+  },
+  {
+    path: 'procurement/vendors/:id',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/procurement/vendor-detail/vendor-detail.component').then(m => m.VendorDetailComponent)
+  },
+  {
+    path: 'procurement/requests',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR] },
+    loadComponent: () => import('./features/procurement/procurement-request-list/procurement-request-list.component').then(m => m.ProcurementRequestListComponent)
+  },
+  {
+    path: 'procurement/purchase-orders',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR] },
+    loadComponent: () => import('./features/procurement/purchase-order-list/purchase-order-list.component').then(m => m.PurchaseOrderListComponent)
+  },
+  {
+    path: 'procurement/invoices',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.CONTRACTOR] },
+    loadComponent: () => import('./features/procurement/invoice-list/invoice-list.component').then(m => m.InvoiceListComponent)
+  },
+  {
+    path: 'procurement/workflow/:id',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/procurement/procurement-detail/procurement-detail.component').then(m => m.ProcurementDetailComponent)
+  },
+
   // Wildcard Route
   { path: '**', redirectTo: 'login' }
 ];
+
+

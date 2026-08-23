@@ -15,7 +15,14 @@ from app.models.project import Project
 from app.models.schedule import ProjectSchedule
 from app.models.milestone import ProjectMilestone
 from app.models.assignments import ProjectSiteEngineer, ProjectContractor, ContractorWorker, ProjectClient
-from app.models.placeholders import Resource, Inventory, Attendance, Procurement, Notification, Report
+from app.models.workforce import (
+    WorkforceCategory,
+    Worker,
+    WorkerProjectAssignment,
+    WorkerShiftAssignment,
+    AttendanceModel,
+    WorkforcePayroll,
+)
 from app.models.site_progress import (
     DailyProgressReport,
     WeeklyProgressReport,
