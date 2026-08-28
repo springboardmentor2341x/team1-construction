@@ -1,12 +1,20 @@
-from typing import List, Optional, Any
+```python
+from typing import List, Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
 
 
-# --- Category Schemas ---
+# ============================================================
+# MODULE 7 - PART 1: VENDOR & PROCUREMENT REQUEST MANAGEMENT
+# ============================================================
+
+
+# ------------------------------------------------------------
+# Procurement Category Schemas
+# ------------------------------------------------------------
 class ProcurementCategoryBase(BaseModel):
-    name: str
-    description: Optional[str] = None
+    name: str = Field(..., min_length=2, max_length=100)
+    description: Optional[str] = Field(default=None, max_length=500)
 
 
 class ProcurementCategoryCreate(ProcurementCategoryBase):
@@ -21,16 +29,24 @@ class ProcurementCategoryRead(ProcurementCategoryBase):
         from_attributes = True
 
 
-# --- Vendor Schemas ---
+# ------------------------------------------------------------
+# Vendor / Supplier Management
+# ------------------------------------------------------------
 class VendorBase(BaseModel):
-    vendorId: str
-    vendorName: str
+    vendorId: str = Field(..., min_length=1, max_length=50)
+    vendorName: str = Field(..., min_length=2, max_length=150)
     contactPerson: Optional[str] = None
     contactNumber: Optional[str] = None
     email: Optional[str] = None
     address: Optional[str] = None
+
+    # Vendor category for supplier classification
     vendorCategory: Optional[str] = "Raw Materials"
+
+    # Products/services supplied by the vendor
     productsOrServicesSupplied: Optional[str] = None
+
+    # Active / Inactive vendor
     vendorStatus: Optional[str] = "Active"
 
 
@@ -70,11 +86,14 @@ class PaginatedVendorsResponse(BaseModel):
     totalPages: int
 
 
-# --- Inventory Check Models ---
+# ------------------------------------------------------------
+# Inventory Check
+# Used before raising procurement requests
+# ------------------------------------------------------------
 class InventoryCheckItemRequest(BaseModel):
     materialId: Optional[str] = None
     itemDescription: str
-    requiredQuantity: float
+    requiredQuantity: float = Field(..., gt=0)
 
 
 class InventoryCheckItemResponse(BaseModel):
@@ -91,14 +110,26 @@ class InventoryCheckResponse(BaseModel):
     hasStockShortage: bool
 
 
-# --- Procurement Request Item Schemas ---
+# ------------------------------------------------------------
+# Procurement Request Item
+# ------------------------------------------------------------
 class ProcurementRequestItemBase(BaseModel):
     materialId: Optional[str] = None
-    itemDescription: str
+
+    # Item/material requested
+    itemDescription: str = Field(..., min_length=1, max_length=200)
+
+    # Procurement category
     categoryName: Optional[str] = "Raw Materials"
-    requiredQuantity: float
+
+    # Quantity required
+    requiredQuantity: float = Field(..., gt=0)
+
     unit: Optional[str] = "Units"
+
+    # Required delivery/availability date
     requiredDate: str
+
     remarks: Optional[str] = None
 
 
@@ -109,50 +140,86 @@ class ProcurementRequestItemCreate(ProcurementRequestItemBase):
 class ProcurementRequestItemRead(ProcurementRequestItemBase):
     id: str
     procurementRequestId: str
+
+    # Inventory availability information
     availableStock: Optional[float] = 0.0
     netProcurementQuantity: Optional[float] = 0.0
+
     materialName: Optional[str] = None
 
     class Config:
         from_attributes = True
 
 
-# --- Procurement Request Schemas ---
+# ------------------------------------------------------------
+# Procurement Request
+# Requirement -> Request -> Approval
+# ------------------------------------------------------------
 class ProcurementRequestBase(BaseModel):
+    # Project association
     projectId: str
+
+    # Procurement category
     categoryName: Optional[str] = "Raw Materials"
+
+    # Purpose / reason for procurement
     purpose: Optional[str] = None
+
+    # Request priority
     priority: Optional[str] = "Medium"
+
     remarks: Optional[str] = None
 
 
 class ProcurementRequestCreate(ProcurementRequestBase):
-    items: List[ProcurementRequestItemCreate]
+    # One request can contain multiple requested items
+    items: List[ProcurementRequestItemCreate] = Field(..., min_length=1)
 
 
+# ------------------------------------------------------------
+# Procurement Approval Workflow
+# ------------------------------------------------------------
 class ProcurementRequestApproveReject(BaseModel):
+    """
+    Used by an authorized user to approve or reject
+    a procurement request.
+    """
+
     rejectionReason: Optional[str] = None
     remarks: Optional[str] = None
 
 
 class ProcurementRequestRead(ProcurementRequestBase):
     id: str
+
+    # Human-readable request number
     requestId: str
+
     projectName: Optional[str] = None
     projectCode: Optional[str] = None
+
+    # Request tracking
     requestDate: str
     requestStatus: str
+
+    # Requester
     requestedById: Optional[str] = None
     requestedByName: str
+
+    # Approval information
     approvedById: Optional[str] = None
     approvedByName: Optional[str] = None
     approvedAt: Optional[str] = None
+
+    # Rejection information
     rejectedById: Optional[str] = None
     rejectedByName: Optional[str] = None
     rejectedAt: Optional[str] = None
     rejectionReason: Optional[str] = None
+
     createdAt: Optional[str] = None
-    items: List[ProcurementRequestItemRead] = []
+
+    items: List[ProcurementRequestItemRead] = Field(default_factory=list)
 
     class Config:
         from_attributes = True
@@ -166,7 +233,15 @@ class PaginatedProcurementRequestsResponse(BaseModel):
     totalPages: int
 
 
-# --- Purchase Order Item Schemas ---
+# ============================================================
+# EXISTING MODULE 7 - PART 2/3 SCHEMAS
+# Kept unchanged so existing functionality is not broken.
+# ============================================================
+
+
+# ------------------------------------------------------------
+# Purchase Order Item Schemas
+# ------------------------------------------------------------
 class PurchaseOrderItemBase(BaseModel):
     materialId: Optional[str] = None
     description: str
@@ -192,7 +267,9 @@ class PurchaseOrderItemRead(PurchaseOrderItemBase):
         from_attributes = True
 
 
-# --- Purchase Order Schemas ---
+# ------------------------------------------------------------
+# Purchase Order Schemas
+# ------------------------------------------------------------
 class PurchaseOrderBase(BaseModel):
     vendorId: str
     projectId: str
@@ -240,7 +317,7 @@ class PurchaseOrderRead(PurchaseOrderBase):
     createdByName: str
     approvedByName: Optional[str] = None
     createdAt: Optional[str] = None
-    items: List[PurchaseOrderItemRead] = []
+    items: List[PurchaseOrderItemRead] = Field(default_factory=list)
 
     class Config:
         from_attributes = True
@@ -254,7 +331,9 @@ class PaginatedPurchaseOrdersResponse(BaseModel):
     totalPages: int
 
 
-# --- Invoice Schemas ---
+# ------------------------------------------------------------
+# Invoice Schemas
+# ------------------------------------------------------------
 class InvoiceBase(BaseModel):
     invoiceNumber: str
     vendorId: str
@@ -297,7 +376,9 @@ class PaginatedInvoicesResponse(BaseModel):
     totalPages: int
 
 
-# --- Dashboard Stats Schema ---
+# ------------------------------------------------------------
+# Procurement Dashboard Stats
+# ------------------------------------------------------------
 class ProcurementDashboardStats(BaseModel):
     totalRequests: int
     pendingRequests: int
@@ -310,3 +391,4 @@ class ProcurementDashboardStats(BaseModel):
     totalProcurementValue: float
     categoryBreakdown: List[dict]
     recentPurchaseOrders: List[dict]
+```
