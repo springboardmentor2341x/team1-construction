@@ -125,7 +125,7 @@ export const routes: Routes = [
   {
     path: 'reports',
     canActivate: [authGuard, roleGuard],
-    data: { roles: [UserRole.PROJECT_MANAGER, UserRole.CLIENT] },
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.CLIENT] },
     loadComponent: () => import('./features/project-manager/analytics-reports/analytics-reports.component').then(m => m.AnalyticsReportsComponent)
   },
 
@@ -403,5 +403,4 @@ export const routes: Routes = [
   // Wildcard Route
   { path: '**', redirectTo: 'login' }
 ];
-
 

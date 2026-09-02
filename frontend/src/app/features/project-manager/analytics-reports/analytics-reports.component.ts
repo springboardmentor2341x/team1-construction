@@ -1,241 +1,39 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
-import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
-import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
-import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ProjectService } from '../../../core/services/project.service';
-import { ResourceService } from '../../../core/services/resource.service';
-import { MilestoneService } from '../../../core/services/milestone.service';
+import { Project } from '../../../core/models/project.model';
+import { Resource, ResourceService } from '../../../core/services/resource.service';
+import { WorkforceService } from '../../../core/services/workforce.service';
+import { ProcurementService } from '../../../core/services/procurement.service';
+
+type ReportType = 'progress' | 'resources' | 'workforce' | 'procurement' | 'budget';
+interface ReportRow { [key: string]: string | number | undefined; }
 
 @Component({
-  selector: 'app-analytics-reports',
-  standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, NavbarComponent, SidebarComponent, RoleSimulatorComponent],
+  selector: 'app-analytics-reports', standalone: true,
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
   template: `
-    <app-role-simulator></app-role-simulator>
-    <app-navbar></app-navbar>
-    <div class="container-fluid p-0">
-      <div class="row g-0">
-        <div class="col-lg-2 col-md-3 d-none d-md-block"><app-sidebar></app-sidebar></div>
-        <div class="col-lg-10 col-md-9 p-4 bg-light-subtle min-vh-100 animate-fade-in">
-
-          <div class="d-flex align-items-center justify-content-between mb-4">
-            <div>
-              <nav aria-label="breadcrumb"><ol class="breadcrumb small mb-1">
-                <li class="breadcrumb-item"><a routerLink="/dashboard/project-manager" class="text-decoration-none text-warning">Dashboard</a></li>
-                <li class="breadcrumb-item active">Analytics & Reports</li>
-              </ol></nav>
-              <h2 class="fw-bold text-dark mb-0"><i class="bi bi-bar-chart-line-fill me-2 text-warning"></i>Analytics & Reports</h2>
-              <p class="text-muted small mb-0">Project performance metrics, KPIs, and exportable reports.</p>
-            </div>
-            <div class="d-flex gap-2">
-              <button class="btn btn-sm btn-outline-secondary" (click)="exportPDF()"><i class="bi bi-file-earmark-pdf me-1"></i>Export PDF</button>
-              <button class="btn btn-bt-accent shadow-sm" (click)="refreshData()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
-            </div>
-          </div>
-
-          <!-- Filter Bar -->
-          <div class="card card-custom border-0 p-3 mb-4">
-            <form [formGroup]="filterForm" class="row g-2 align-items-end">
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold text-muted">Date Range From</label>
-                <input type="date" class="form-control form-control-sm" formControlName="dateFrom">
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold text-muted">Date Range To</label>
-                <input type="date" class="form-control form-control-sm" formControlName="dateTo">
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold text-muted">Project</label>
-                <select class="form-select form-select-sm" formControlName="project">
-                  <option value="">All Projects</option>
-                  <option *ngFor="let p of projects()" [value]="p.id">{{ p.projectName }}</option>
-                </select>
-              </div>
-              <div class="col-md-3">
-                <button class="btn btn-sm btn-warning w-100" type="button" (click)="applyFilter()">Apply Filter</button>
-              </div>
-            </form>
-          </div>
-
-          <!-- KPI Cards -->
-          <div class="row g-3 mb-4">
-            <div class="col-md-3" *ngFor="let kpi of kpis">
-              <div class="card card-custom border-0 p-3">
-                <div class="d-flex align-items-center justify-content-between">
-                  <div>
-                    <div class="text-muted small fw-semibold">{{ kpi.label }}</div>
-                    <div class="fw-bold fs-5 mt-1" [ngClass]="kpi.colorClass">{{ kpi.value }}</div>
-                    <div class="extra-small text-muted mt-1">{{ kpi.change }}</div>
-                  </div>
-                  <div class="stat-icon-wrapper" [ngClass]="kpi.bgClass">
-                    <i class="bi" [ngClass]="kpi.icon"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Charts Placeholder Row -->
-          <div class="row g-4 mb-4">
-            <div class="col-lg-7">
-              <div class="card card-custom border-0 p-4 h-100">
-                <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill me-2 text-warning"></i>Project Progress Overview</h6>
-                <div class="progress-list">
-                  <div *ngFor="let p of projects().slice(0, 5)" class="mb-3">
-                    <div class="d-flex justify-content-between small mb-1">
-                      <span class="fw-semibold text-dark">{{ p.projectName }}</span>
-                      <span class="text-muted">{{ p.status }}</span>
-                    </div>
-                    <div class="progress" style="height:8px">
-                      <div class="progress-bar bg-warning" role="progressbar"
-                           [style.width]="getProgressWidth(p.status)"
-                           [attr.aria-valuenow]="getProgressNum(p.status)"
-                           aria-valuemin="0" aria-valuemax="100">
-                      </div>
-                    </div>
-                  </div>
-                  <div *ngIf="projects().length === 0" class="text-center text-muted py-4">
-                    <i class="bi bi-bar-chart fs-2 d-block mb-2"></i>No project data available.
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-5">
-              <div class="card card-custom border-0 p-4 h-100">
-                <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill me-2 text-warning"></i>Status Distribution</h6>
-                <div *ngFor="let stat of statusStats" class="d-flex align-items-center justify-content-between mb-3">
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="rounded-circle" [ngClass]="stat.colorClass" style="width:12px;height:12px"></div>
-                    <span class="small">{{ stat.status }}</span>
-                  </div>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="progress" style="width:100px;height:6px">
-                      <div class="progress-bar" [ngClass]="stat.barClass" [style.width]="stat.pct + '%'"></div>
-                    </div>
-                    <span class="small fw-bold">{{ stat.count }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Reports Table -->
-          <div class="card card-custom border-0 p-4">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-              <h6 class="fw-bold mb-0"><i class="bi bi-file-earmark-text me-2 text-warning"></i>Generated Reports</h6>
-              <button class="btn btn-sm btn-outline-warning" (click)="generateReport()"><i class="bi bi-plus me-1"></i>Generate New</button>
-            </div>
-            <div class="table-responsive">
-              <table class="table table-hover small align-middle">
-                <thead class="table-light text-muted">
-                  <tr><th>Report Name</th><th>Period</th><th>Type</th><th>Status</th><th class="text-end">Action</th></tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let r of savedReports">
-                    <td class="fw-semibold">{{ r.name }}</td>
-                    <td>{{ r.period }}</td>
-                    <td><span class="badge bg-light text-dark">{{ r.type }}</span></td>
-                    <td><span class="badge bg-success">Ready</span></td>
-                    <td class="text-end">
-                      <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-download"></i></button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  `,
-  styles: ['.extra-small { font-size: 0.78rem; }']
+    <main class="reports-page">
+      <section class="page-heading"><div><p class="eyebrow"><i class="bi bi-file-earmark-bar-graph"></i>Module 10</p><h1>Reports & documentation</h1><p class="subtitle">Build project documentation from the records available across BuildTrack.</p></div><button class="btn btn-outline-secondary" type="button" (click)="refresh()" [disabled]="loading()"><i class="bi bi-arrow-clockwise me-1"></i>{{ loading() ? 'Refreshing…' : 'Refresh data' }}</button></section>
+      <section class="report-types" aria-label="Report categories"><button *ngFor="let report of reportTypes" type="button" class="report-type" [class.active]="selectedType() === report.id" (click)="selectType(report.id)"><span class="type-icon" [class]="report.tone"><i class="bi" [class]="report.icon"></i></span><span class="type-copy"><strong>{{ report.title }}</strong><small>{{ report.description }}</small></span><i class="bi bi-chevron-right arrow"></i></button></section>
+      <section class="report-builder"><div class="builder-title"><div><span class="section-label">Configure report</span><h2>{{ selectedReport().title }}</h2><p>{{ selectedReport().description }}</p></div><span class="source-badge"><i class="bi bi-database"></i>Live module data</span></div>
+        <form [formGroup]="filters" class="filters" (ngSubmit)="generateReport()"><label>Project<select formControlName="projectId"><option value="">All accessible projects</option><option *ngFor="let project of projects()" [value]="project.id">{{ project.projectName }} · {{ project.projectCode }}</option></select></label><label>From date<input type="date" formControlName="dateFrom"></label><label>To date<input type="date" formControlName="dateTo"></label><label>Record status<select formControlName="status"><option value="">All statuses</option><option>Active</option><option>Completed</option><option>Pending</option><option>Approved</option></select></label><button class="btn btn-primary generate" type="submit" [disabled]="loading()"><i class="bi bi-eye me-1"></i>View report</button></form>
+      </section>
+      <section class="preview-card" aria-live="polite"><div class="preview-header"><div><span class="section-label">Report preview</span><h2>{{ reportTitle() }}</h2><p>{{ reportScope() }}</p></div><div class="export-actions"><button type="button" class="btn btn-outline-danger" (click)="printReport()" [disabled]="!hasReport()"><i class="bi bi-file-earmark-pdf me-1"></i>Download PDF</button><button type="button" class="btn btn-success" (click)="exportExcel()" [disabled]="!hasReport()"><i class="bi bi-file-earmark-spreadsheet me-1"></i>Export Excel</button></div></div>
+        <div *ngIf="message()" class="notice" [class.error]="messageKind() === 'error'"><i class="bi" [class.bi-info-circle]="messageKind() !== 'error'" [class.bi-exclamation-circle]="messageKind() === 'error'"></i>{{ message() }}</div>
+        <ng-container *ngIf="hasReport(); else emptyPreview"><div *ngIf="summaryCards().length" class="summary-grid"><article *ngFor="let card of summaryCards()"><span>{{ card.label }}</span><strong>{{ card.value }}</strong></article></div><div class="table-responsive" *ngIf="reportRows().length; else noRows"><table><thead><tr><th *ngFor="let column of columns()">{{ column }}</th></tr></thead><tbody><tr *ngFor="let row of reportRows()"><td *ngFor="let column of columns()">{{ row[column] ?? '—' }}</td></tr></tbody></table></div><ng-template #noRows><div class="empty-state compact"><i class="bi bi-inbox"></i><p>No matching records were found for these filters.</p></div></ng-template></ng-container><ng-template #emptyPreview><div class="empty-state"><i class="bi bi-file-earmark-text"></i><h3>Choose a report to preview</h3><p>Select a category, apply the optional filters, and view records from the connected modules.</p></div></ng-template>
+      </section>
+    </main>`,
+  styles: [`:host{display:block;background:#f6f8fb;min-height:100vh;color:#172033}.reports-page{max-width:1440px;margin:auto;padding:2rem}.page-heading,.preview-header,.builder-title{display:flex;justify-content:space-between;gap:1.5rem;align-items:flex-start}h1,h2,h3,p{margin:0}h1{font-size:2rem;font-weight:750;letter-spacing:-.04em}h2{font-size:1.25rem;font-weight:700;margin-top:.18rem}.subtitle,.builder-title p,.preview-header p{color:#64748b;margin-top:.45rem}.eyebrow,.section-label{color:#53647e;font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}.eyebrow i{color:#2563eb;margin-right:.4rem}.report-types{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.8rem;margin:2rem 0 1.25rem}.report-type{background:white;border:1px solid #e6eaf0;border-radius:14px;padding:1rem;display:flex;align-items:center;gap:.7rem;text-align:left;transition:.18s;min-height:92px}.report-type:hover,.report-type.active{border-color:#3b82f6;box-shadow:0 8px 18px rgba(30,64,175,.09)}.report-type.active{background:#eff6ff}.type-icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:0 0 auto}.type-icon.blue{background:#dbeafe;color:#2563eb}.type-icon.green{background:#dcfce7;color:#16a34a}.type-icon.orange{background:#ffedd5;color:#ea580c}.type-icon.purple{background:#f3e8ff;color:#9333ea}.type-icon.slate{background:#e2e8f0;color:#475569}.type-copy{min-width:0;display:grid;gap:.2rem}.type-copy strong{font-size:.84rem}.type-copy small{color:#64748b;line-height:1.2}.arrow{margin-left:auto;color:#94a3b8}.report-builder,.preview-card{background:#fff;border:1px solid #e6eaf0;border-radius:16px;padding:1.4rem;box-shadow:0 1px 2px rgba(15,23,42,.02)}.source-badge{background:#ecfdf5;color:#047857;border-radius:20px;padding:.35rem .65rem;font-size:.76rem;font-weight:600;white-space:nowrap}.source-badge i{margin-right:.3rem}.filters{display:grid;grid-template-columns:2fr repeat(3,1fr) auto;gap:.85rem;align-items:end;border-top:1px solid #edf0f4;padding-top:1.25rem;margin-top:1.2rem}label{display:grid;gap:.4rem;font-size:.76rem;font-weight:700;color:#475569}select,input{width:100%;border:1px solid #dce2ea;border-radius:8px;padding:.56rem .65rem;font:inherit;color:#243047;background:#fff}.generate{min-width:128px;white-space:nowrap}.preview-card{margin-top:1.25rem;min-height:360px}.export-actions{display:flex;gap:.55rem}.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin:1.25rem 0}.summary-grid article{border:1px solid #e9edf3;border-radius:10px;padding:.85rem;background:#fbfcfe}.summary-grid span{display:block;font-size:.76rem;color:#64748b}.summary-grid strong{font-size:1.18rem;margin-top:.3rem;display:block}table{width:100%;border-collapse:collapse;font-size:.86rem}th{text-align:left;color:#64748b;background:#f8fafc;font-weight:700;text-transform:uppercase;font-size:.68rem;letter-spacing:.04em}th,td{padding:.8rem .7rem;border-bottom:1px solid #eef1f5;white-space:nowrap}.notice{margin-top:1.15rem;background:#eff6ff;color:#1d4ed8;padding:.75rem .85rem;border-radius:8px;font-size:.85rem}.notice.error{background:#fef2f2;color:#b91c1c}.notice i{margin-right:.5rem}.empty-state{min-height:260px;display:grid;place-content:center;text-align:center;color:#64748b}.empty-state i{font-size:2.2rem;color:#94a3b8;margin-bottom:.7rem}.empty-state h3{color:#334155;font-size:1rem;margin-bottom:.35rem}.empty-state.compact{min-height:130px}.btn{border-radius:8px;font-weight:600;font-size:.86rem}@media(max-width:1100px){.report-types{grid-template-columns:repeat(3,1fr)}.filters{grid-template-columns:repeat(2,1fr)}.generate{width:100%}}@media(max-width:650px){.reports-page{padding:1rem}.page-heading,.preview-header,.builder-title{flex-direction:column}.report-types{grid-template-columns:1fr}.filters,.summary-grid{grid-template-columns:1fr}.export-actions{width:100%}.export-actions button{flex:1}.page-heading>button{width:100%}}@media print{:host{background:white}.page-heading>button,.report-types,.report-builder,.export-actions,.notice{display:none}.reports-page{max-width:none;padding:0}.preview-card{border:0;box-shadow:none;padding:0}.empty-state{display:none}}`]
 })
 export class AnalyticsReportsComponent implements OnInit {
-  filterForm: FormGroup;
-  projects = signal<any[]>([]);
-
-  kpis = [
-    { label: 'Projects On Schedule', value: '0%', change: 'derived from backend', colorClass: 'text-success', icon: 'bi-check-circle-fill', bgClass: 'bg-success-subtle text-success' },
-    { label: 'Budget Adherence', value: '0%', change: 'derived from backend', colorClass: 'text-warning', icon: 'bi-cash-stack', bgClass: 'bg-warning-subtle text-warning' },
-    { label: 'Milestones Completed', value: '0/0', change: 'pending this quarter', colorClass: 'text-primary', icon: 'bi-flag-fill', bgClass: 'bg-primary-subtle text-primary' },
-    { label: 'Avg. Team Utilization', value: '0%', change: 'derived from backend', colorClass: 'text-info', icon: 'bi-people-fill', bgClass: 'bg-info-subtle text-info' }
-  ];
-
-  statusStats = [
-    { status: 'In Progress', count: 0, pct: 0, colorClass: 'bg-success', barClass: 'bg-success' },
-    { status: 'Planning', count: 0, pct: 0, colorClass: 'bg-primary', barClass: 'bg-primary' },
-    { status: 'On Hold', count: 0, pct: 0, colorClass: 'bg-warning', barClass: 'bg-warning' },
-    { status: 'Completed', count: 0, pct: 0, colorClass: 'bg-info', barClass: 'bg-info' }
-  ];
-
-  savedReports: any[] = [];
-
-  constructor(
-    private fb: FormBuilder,
-    private projectService: ProjectService,
-    private resourceService: ResourceService,
-    private milestoneService: MilestoneService
-  ) {
-    this.filterForm = this.fb.group({ dateFrom: [''], dateTo: [''], project: [''] });
-  }
-
-  ngOnInit(): void {
-    this.projectService.getProjects().subscribe(data => {
-      this.projects.set(data);
-      this.computeStats(data);
-      const total = data.length || 1;
-      const onSchedule = data.filter(p => p.status === 'In Progress').length;
-      const totalBudget = data.reduce((sum, p) => sum + (p.estimatedBudget || 0), 0);
-      this.kpis[0].value = Math.round((onSchedule / total) * 100) + '%';
-      this.kpis[1].value = data.length > 0 ? '100%' : '0%'; // Assumption: fully utilized allocated budget
-
-      // Fetch Milestones
-      if (data.length > 0) {
-        let totalMilestones = 0;
-        let completedMilestones = 0;
-        data.forEach((p, index) => {
-          this.milestoneService.getMilestonesByProject(p.id).subscribe(ms => {
-            totalMilestones += ms.length;
-            completedMilestones += ms.filter(m => m.status === 'Completed').length;
-            if (index === data.length - 1) {
-              this.kpis[2].value = `${completedMilestones}/${totalMilestones}`;
-            }
-          });
-        });
-      }
-    });
-
-    this.resourceService.getResources().subscribe(res => {
-      if (res.length > 0) {
-        const util = res.reduce((sum, r) => sum + (r.utilizationPercentage || 0), 0) / res.length;
-        this.kpis[3].value = Math.round(util) + '%';
-      }
-    });
-  }
-
-  computeStats(projects: any[]): void {
-    const total = projects.length || 1;
-    this.statusStats.forEach(s => {
-      s.count = projects.filter(p => p.status === s.status).length;
-      s.pct = Math.round((s.count / total) * 100);
-    });
-  }
-
-  getProgressWidth(status: string): string {
-    // No fabricated percentages. Only reflect real project status:
-    // Completed = 100%, otherwise 0 until a real completion metric exists.
-    return status === 'Completed' ? '100%' : '0%';
-  }
-  getProgressNum(status: string): number {
-    return status === 'Completed' ? 100 : 0;
-  }
-
-  applyFilter(): void { console.log('Filter applied:', this.filterForm.value); }
-  refreshData(): void { this.ngOnInit(); }
-  exportPDF(): void { console.log('Export PDF triggered'); }
-  generateReport(): void { console.log('Generate report triggered'); }
+  readonly projects = signal<Project[]>([]); readonly selectedType = signal<ReportType>('progress'); readonly loading = signal(false); readonly hasReport = signal(false); readonly reportRows = signal<ReportRow[]>([]); readonly columns = signal<string[]>([]); readonly summaryCards = signal<{label:string;value:string}[]>([]); readonly message = signal(''); readonly messageKind = signal<'info'|'error'>('info'); readonly filters: FormGroup;
+  readonly reportTypes:{id:ReportType;title:string;description:string;icon:string;tone:string}[]=[{id:'progress',title:'Project progress',description:'Status and schedule details',icon:'bi-graph-up-arrow',tone:'blue'},{id:'resources',title:'Resources',description:'Allocation and utilization',icon:'bi-box-seam',tone:'green'},{id:'workforce',title:'Workforce',description:'Worker allocation records',icon:'bi-people',tone:'orange'},{id:'procurement',title:'Procurement',description:'Requests and order status',icon:'bi-cart-check',tone:'purple'},{id:'budget',title:'Budget',description:'Cost and budget records',icon:'bi-cash-stack',tone:'slate'}];
+  constructor(private fb:FormBuilder,private projectService:ProjectService,private resourceService:ResourceService,private workforceService:WorkforceService,private procurementService:ProcurementService){this.filters=this.fb.group({projectId:[''],dateFrom:[''],dateTo:[''],status:['']});}
+  ngOnInit(){this.refresh();} selectedReport(){return this.reportTypes.find(r=>r.id===this.selectedType())!;} reportTitle(){return `${this.selectedReport().title} report`;} reportScope(){const project=this.projects().find(p=>p.id===this.filters.value.projectId);return project?`${project.projectName} · filtered project records`:'All projects you can access';} selectType(type:ReportType){this.selectedType.set(type);this.hasReport.set(false);this.message.set('');}
+  refresh(){this.loading.set(true);this.projectService.getProjects().subscribe({next:items=>{this.projects.set(items);this.loading.set(false);},error:()=>{this.loading.set(false);this.setMessage('Project records could not be loaded. Check your access or connection.','error');}});}
+  generateReport(){this.loading.set(true);this.message.set('');const projectId=this.filters.value.projectId||undefined;if(this.selectedType()==='progress'){this.projectService.getProjects().subscribe({next:rows=>this.setProgress(this.filterRecords(rows.filter(r=>!projectId||r.id===projectId),r=>r.startDate,r=>r.status)),error:()=>this.loadError()});return;}if(this.selectedType()==='resources'){this.resourceService.getResources({projectId}).subscribe({next:rows=>this.setResources(this.filterRecords(rows,r=>undefined,r=>r.status)),error:()=>this.loadError()});return;}if(this.selectedType()==='workforce'){this.workforceService.getAssignments({projectId}).subscribe({next:records=>{const rows=this.filterRecords(records,r=>r.assignmentStartDate,r=>r.assignmentStatus);this.setRows(rows.map(r=>({Worker:r.workerName||r.workerCode,Project:r.projectName,Activity:r.workActivity,'Start date':r.assignmentStartDate,Status:r.assignmentStatus})),['Worker','Project','Activity','Start date','Status'],[{label:'Assignments',value:String(rows.length)},{label:'Active',value:String(rows.filter(r=>r.assignmentStatus==='Active').length)}]);},error:()=>this.loadError()});return;}if(this.selectedType()==='procurement'){this.procurementService.getProcurementRequests({projectId,pageSize:100}).subscribe({next:response=>{const rows=this.filterRecords(response.items,r=>r.requestDate,r=>r.requestStatus);this.setRows(rows.map(r=>({Request:r.requestId,Project:r.projectName,Category:r.categoryName,Priority:r.priority,Status:r.requestStatus,'Request date':r.requestDate})),['Request','Project','Category','Priority','Status','Request date'],[{label:'Requests',value:String(rows.length)},{label:'Pending',value:String(rows.filter(r=>r.requestStatus==='Pending').length)}]);},error:()=>this.loadError()});return;}this.setRows([],[],[]);this.setMessage('Budget reporting is ready for the Budget & Cost Management data source. No budget values are shown until that module is connected.','info');}
+  private setProgress(rows:Project[]){this.setRows(rows.map(r=>({Project:r.projectName,Code:r.projectCode,Status:r.status,'Start date':r.startDate,'Expected completion':r.expectedCompletionDate,'Estimated budget':this.currency(r.estimatedBudget)})),['Project','Code','Status','Start date','Expected completion','Estimated budget'],[{label:'Projects',value:String(rows.length)},{label:'In progress',value:String(rows.filter(r=>r.status==='In Progress').length)},{label:'Completed',value:String(rows.filter(r=>r.status==='Completed').length)}]);} private setResources(rows:Resource[]){this.setRows(rows.map(r=>({Resource:r.name,Code:r.equipmentCode,Category:r.category,Project:r.projectName,Status:r.status,Utilization:`${r.utilizationPercentage??0}%`})),['Resource','Code','Category','Project','Status','Utilization'],[{label:'Resources',value:String(rows.length)},{label:'Allocated',value:String(rows.filter(r=>r.status==='Allocated').length)},{label:'Average utilization',value:rows.length?`${Math.round(rows.reduce((s,r)=>s+(r.utilizationPercentage||0),0)/rows.length)}%`:'—'}]);} private filterRecords<T>(records:T[],date:(record:T)=>string|undefined,status:(record:T)=>string|undefined){const {dateFrom,dateTo,status:requiredStatus}=this.filters.value;return records.filter(record=>{const value=date(record);return (!requiredStatus||status(record)===requiredStatus)&&(!dateFrom||!value||value>=dateFrom)&&(!dateTo||!value||value<=dateTo);});} private setRows(rows:ReportRow[],columns:string[],summary:{label:string;value:string}[]){this.reportRows.set(rows);this.columns.set(columns);this.summaryCards.set(summary);this.hasReport.set(true);this.loading.set(false);} private loadError(){this.loading.set(false);this.hasReport.set(false);this.setMessage('This report could not be loaded from the connected module. Your role may not have access to these records.','error');} private setMessage(message:string,kind:'info'|'error'){this.message.set(message);this.messageKind.set(kind);} private currency(value:number){return new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(value||0);} printReport(){window.print();} exportExcel(){const headers=this.columns();const escape=(value:unknown)=>`"${String(value??'').replace(/"/g,'""')}"`;const csv=[headers.map(escape).join(','),...this.reportRows().map(row=>headers.map(header=>escape(row[header])).join(','))].join('\n');const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));link.download=`${this.selectedType()}-report.csv`;link.click();URL.revokeObjectURL(link.href);}
 }
