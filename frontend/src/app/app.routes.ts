@@ -111,6 +111,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./features/contractor/assign-task/assign-task.component').then(m => m.AssignTaskComponent)
   },
+  {
+    path: 'notifications',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/shared-pages/notifications/notifications.component').then(m => m.NotificationsComponent)
+  },
 
   // === ADMINISTRATOR PAGES ===
   {

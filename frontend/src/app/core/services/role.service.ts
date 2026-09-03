@@ -81,7 +81,7 @@ export class RoleService {
           { label: 'Weekly Progress Reports', icon: 'bi-card-checklist', route: '/weekly-progress-reports' },
           { label: 'Delay Tracking', icon: 'bi-exclamation-triangle-fill', route: '/delay-tracking' },
           { label: 'Site Activity Logs', icon: 'bi-clipboard-data', route: '/site-activity-logs' },
-          { label: 'Notifications', icon: 'bi-bell-fill', route: '/notifications', badge: '3' },
+          { label: 'Notifications', icon: 'bi-bell-fill', route: '/notifications' },
           { label: 'My Profile', icon: 'bi-person-circle', route: '/profile' }
         ];
 
