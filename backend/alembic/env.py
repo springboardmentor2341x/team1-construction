@@ -16,6 +16,7 @@ from app.models.schedule import ProjectSchedule
 from app.models.milestone import ProjectMilestone
 from app.models.assignments import ProjectSiteEngineer, ProjectContractor, ContractorWorker, ProjectClient
 from app.models.placeholders import Resource, Inventory, Attendance, Procurement, Notification, Report
+from app.models.budget import CostCategory, ProjectBudget, BudgetAllocation, CostEstimate, ProjectExpense
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)

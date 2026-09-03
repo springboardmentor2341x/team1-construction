@@ -18,6 +18,7 @@ from app.models.equipment import EquipmentModel
 from app.models.task import TaskModel
 from app.models.document import DocumentModel
 from app.models.shift import ShiftModel
+from app.models.budget import CostCategory, ProjectBudget, BudgetAllocation, CostEstimate, ProjectExpense
 from app.core.security import get_password_hash
 
 from app.routers import auth, users, projects, schedules, milestones, site_engineer, tasks_router, attendance, notifications, shifts

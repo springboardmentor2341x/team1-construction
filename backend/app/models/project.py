@@ -33,3 +33,6 @@ class Project(Base):
     contractors = relationship("ProjectContractor", back_populates="project", cascade="all, delete-orphan")
     clients = relationship("ProjectClient", back_populates="project", cascade="all, delete-orphan")
     audit_logs = relationship("ProjectAuditLog", back_populates="project", cascade="all, delete-orphan")
+    budget = relationship("ProjectBudget", back_populates="project", uselist=False, cascade="all, delete-orphan")
+    cost_estimates = relationship("CostEstimate", back_populates="project", cascade="all, delete-orphan")
+    expenses = relationship("ProjectExpense", back_populates="project", cascade="all, delete-orphan")
