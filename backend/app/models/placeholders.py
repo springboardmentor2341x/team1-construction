@@ -32,16 +32,7 @@ class Procurement(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
-class Notification(Base):
-    __tablename__ = "notifications"
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    title: Mapped[str] = mapped_column(String(150), nullable=False)
-    message: Mapped[str] = mapped_column(Text, nullable=True)
-    notification_type: Mapped[str] = mapped_column(String(20), default="info")
-    time: Mapped[str] = mapped_column(String(30), default="")
-    is_read: Mapped[bool] = mapped_column(Boolean, default=False)
-    category: Mapped[str] = mapped_column(String(50), default="System")
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+from app.models.notification import Notification
 
 
 class Report(Base):

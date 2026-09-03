@@ -9,6 +9,7 @@ from app.schemas.project import (
     ProjectCreate, ProjectRead, ProjectUpdate, PersonnelRead, AssignmentRead, AuditLogRead
 )
 from app.repositories.project_repository import ProjectRepository
+from app.services.notification_service import NotificationService
 
 
 def _user_personnel(user: User) -> PersonnelRead:
@@ -115,6 +116,22 @@ class ProjectService:
 
         updated = self.project_repo.update(project)
         self._log_audit(project.id, "PROJECT_UPDATED", current_user_id, f"Updated: {', '.join(changed) if changed else 'no fields'}")
+
+        # Emit Project Update Notifications to authorized relevant users
+        recipients = NotificationService.get_relevant_project_user_ids(self.db, project.id, exclude_user_id=current_user_id)
+        if recipients and changed:
+            NotificationService.create_bulk_notifications(
+                db=self.db,
+                user_ids=recipients,
+                title=f"Project Updated: {project.project_name}",
+                message=f"Project '{project.project_name}' ({project.project_code}) was updated ({', '.join(changed)}).",
+                type="PROJECT_UPDATE",
+                project_id=project.id,
+                reference_module="projects",
+                reference_id=project.id,
+                category="Project"
+            )
+
         return self._to_read_schema(updated)
 
     def delete_project(self, project_id: str) -> bool:
@@ -179,6 +196,20 @@ class ProjectService:
         self.db.commit()
         self._log_audit(project_id, f"PROJECT_{label.upper()}_ASSIGNED", current_user_id,
                         f"{user.full_name} assigned as {label}")
+
+        # Emit Assignment Notification to the specific assigned user
+        NotificationService.create_notification(
+            db=self.db,
+            user_id=user_id,
+            title=f"Assigned to Project: {project.project_name}",
+            message=f"You have been assigned as {label.title()} for project '{project.project_name}' ({project.project_code}).",
+            type="PROJECT_UPDATE",
+            project_id=project_id,
+            reference_module="projects",
+            reference_id=project_id,
+            category="Project"
+        )
+
         return self._to_read_schema(project)
 
     def unassign_user(self, project_id: str, user_id: str, current_user_id: str, kind: str) -> ProjectRead:

@@ -638,6 +638,10 @@ def clean_and_seed():
         except Exception as sync_err:
             print(f"  [Notice] Completion sync: {sync_err}")
 
+        # G. Module 8 Deadline Evaluation & Seeding
+        from app.services.notification_service import NotificationService
+        notif_gen_count = NotificationService.check_and_generate_deadline_notifications(db)
+
         # Step 4: Final Verification
         print("\n==========================================================")
         print("                 FINAL VERIFICATION SUMMARY               ")
@@ -674,7 +678,12 @@ def clean_and_seed():
         mov_cnt = db.query(StockMovementModel).count()
         print(f"\n5. Module 5 Materials & Inventory: {mat_cnt} Materials | {req_cnt} Material Requests | {mat_alloc_cnt} Allocations | {mov_cnt} Stock Movements")
 
-        print("\nSUCCESS: All old test data cleaned and fresh BuildTrack Module 1-5 data created cleanly from PostgreSQL!")
+        # 6. Verify Module 8 Notifications
+        notif_cnt = db.query(Notification).count()
+        unread_cnt = db.query(Notification).filter(Notification.is_read == False).count()
+        print(f"\n6. Module 8 Notifications: {notif_cnt} Real Notifications in PostgreSQL | {unread_cnt} Unread ({notif_gen_count} deadline alerts generated)")
+
+        print("\nSUCCESS: All old test data cleaned and fresh BuildTrack Module 1-8 data created cleanly from PostgreSQL!")
 
     except Exception as e:
         db.rollback()

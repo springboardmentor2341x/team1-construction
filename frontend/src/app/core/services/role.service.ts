@@ -73,6 +73,7 @@ export class RoleService {
           { label: 'Stock Movements Log', icon: 'bi-clock-history', route: '/stock-movements' },
           { label: 'Project Assignments', icon: 'bi-person-lines-fill', route: '/projects/assignments' },
           { label: 'Project Schedules', icon: 'bi-calendar3-range', route: '/projects/schedules' },
+          { label: 'Tasks & Assignment', icon: 'bi-check2-square', route: '/tasks' },
           { label: 'Milestone Tracker', icon: 'bi-flag-fill', route: '/projects/milestones' },
           { label: 'Analytics & Reports', icon: 'bi-bar-chart-line-fill', route: '/reports' },
           { label: 'Work Completion', icon: 'bi-graph-up-arrow', route: '/work-completion-dashboard' },

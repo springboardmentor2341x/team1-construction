@@ -106,6 +106,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./features/projects/project-detail/project-detail.component').then(m => m.ProjectDetailComponent)
   },
+  {
+    path: 'tasks',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/contractor/assign-task/assign-task.component').then(m => m.AssignTaskComponent)
+  },
 
   // === ADMINISTRATOR PAGES ===
   {
