@@ -21,7 +21,7 @@ from app.models.shift import ShiftModel
 from app.models.budget import CostCategory, ProjectBudget, BudgetAllocation, CostEstimate, ProjectExpense
 from app.core.security import get_password_hash
 
-from app.routers import auth, users, projects, schedules, milestones, site_engineer, tasks_router, attendance, notifications, shifts
+from app.routers import auth, users, projects, schedules, milestones, site_engineer, tasks_router, attendance, notifications, shifts, budget
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -55,6 +55,7 @@ app.include_router(tasks_router.documents_router, prefix=settings.API_V1_STR)
 app.include_router(attendance.router, prefix=settings.API_V1_STR)
 app.include_router(notifications.router, prefix=settings.API_V1_STR)
 app.include_router(shifts.router, prefix=settings.API_V1_STR)
+app.include_router(budget.router, prefix=settings.API_V1_STR)
 
 
 @app.on_event("startup")
