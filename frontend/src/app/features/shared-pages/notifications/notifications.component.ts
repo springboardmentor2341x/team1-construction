@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
@@ -39,9 +39,12 @@ import { NotificationService, NotificationItem } from '../../../core/services/no
             <div class="d-flex gap-2 flex-wrap">
               <button class="btn btn-sm" [ngClass]="activeFilter() === 'all' ? 'btn-warning' : 'btn-outline-secondary'" (click)="setFilter('all')">All <span class="badge bg-secondary ms-1">{{ notifications().length }}</span></button>
               <button class="btn btn-sm" [ngClass]="activeFilter() === 'unread' ? 'btn-warning' : 'btn-outline-secondary'" (click)="setFilter('unread')">Unread <span class="badge bg-danger ms-1">{{ unreadCount() }}</span></button>
-              <button class="btn btn-sm" [ngClass]="activeFilter() === 'Project' ? 'btn-warning' : 'btn-outline-secondary'" (click)="setFilter('Project')">Projects</button>
-              <button class="btn btn-sm" [ngClass]="activeFilter() === 'Milestone' ? 'btn-warning' : 'btn-outline-secondary'" (click)="setFilter('Milestone')">Milestones</button>
-              <button class="btn btn-sm" [ngClass]="activeFilter() === 'System' ? 'btn-warning' : 'btn-outline-secondary'" (click)="setFilter('System')">System</button>
+              <button class="btn btn-sm" [ngClass]="activeFilter() === 'PROJECT_UPDATE' ? 'btn-warning' : 'btn-outline-secondary'" (click)="setFilter('PROJECT_UPDATE')">Project Updates</button>
+              <button class="btn btn-sm" [ngClass]="activeFilter() === 'TASK_ASSIGNMENT' ? 'btn-warning' : 'btn-outline-secondary'" (click)="setFilter('TASK_ASSIGNMENT')">Tasks</button>
+              <button class="btn btn-sm" [ngClass]="activeFilter() === 'PROCUREMENT' ? 'btn-warning' : 'btn-outline-secondary'" (click)="setFilter('PROCUREMENT')">Procurement</button>
+              <button class="btn btn-sm" [ngClass]="activeFilter() === 'ATTENDANCE' ? 'btn-warning' : 'btn-outline-secondary'" (click)="setFilter('ATTENDANCE')">Attendance</button>
+              <button class="btn btn-sm" [ngClass]="activeFilter() === 'DEADLINE' ? 'btn-warning' : 'btn-outline-secondary'" (click)="setFilter('DEADLINE')">Deadlines</button>
+              <button class="btn btn-sm" [ngClass]="activeFilter() === 'SYSTEM' ? 'btn-warning' : 'btn-outline-secondary'" (click)="setFilter('SYSTEM')">System</button>
             </div>
           </div>
 
@@ -52,9 +55,9 @@ import { NotificationService, NotificationItem } from '../../../core/services/no
               <p>No notifications found.</p>
             </div>
             <div *ngFor="let n of filteredNotifications()" class="notification-item p-3 mb-2 rounded-3 border-start border-4 d-flex align-items-start gap-3"
-                 [ngClass]="[getBorderClass(n.type), n.read ? 'bg-white' : 'bg-light']"
-                 style="cursor:pointer" (click)="markRead(n)">
-              <div class="notification-icon rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" [ngClass]="getIconBgClass(n.type)" style="width:38px;height:38px">
+                 [ngClass]="[getBorderClass(n.type), n.isRead ? 'bg-white' : 'bg-light shadow-sm']"
+                 style="cursor:pointer" (click)="onItemClick(n)">
+              <div class="notification-icon rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 text-white" [ngClass]="getIconBgClass(n.type)" style="width:38px;height:38px">
                 <i class="bi" [ngClass]="getIcon(n.type)"></i>
               </div>
               <div class="flex-grow-1">
@@ -62,8 +65,8 @@ import { NotificationService, NotificationItem } from '../../../core/services/no
                   <strong class="small text-dark">{{ n.title }}</strong>
                   <div class="d-flex align-items-center gap-2">
                     <span class="text-muted" style="font-size:0.72rem">{{ n.time }}</span>
-                    <span class="badge rounded-pill bg-light text-muted" style="font-size:0.68rem">{{ n.category }}</span>
-                    <span *ngIf="!n.read" class="badge bg-danger rounded-circle" style="width:8px;height:8px;padding:0"></span>
+                    <span class="badge rounded-pill bg-dark text-white" style="font-size:0.68rem">{{ n.type || n.category }}</span>
+                    <span *ngIf="!n.isRead" class="badge bg-danger rounded-circle" style="width:8px;height:8px;padding:0"></span>
                   </div>
                 </div>
                 <p class="small text-muted mb-0 mt-1">{{ n.message }}</p>
@@ -82,7 +85,11 @@ export class NotificationsComponent implements OnInit {
 
   notifications = signal<NotificationItem[]>([]);
 
-  constructor(private authService: AuthService, private notificationService: NotificationService) {
+  constructor(
+    private authService: AuthService,
+    private notificationService: NotificationService,
+    private router: Router
+  ) {
     const role = this.authService.getRole();
     this.dashboardRoute = role === 'Site Engineer' ? '/dashboard/site-engineer' :
                           role === 'Contractor' ? '/dashboard/contractor' :
@@ -99,27 +106,76 @@ export class NotificationsComponent implements OnInit {
     });
   }
 
-  unreadCount = () => this.notifications().filter(n => !n.read).length;
+  unreadCount = () => this.notifications().filter(n => !n.isRead).length;
 
   filteredNotifications() {
     const f = this.activeFilter();
-    if (f === 'unread') return this.notifications().filter(n => !n.read);
+    if (f === 'unread') return this.notifications().filter(n => !n.isRead);
     if (f === 'all') return this.notifications();
-    return this.notifications().filter(n => n.category === f);
+    return this.notifications().filter(n => n.type === f || n.category === f);
   }
 
   setFilter(f: string): void { this.activeFilter.set(f); }
-  markRead(n: NotificationItem): void { n.read = true; }
-  markAllRead(): void { this.notifications().forEach(n => n.read = true); }
-  clearAll(): void { this.notifications.set([]); }
+
+  onItemClick(n: NotificationItem): void {
+    if (!n.isRead) {
+      this.notificationService.markRead(n.id).subscribe(() => {
+        n.isRead = true;
+        n.read = true;
+      });
+    }
+
+    if (n.referenceModule === 'projects' && n.projectId) {
+      this.router.navigate(['/projects', n.projectId]);
+    } else if (n.referenceModule === 'procurement_requests') {
+      this.router.navigate(['/procurement/requests']);
+    } else if (n.referenceModule === 'attendance') {
+      this.router.navigate(['/workforce/attendance']);
+    }
+  }
+
+  markAllRead(): void {
+    this.notificationService.markAllRead().subscribe(() => {
+      this.loadNotifications();
+    });
+  }
+
+  clearAll(): void {
+    this.notificationService.clearAll().subscribe(() => {
+      this.notifications.set([]);
+    });
+  }
 
   getBorderClass(t: string): string {
-    return { info: 'border-info', warning: 'border-warning', success: 'border-success', danger: 'border-danger' }[t] || 'border-secondary';
+    switch (t) {
+      case 'PROJECT_UPDATE': return 'border-primary';
+      case 'TASK_ASSIGNMENT': return 'border-info';
+      case 'PROCUREMENT': return 'border-warning';
+      case 'ATTENDANCE': return 'border-danger';
+      case 'DEADLINE': return 'border-danger';
+      default: return 'border-secondary';
+    }
   }
+
   getIconBgClass(t: string): string {
-    return { info: 'bg-info-subtle text-info', warning: 'bg-warning-subtle text-warning', success: 'bg-success-subtle text-success', danger: 'bg-danger-subtle text-danger' }[t] || 'bg-secondary-subtle';
+    switch (t) {
+      case 'PROJECT_UPDATE': return 'bg-primary';
+      case 'TASK_ASSIGNMENT': return 'bg-info';
+      case 'PROCUREMENT': return 'bg-warning text-dark';
+      case 'ATTENDANCE': return 'bg-danger';
+      case 'DEADLINE': return 'bg-danger';
+      default: return 'bg-secondary';
+    }
   }
+
   getIcon(t: string): string {
-    return { info: 'bi-info-circle-fill', warning: 'bi-exclamation-triangle-fill', success: 'bi-check-circle-fill', danger: 'bi-x-circle-fill' }[t] || 'bi-bell-fill';
+    switch (t) {
+      case 'PROJECT_UPDATE': return 'bi-building';
+      case 'TASK_ASSIGNMENT': return 'bi-check2-square';
+      case 'PROCUREMENT': return 'bi-cart-check';
+      case 'ATTENDANCE': return 'bi-person-badge';
+      case 'DEADLINE': return 'bi-clock-history';
+      default: return 'bi-bell-fill';
+    }
   }
 }

@@ -18,6 +18,7 @@ from app.models.procurement import (
     InvoiceModel,
 )
 from app.models.assignments import ProjectSiteEngineer, ProjectContractor
+from app.services.notification_service import NotificationService
 from app.schemas.procurement import (
     ProcurementCategoryCreate,
     ProcurementCategoryRead,
@@ -112,7 +113,7 @@ class ProcurementService:
         elif role_name == "Site Engineer":
             assigned = self.db.query(ProjectSiteEngineer).filter(
                 ProjectSiteEngineer.project_id == project_id,
-                ProjectSiteEngineer.engineer_id == user.id
+                ProjectSiteEngineer.site_engineer_id == user.id
             ).first()
             if not assigned:
                 proj_any = self.db.query(Project).filter(Project.id == project_id).first()
@@ -381,10 +382,13 @@ class ProcurementService:
         if not req.items or len(req.items) == 0:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Procurement request must contain at least one item")
 
-        # Generate Request ID
-        count = self.db.query(func.count(ProcurementRequestModel.id)).scalar() or 0
+        # Generate Request ID (Ensure unique)
         year = datetime.now(timezone.utc).year
+        count = self.db.query(func.count(ProcurementRequestModel.id)).scalar() or 0
         req_code = f"PR-{year}-{(count + 1):03d}"
+        while self.db.query(ProcurementRequestModel).filter(ProcurementRequestModel.request_id == req_code).first():
+            count += 1
+            req_code = f"PR-{year}-{(count + 1):03d}"
 
         new_req = ProcurementRequestModel(
             request_id=req_code,
@@ -428,6 +432,24 @@ class ProcurementService:
 
         self.db.commit()
         self.db.refresh(new_req)
+
+        # Emit Procurement Notification to PM & Admins for project
+        approvers = NotificationService.get_relevant_project_user_ids(
+            self.db, new_req.project_id, exclude_user_id=current_user.id, roles_filter=["Administrator", "Project Manager"]
+        )
+        if approvers:
+            NotificationService.create_bulk_notifications(
+                db=self.db,
+                user_ids=approvers,
+                title=f"Procurement Approval Required: {new_req.request_id}",
+                message=f"Procurement request '{new_req.request_id}' created by {current_user.full_name} for project '{project.project_name}' requires approval.",
+                type="PROCUREMENT",
+                project_id=new_req.project_id,
+                reference_module="procurement_requests",
+                reference_id=new_req.id,
+                category="Procurement"
+            )
+
         return self._build_request_read(new_req)
 
     def get_procurement_requests(
@@ -511,6 +533,21 @@ class ProcurementService:
 
         self.db.commit()
         self.db.refresh(r)
+
+        # Notify Requester of Approval
+        if r.requested_by_id and r.requested_by_id != current_user.id:
+            NotificationService.create_notification(
+                db=self.db,
+                user_id=r.requested_by_id,
+                title=f"Procurement Request Approved: {r.request_id}",
+                message=f"Your procurement request '{r.request_id}' has been approved by {current_user.full_name}.",
+                type="PROCUREMENT",
+                project_id=r.project_id,
+                reference_module="procurement_requests",
+                reference_id=r.id,
+                category="Procurement"
+            )
+
         return self._build_request_read(r)
 
     def reject_procurement_request(self, request_id: str, rejection_reason: str, current_user: User) -> ProcurementRequestRead:
@@ -532,6 +569,21 @@ class ProcurementService:
 
         self.db.commit()
         self.db.refresh(r)
+
+        # Notify Requester of Rejection
+        if r.requested_by_id and r.requested_by_id != current_user.id:
+            NotificationService.create_notification(
+                db=self.db,
+                user_id=r.requested_by_id,
+                title=f"Procurement Request Rejected: {r.request_id}",
+                message=f"Your procurement request '{r.request_id}' was rejected. Reason: {r.rejection_reason}.",
+                type="PROCUREMENT",
+                project_id=r.project_id,
+                reference_module="procurement_requests",
+                reference_id=r.id,
+                category="Procurement"
+            )
+
         return self._build_request_read(r)
 
     # ---------------------------------------------------------

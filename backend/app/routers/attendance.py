@@ -79,6 +79,28 @@ def create_attendance(
     db.add(new_rec)
     db.commit()
     db.refresh(new_rec)
+
+    # Emit Attendance Notification if status is Absent / Late / Requires Review
+    if req.status in ["Absent", "Late", "Requires Review", "Pending Review"]:
+        from app.services.notification_service import NotificationService
+        from app.models.role import Role
+        # Find site engineers & PMs
+        supervisors = db.query(User.id).join(Role).filter(
+            Role.name.in_(["Site Engineer", "Project Manager", "Administrator"])
+        ).all()
+        sup_ids = [s.id for s in supervisors if s.id != current_user.id]
+        if sup_ids:
+            NotificationService.create_bulk_notifications(
+                db=db,
+                user_ids=sup_ids,
+                title=f"Attendance Alert: {current_user.full_name} ({req.status})",
+                message=f"Attendance issue reported for {current_user.full_name} on {req.date}. Status: {req.status}.",
+                type="ATTENDANCE",
+                reference_module="attendance",
+                reference_id=new_rec.id,
+                category="Attendance"
+            )
+
     return AttendanceRead(
         id=new_rec.id,
         date=new_rec.date,

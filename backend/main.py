@@ -98,11 +98,18 @@ def startup_event():
     try:
         # Create all tables on startup if PostgreSQL is active
         Base.metadata.create_all(bind=engine)
-        # Lightweight migration: add missing columns to existing tables
-        # (create_all does not alter existing tables, so we add schema columns
-        #  that were introduced after the initial table creation).
         ensure_columns()
         seed_database()
+
+        # Run safe deadline notification check
+        db = SessionLocal()
+        try:
+            from app.services.notification_service import NotificationService
+            count = NotificationService.check_and_generate_deadline_notifications(db)
+            if count > 0:
+                print(f"[Notification Startup] Generated {count} deadline notification(s).")
+        finally:
+            db.close()
     except Exception as e:
         print(f"[Warning] Database startup initialization notice: {e}")
 
@@ -428,16 +435,60 @@ def seed_database():
             db.add_all(att)
             db.commit()
 
-        # 9. Seed Notifications
+        # 9. Seed Notifications for Real Users
         if db.query(Notification).count() == 0:
-            notifs = [
-                Notification(title="Milestone Approved", message="Foundation milestone for Skyline Metropolis Tower was approved.", notification_type="success", time="2 hours ago", is_read=False, category="Milestone"),
-                Notification(title="New Task Assigned", message="You have been assigned a new task: Waterproofing Basement B2.", notification_type="info", time="5 hours ago", is_read=False, category="Project"),
-                Notification(title="Equipment Maintenance Due", message="Excavator CAT 390F is due for service.", notification_type="warning", time="1 day ago", is_read=True, category="System"),
-                Notification(title="Safety Alert", message="Storm warning issued for the site. Secure loose materials.", notification_type="danger", time="2 days ago", is_read=True, category="System"),
-            ]
-            db.add_all(notifs)
-            db.commit()
+            admin_user_obj = db.query(User).filter(User.email == "admin@buildtrack.com").first()
+            pm_user_obj = db.query(User).filter(User.email == "pm@buildtrack.com").first()
+            eng_user_obj = db.query(User).filter(User.email == "engineer@buildtrack.com").first()
+
+            target_users = [u for u in [admin_user_obj, pm_user_obj, eng_user_obj] if u]
+            notifs = []
+            for u in target_users:
+                notifs.extend([
+                    Notification(
+                        user_id=u.id,
+                        title="Milestone Approved",
+                        message="Foundation milestone for Nexus Tech Park Campus was approved.",
+                        type="PROJECT_UPDATE",
+                        notification_type="success",
+                        category="Milestone",
+                        time="2 hours ago",
+                        is_read=False
+                    ),
+                    Notification(
+                        user_id=u.id,
+                        title="New Task Assigned",
+                        message="You have been assigned task: Structural rebar inspection.",
+                        type="TASK_ASSIGNMENT",
+                        notification_type="info",
+                        category="Task",
+                        time="5 hours ago",
+                        is_read=False
+                    ),
+                    Notification(
+                        user_id=u.id,
+                        title="Equipment Maintenance Due",
+                        message="Tower Crane TC-480 is due for routine service.",
+                        type="DEADLINE",
+                        notification_type="warning",
+                        category="System",
+                        time="1 day ago",
+                        is_read=True
+                    ),
+                    Notification(
+                        user_id=u.id,
+                        title="Safety Alert",
+                        message="High wind alert on site. Secure overhead materials.",
+                        type="SYSTEM",
+                        notification_type="danger",
+                        category="Safety",
+                        time="2 days ago",
+                        is_read=True
+                    )
+                ])
+            if notifs:
+                db.add_all(notifs)
+                db.commit()
 
         # 10. Seed Shifts
         if db.query(ShiftModel).count() == 0:

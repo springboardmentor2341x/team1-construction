@@ -73,6 +73,7 @@ export class RoleService {
           { label: 'Stock Movements Log', icon: 'bi-clock-history', route: '/stock-movements' },
           { label: 'Project Assignments', icon: 'bi-person-lines-fill', route: '/projects/assignments' },
           { label: 'Project Schedules', icon: 'bi-calendar3-range', route: '/projects/schedules' },
+          { label: 'Tasks & Assignment', icon: 'bi-check2-square', route: '/tasks' },
           { label: 'Milestone Tracker', icon: 'bi-flag-fill', route: '/projects/milestones' },
           { label: 'Analytics & Reports', icon: 'bi-bar-chart-line-fill', route: '/reports' },
           { label: 'Work Completion', icon: 'bi-graph-up-arrow', route: '/work-completion-dashboard' },
@@ -80,7 +81,7 @@ export class RoleService {
           { label: 'Weekly Progress Reports', icon: 'bi-card-checklist', route: '/weekly-progress-reports' },
           { label: 'Delay Tracking', icon: 'bi-exclamation-triangle-fill', route: '/delay-tracking' },
           { label: 'Site Activity Logs', icon: 'bi-clipboard-data', route: '/site-activity-logs' },
-          { label: 'Notifications', icon: 'bi-bell-fill', route: '/notifications', badge: '3' },
+          { label: 'Notifications', icon: 'bi-bell-fill', route: '/notifications' },
           { label: 'My Profile', icon: 'bi-person-circle', route: '/profile' }
         ];
 

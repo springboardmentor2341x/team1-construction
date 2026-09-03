@@ -91,6 +91,24 @@ def create_task(
     db.add(new_task)
     db.commit()
     db.refresh(new_task)
+
+    # Emit Task Assignment Notification to assigned user
+    from app.services.notification_service import NotificationService
+    assigned_user = db.query(User).filter(
+        (User.id == req.assignedTo) | (User.full_name == req.assignedTo) | (User.email == req.assignedTo)
+    ).first()
+    if assigned_user:
+        NotificationService.create_notification(
+            db=db,
+            user_id=assigned_user.id,
+            title=f"New Task Assigned: {new_task.title}",
+            message=f"You have been assigned task '{new_task.title}' for project {new_task.project}. Due: {new_task.due_date}.",
+            type="TASK_ASSIGNMENT",
+            reference_module="tasks",
+            reference_id=new_task.id,
+            category="Task"
+        )
+
     return TaskRead(
         id=new_task.id,
         title=new_task.title,

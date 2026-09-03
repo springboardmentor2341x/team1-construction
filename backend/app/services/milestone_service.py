@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.models.milestone import ProjectMilestone
 from app.schemas.milestone import MilestoneCreate, MilestoneRead, MilestoneUpdate
 from app.repositories.milestone_repository import MilestoneRepository
+from app.services.notification_service import NotificationService
 
 class MilestoneService:
     def __init__(self, db: Session):
@@ -43,6 +44,22 @@ class MilestoneService:
             status=req.status or "Pending"
         )
         created = self.repo.create(new_m)
+
+        # Emit milestone creation notification
+        recipients = NotificationService.get_relevant_project_user_ids(self.db, created.project_id)
+        if recipients:
+            NotificationService.create_bulk_notifications(
+                db=self.db,
+                user_ids=recipients,
+                title=f"New Milestone Created: {created.milestone_name}",
+                message=f"Milestone '{created.milestone_name}' was created for project.",
+                type="PROJECT_UPDATE",
+                project_id=created.project_id,
+                reference_module="milestones",
+                reference_id=created.id,
+                category="Milestone"
+            )
+
         return MilestoneRead(
             id=created.id,
             projectId=created.project_id,
@@ -68,6 +85,22 @@ class MilestoneService:
         if updates.status is not None: ms.status = updates.status
 
         updated = self.repo.update(ms)
+
+        # Emit milestone update notification
+        recipients = NotificationService.get_relevant_project_user_ids(self.db, updated.project_id)
+        if recipients:
+            NotificationService.create_bulk_notifications(
+                db=self.db,
+                user_ids=recipients,
+                title=f"Milestone Updated: {updated.milestone_name}",
+                message=f"Milestone '{updated.milestone_name}' status is now {updated.status} ({updated.completion_percentage}%).",
+                type="PROJECT_UPDATE",
+                project_id=updated.project_id,
+                reference_module="milestones",
+                reference_id=updated.id,
+                category="Milestone"
+            )
+
         return MilestoneRead(
             id=updated.id,
             projectId=updated.project_id,
