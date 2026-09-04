@@ -197,6 +197,36 @@ export const routes: Routes = [
     loadComponent: () => import('./features/client/project-documents/project-documents.component').then(m => m.ProjectDocumentsComponent)
   },
 
+  // === MODULE 11: BUDGET & COST MANAGEMENT ===
+  {
+    path: 'budget/dashboard',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/budget/budget-dashboard/budget-dashboard.component').then(m => m.BudgetDashboardComponent)
+  },
+  {
+    path: 'budget/planning',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER] },
+    loadComponent: () => import('./features/budget/budget-planning/budget-planning.component').then(m => m.BudgetPlanningComponent)
+  },
+  {
+    path: 'budget/estimates',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER] },
+    loadComponent: () => import('./features/budget/cost-estimation/cost-estimation.component').then(m => m.CostEstimationComponent)
+  },
+  {
+    path: 'budget/expenses',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER] },
+    loadComponent: () => import('./features/budget/expense-management/expense-management.component').then(m => m.ExpenseManagementComponent)
+  },
+  {
+    path: 'budget/monitoring',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/budget/budget-monitoring/budget-monitoring.component').then(m => m.BudgetMonitoringComponent)
+  },
+
   // Wildcard Route
   { path: '**', redirectTo: 'login' }
 ];
