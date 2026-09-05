@@ -1,5 +1,8 @@
 import sys
 import os
+import warnings
+warnings.simplefilter("ignore")
+
 from fastapi.testclient import TestClient
 
 

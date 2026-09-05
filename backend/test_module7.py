@@ -1,6 +1,9 @@
 import sys
 import os
 import unittest
+import warnings
+warnings.simplefilter("ignore")
+
 from datetime import datetime, timezone
 
 # Add backend directory to sys.path

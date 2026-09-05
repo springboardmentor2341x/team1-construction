@@ -1,5 +1,8 @@
 import unittest
 import uuid
+import warnings
+warnings.simplefilter("ignore")
+
 from datetime import datetime, timezone
 from fastapi.testclient import TestClient
 from app.database.session import SessionLocal

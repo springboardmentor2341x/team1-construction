@@ -1,4 +1,7 @@
 import unittest
+import warnings
+warnings.simplefilter("ignore")
+
 from fastapi.testclient import TestClient
 from app.database.session import SessionLocal, Base, engine
 from app.models.user import User

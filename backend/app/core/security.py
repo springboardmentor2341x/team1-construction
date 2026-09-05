@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Any
 from passlib.context import CryptContext
@@ -19,7 +22,7 @@ def create_access_token(subject: Any, role: str, expires_delta: Optional[timedel
         expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
     to_encode = {
-        "exp": expire,
+        "exp": int(expire.timestamp()),
         "sub": str(subject),
         "role": role
     }
