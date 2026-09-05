@@ -311,7 +311,7 @@ import { Project } from '../../../core/models/project.model';
                       <th>Maintenance Date</th>
                       <th>Next Due Date</th>
                       <th>Engineer</th>
-                      <th>Cost ($)</th>
+                      <th>Cost (₹)</th>
                       <th>Status</th>
                       <th class="text-end">Actions</th>
                     </tr>
@@ -328,7 +328,7 @@ import { Project } from '../../../core/models/project.model';
                         </span>
                       </td>
                       <td>{{ maint.serviceEngineer || 'Unassigned' }}</td>
-                      <td class="fw-bold">{{ maint.maintenanceCost | currency:'USD':'symbol':'1.2-2' }}</td>
+                      <td class="fw-bold">{{ maint.maintenanceCost | currency:'INR':'symbol':'1.0-0' }}</td>
                       <td>
                         <span class="badge" [ngClass]="{
                           'bg-warning text-dark': maint.status === 'Scheduled',
@@ -397,7 +397,7 @@ import { Project } from '../../../core/models/project.model';
                 <input type="text" class="form-control form-control-sm" [(ngModel)]="resourceForm.location" name="location" placeholder="e.g. Salem Yard">
               </div>
               <div class="col-md-6">
-                <label class="form-label small fw-bold">Purchase Cost ($)</label>
+                <label class="form-label small fw-bold">Purchase Cost (₹)</label>
                 <input type="number" class="form-control form-control-sm" [(ngModel)]="resourceForm.purchaseCost" name="purchaseCost">
               </div>
               <div class="col-12">
@@ -515,7 +515,7 @@ import { Project } from '../../../core/models/project.model';
                 <input type="text" class="form-control form-control-sm" [(ngModel)]="maintenanceForm.serviceEngineer" name="serviceEngineer" placeholder="e.g. Mike Technician">
               </div>
               <div class="col-md-6">
-                <label class="form-label small fw-bold">Cost ($)</label>
+                <label class="form-label small fw-bold">Cost (₹)</label>
                 <input type="number" class="form-control form-control-sm" [(ngModel)]="maintenanceForm.maintenanceCost" name="maintenanceCost">
               </div>
               <div class="col-12">

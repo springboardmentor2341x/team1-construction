@@ -113,7 +113,7 @@ import { User } from '../../../core/models/user.model';
 
                 <!-- Estimated Budget -->
                 <div class="col-md-6">
-                  <label class="form-label fw-semibold small">Estimated Budget ($ USD) *</label>
+                  <label class="form-label fw-semibold small">Estimated Budget (₹ INR) *</label>
                   <input type="number" formControlName="estimatedBudget" class="form-control" placeholder="45000000"
                     [class.is-invalid]="f['estimatedBudget'].touched && f['estimatedBudget'].invalid">
                   <div *ngIf="f['estimatedBudget'].touched && f['estimatedBudget'].errors" class="invalid-feedback small">

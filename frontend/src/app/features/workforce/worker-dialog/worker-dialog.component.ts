@@ -91,7 +91,7 @@ import { Project } from '../../../core/models/project.model';
 
                 <!-- Daily Pay Rate -->
                 <div class="col-md-6">
-                  <label class="form-label small fw-bold">Daily / Hourly Pay Rate (₹ / $)</label>
+                  <label class="form-label small fw-bold">Daily / Hourly Pay Rate (₹ INR)</label>
                   <input type="number" class="form-control" [(ngModel)]="formData.payRate" name="payRate" placeholder="e.g. 600">
                 </div>
 

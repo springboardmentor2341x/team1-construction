@@ -26,7 +26,7 @@ def get_projects(
     current_user: User = Depends(get_current_user)
 ):
     service = ProjectService(db)
-    return service.get_projects(search, category, priority, status)
+    return service.get_projects(search, category, priority, status, current_user=current_user)
 
 
 @router.get("/assignments", response_model=List[AssignmentRead])
@@ -46,7 +46,7 @@ def get_project_by_id(
     current_user: User = Depends(get_current_user)
 ):
     service = ProjectService(db)
-    return service.get_project_by_id(project_id)
+    return service.get_project_by_id(project_id, current_user=current_user)
 
 
 @router.get("/{project_id}/audit", response_model=List[AuditLogRead])

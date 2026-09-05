@@ -65,8 +65,8 @@ import { RoleSimulatorComponent } from '../../../shared/components/role-simulato
                     <div class="col-md-6">
                       <label class="form-label small fw-semibold">Currency</label>
                       <select class="form-select form-select-sm" formControlName="currency">
-                        <option value="USD">USD ($)</option>
                         <option value="INR">INR (₹)</option>
+                        <option value="USD">USD ($)</option>
                         <option value="EUR">EUR (€)</option>
                       </select>
                     </div>
@@ -187,7 +187,7 @@ export class SystemSettingsComponent {
       supportEmail: ['support@buildtrack.com'],
       timezone: ['Asia/Kolkata'],
       dateFormat: ['DD/MM/YYYY'],
-      currency: ['USD'],
+      currency: ['INR'],
       language: ['en']
     });
     this.securityForm = this.fb.group({

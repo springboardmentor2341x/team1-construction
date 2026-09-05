@@ -56,7 +56,10 @@ def test_worker_crud_and_validation():
     finally:
         db.close()
 
-    # 1. Create worker
+    # Clean existing test worker if present from prior runs
+    db.query(Worker).filter(Worker.worker_id == "WRK-TEST-999").delete()
+    db.commit()
+
     w_data = {
         "workerId": "WRK-TEST-999",
         "workerName": "Test Mason Worker",
@@ -101,6 +104,13 @@ def test_worker_crud_and_validation():
 
 def test_bulk_worker_import():
     headers = get_auth_headers("admin@buildtrack.com")
+    db = SessionLocal()
+    try:
+        db.query(Worker).filter(Worker.worker_id.in_(["WRK-BULK-001", "WRK-BULK-002"])).delete()
+        db.commit()
+    finally:
+        db.close()
+
     bulk_payload = {
         "workers": [
             {
@@ -321,8 +331,6 @@ def test_existing_modules_unbroken():
 
 
 if __name__ == "__main__":
-    from main import startup_event
-    startup_event()
     print("Running Module 6 tests...")
 
     test_workforce_categories()

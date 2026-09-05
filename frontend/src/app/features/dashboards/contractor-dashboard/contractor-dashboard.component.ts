@@ -28,9 +28,9 @@ import { RoleSimulatorComponent } from '../../../shared/components/role-simulato
               </div>
               <p class="text-muted small mb-0">Manage crew shifts, attendance roster, work completion targets, and trade tasks.</p>
             </div>
-            <button class="btn btn-bt-accent btn-sm d-flex align-items-center gap-2 shadow-sm">
+            <a routerLink="/workforce/attendance" class="btn btn-bt-accent btn-sm d-flex align-items-center gap-2 shadow-sm text-decoration-none">
               <i class="bi bi-clock-history"></i> Log Shift Attendance
-            </button>
+            </a>
           </div>
 
           <!-- Top Stats -->

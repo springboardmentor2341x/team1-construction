@@ -40,7 +40,7 @@ import { Project } from '../../../core/models/project.model';
                 </ol>
               </nav>
               <h2 class="fw-bold text-dark mb-0"><i class="bi bi-receipt-cutoff me-2 text-warning"></i>Purchase Orders & Goods Receiving</h2>
-              <p class="text-muted small mb-0">Issue financial purchase orders to vendors and perform goods receipts to update Module 5 inventory stock.</p>
+              <p class="text-muted small mb-0">Issue financial purchase orders to vendors and perform goods receipts to update inventory stock.</p>
             </div>
 
             <button class="btn btn-bt-accent d-flex align-items-center gap-2 shadow-sm" (click)="openCreateModal()">
@@ -293,7 +293,7 @@ import { Project } from '../../../core/models/project.model';
                 </div>
                 <div class="modal-body p-4">
                   <p class="small text-muted mb-3">
-                    Entering received quantities will <strong>update Module 5 Inventory stock</strong> and record a <code>Received</code> stock movement transaction.
+                    Entering received quantities will <strong>update Inventory stock</strong> and record a <code>Received</code> stock movement transaction.
                   </p>
 
                   <div class="table-responsive mb-3">
@@ -574,7 +574,7 @@ export class PurchaseOrderListComponent implements OnInit {
       next: (updated) => {
         this.saving = false;
         this.showReceiveModal = false;
-        this.message = `Goods receipt processed for PO ${updated.purchaseOrderId}! Module 5 Inventory stock updated.`;
+        this.message = `Goods receipt processed for PO ${updated.purchaseOrderId}! Inventory stock updated.`;
         this.loadPOs();
       },
       error: (err) => {

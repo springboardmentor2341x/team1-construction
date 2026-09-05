@@ -83,7 +83,7 @@ import { ProcurementRequest, PurchaseOrder, Invoice } from '../../../core/models
 
                 <!-- Step 2: Inventory Check -->
                 <div class="p-2 flex-fill border rounded bg-white shadow-sm">
-                  <div class="extra-small text-muted fw-bold uppercase">2. Module 5 Stock Check</div>
+                  <div class="extra-small text-muted fw-bold uppercase">2. Inventory Stock Check</div>
                   <div class="fw-bold text-dark mt-1">Inventory Evaluated</div>
                   <span class="badge bg-info-subtle text-info extra-small">Shortage Computed</span>
                 </div>
@@ -113,7 +113,7 @@ import { ProcurementRequest, PurchaseOrder, Invoice } from '../../../core/models
                 <div class="p-2 flex-fill border rounded bg-white shadow-sm">
                   <div class="extra-small text-muted fw-bold uppercase">5. Goods Receiving</div>
                   <div class="fw-bold text-dark mt-1">Inventory Stock</div>
-                  <span class="badge bg-success-subtle text-success extra-small">Module 5 Stock +</span>
+                  <span class="badge bg-success-subtle text-success extra-small">Stock Updated</span>
                 </div>
                 <i class="bi bi-arrow-right text-muted fs-5 d-none d-md-block"></i>
 
@@ -138,7 +138,7 @@ import { ProcurementRequest, PurchaseOrder, Invoice } from '../../../core/models
                       <th>Item Description</th>
                       <th>Category</th>
                       <th>Required Quantity</th>
-                      <th>Module 5 Available Stock</th>
+                      <th>Available Inventory Stock</th>
                       <th>Net Procurement Needed</th>
                       <th>Required Date</th>
                     </tr>

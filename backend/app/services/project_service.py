@@ -32,15 +32,25 @@ class ProjectService:
         search: Optional[str] = None,
         category: Optional[str] = None,
         priority: Optional[str] = None,
-        status_filter: Optional[str] = None
+        status_filter: Optional[str] = None,
+        current_user: Optional[User] = None
     ) -> List[ProjectRead]:
         projects = self.project_repo.get_all(search, category, priority, status_filter)
+        if current_user and (not current_user.role_rel or current_user.role_rel.name != "Administrator"):
+            from app.services.budget_service import BudgetService
+            authorized_ids = BudgetService.get_user_authorized_project_ids(self.db, current_user)
+            projects = [p for p in projects if p.id in authorized_ids]
         return [self._to_read_schema(p) for p in projects]
 
-    def get_project_by_id(self, project_id: str) -> ProjectRead:
+    def get_project_by_id(self, project_id: str, current_user: Optional[User] = None) -> ProjectRead:
         project = self.project_repo.get_by_id(project_id)
         if not project:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        if current_user and (not current_user.role_rel or current_user.role_rel.name != "Administrator"):
+            from app.services.budget_service import BudgetService
+            authorized_ids = BudgetService.get_user_authorized_project_ids(self.db, current_user)
+            if project_id not in authorized_ids:
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied to this project")
         return self._to_read_schema(project)
 
     def create_project(self, req: ProjectCreate, current_user_id: str) -> ProjectRead:

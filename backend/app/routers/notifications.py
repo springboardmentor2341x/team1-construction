@@ -168,6 +168,18 @@ def mark_all_notifications_read_post(
     return {"message": "All notifications marked as read", "count": count}
 
 
+@router.delete("", response_model=dict)
+def delete_all_user_notifications(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Delete/clear all notifications belonging to the authenticated user.
+    """
+    count = NotificationService.clear_user_notifications(db=db, user_id=current_user.id)
+    return {"message": "All notifications cleared", "count": count}
+
+
 @router.post("", response_model=NotificationRead, status_code=status.HTTP_201_CREATED)
 def create_custom_notification(
     req: NotificationCreate,

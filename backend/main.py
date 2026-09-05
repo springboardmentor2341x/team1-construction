@@ -46,15 +46,77 @@ from app.models.procurement import (
 
 
 
+from app.models.budget import ProjectBudget, BudgetCategoryAllocation, CostEstimate, ActualExpense
+
 from app.core.security import get_password_hash
 
 from app.routers import auth, users, projects, schedules, milestones, site_engineer, tasks_router, attendance, notifications, shifts, site_progress
-from app.routers import resources, inventory, procurement, contractors, materials, workforce
+from app.routers import resources, inventory, procurement, contractors, materials, workforce, dashboard, reports, budget
+
+
+from contextlib import asynccontextmanager
+import asyncio
+
+async def periodic_deadline_checker():
+    """Background task running periodically to evaluate upcoming and overdue deadlines."""
+    while True:
+        try:
+            db = SessionLocal()
+            try:
+                from app.services.notification_service import NotificationService
+                count = NotificationService.check_and_generate_deadline_notifications(db)
+                if count > 0:
+                    print(f"[Background Deadline Scheduler] Generated {count} deadline notification(s).")
+            finally:
+                db.close()
+        except asyncio.CancelledError:
+            print("[Background Deadline Scheduler] Scheduler shutdown cleanly.")
+            break
+        except Exception as e:
+            print(f"[Background Deadline Scheduler Warning]: {e}")
+        await asyncio.sleep(60)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    scheduler_task = None
+    try:
+        # Create all tables on startup if PostgreSQL is active
+        Base.metadata.create_all(bind=engine)
+        ensure_columns()
+        seed_database()
+
+        # Run initial safe deadline notification check
+        db = SessionLocal()
+        try:
+            from app.services.notification_service import NotificationService
+            count = NotificationService.check_and_generate_deadline_notifications(db)
+            if count > 0:
+                print(f"[Notification Startup] Generated {count} deadline notification(s).")
+        finally:
+            db.close()
+
+        # Launch background scheduler task
+        scheduler_task = asyncio.create_task(periodic_deadline_checker())
+    except Exception as e:
+        print(f"[Warning] Database startup initialization notice: {e}")
+    
+    try:
+        yield
+    finally:
+        if scheduler_task:
+            scheduler_task.cancel()
+            try:
+                await scheduler_task
+            except asyncio.CancelledError:
+                pass
+
 
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    lifespan=lifespan
 )
 
 # CORS configuration for Angular frontend
@@ -91,158 +153,20 @@ app.include_router(materials.router, prefix=settings.API_V1_STR)
 app.include_router(procurement.router, prefix=settings.API_V1_STR)
 app.include_router(contractors.router, prefix=settings.API_V1_STR)
 app.include_router(workforce.router, prefix=settings.API_V1_STR)
+app.include_router(dashboard.router, prefix=settings.API_V1_STR)
+app.include_router(reports.router, prefix=settings.API_V1_STR)
+app.include_router(budget.router, prefix=settings.API_V1_STR)
 
-
-@app.on_event("startup")
-def startup_event():
-    try:
-        # Create all tables on startup if PostgreSQL is active
-        Base.metadata.create_all(bind=engine)
-        ensure_columns()
-        seed_database()
-
-        # Run safe deadline notification check
-        db = SessionLocal()
-        try:
-            from app.services.notification_service import NotificationService
-            count = NotificationService.check_and_generate_deadline_notifications(db)
-            if count > 0:
-                print(f"[Notification Startup] Generated {count} deadline notification(s).")
-        finally:
-            db.close()
-    except Exception as e:
-        print(f"[Warning] Database startup initialization notice: {e}")
 
 
 def ensure_columns():
-    """Reconcile stale/demo tables with their current model definitions.
-
-    The existing tables may have been created with an older schema that is
-    missing columns the models now reference (e.g. attendance.day_name,
-    notifications.notification_type), or whose columns do not match the model
-    (e.g. the Module 3 site-progress tables were originally created with a
-    different column set). Because these are demo/seed tables whose data is
-    re-populated by seed_database(), we drop and recreate them to match the
-    models exactly. This prevents "UndefinedColumn" errors on every startup
-    and keeps create_all() from silently leaving stale tables behind.
-    """
-    from sqlalchemy import text
-    db = SessionLocal()
+    """Ensure database tables exist using SQLAlchemy metadata without dropping existing tables."""
     try:
-        # Drop Module 7 procurement tables
-        db.execute(text("DROP TABLE IF EXISTS invoices CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS purchase_order_items CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS purchase_orders CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS procurement_request_items CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS procurement_requests CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS vendors CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS procurement_categories CASCADE"))
-
-        # Drop child workforce tables first
-        db.execute(text("DROP TABLE IF EXISTS workforce_payrolls CASCADE"))
-
-        db.execute(text("DROP TABLE IF EXISTS worker_shift_assignments CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS worker_project_assignments CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS attendance CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS workers CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS workforce_categories CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS resource_maintenances CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS resource_utilizations CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS resource_allocations CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS progress_photographs CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS daily_progress_reports CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS weekly_progress_reports CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS delay_tracking CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS site_activity_logs CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS work_completion_status CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS notifications CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS resources CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS inventory CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS procurements CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS assigned_tasks CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS documents CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS shifts CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS equipment CASCADE"))
-        db.execute(text("DROP TABLE IF EXISTS activity_logs CASCADE"))
-        db.commit()
-        db.close()
-
-        # Recreate using SQLAlchemy metadata (matches the model definitions).
-        from app.database.session import engine
-        from app.models.workforce import (  # noqa: F401
-            WorkforceCategory,
-            Worker,
-            WorkerProjectAssignment,
-            WorkerShiftAssignment,
-            AttendanceModel,
-            WorkforcePayroll,
-        )
-        from app.models.placeholders import Notification, Inventory, Procurement  # noqa: F401
-        from app.models.resource import (  # noqa: F401
-            ResourceModel,
-            ResourceAllocationModel,
-            ResourceUtilizationModel,
-            ResourceMaintenanceModel,
-        )
-        from app.models.site_progress import (  # noqa: F401
-            DailyProgressReport,
-            WeeklyProgressReport,
-            WorkCompletionStatus,
-            DelayTracking,
-            SiteActivityLog,
-            ProgressPhotograph,
-        )
-        from app.models.material import (
-            MaterialCategoryModel,
-            MaterialModel,
-            MaterialInventoryModel,
-            MaterialRequestModel,
-            MaterialAllocationModel,
-            StockMovementModel,
-        )
-        from app.models.task import TaskModel  # noqa: F401
-        from app.models.document import DocumentModel  # noqa: F401
-        from app.models.shift import ShiftModel  # noqa: F401
-        from app.models.equipment import EquipmentModel  # noqa: F401
-        from app.models.procurement import (
-            ProcurementCategoryModel,
-            VendorModel,
-            ProcurementRequestModel,
-            ProcurementRequestItemModel,
-            PurchaseOrderModel,
-            PurchaseOrderItemModel,
-            InvoiceModel,
-        )
-        Base.metadata.create_all(bind=engine, tables=[
-            WorkforceCategory.__table__, Worker.__table__, WorkerProjectAssignment.__table__,
-            WorkerShiftAssignment.__table__, AttendanceModel.__table__, WorkforcePayroll.__table__,
-            Notification.__table__,
-            ResourceModel.__table__, ResourceAllocationModel.__table__,
-            ResourceUtilizationModel.__table__, ResourceMaintenanceModel.__table__,
-            MaterialCategoryModel.__table__, MaterialModel.__table__,
-            MaterialInventoryModel.__table__, MaterialRequestModel.__table__,
-            MaterialAllocationModel.__table__, StockMovementModel.__table__,
-            Procurement.__table__,
-            ProcurementCategoryModel.__table__, VendorModel.__table__,
-            ProcurementRequestModel.__table__, ProcurementRequestItemModel.__table__,
-            PurchaseOrderModel.__table__, PurchaseOrderItemModel.__table__,
-            InvoiceModel.__table__,
-            DailyProgressReport.__table__, WeeklyProgressReport.__table__,
-            WorkCompletionStatus.__table__, DelayTracking.__table__,
-            SiteActivityLog.__table__, ProgressPhotograph.__table__,
-            TaskModel.__table__, DocumentModel.__table__, ShiftModel.__table__,
-            EquipmentModel.__table__, ActivityLogModel.__table__,
-        ])
-        print("[Migration] Recreated Module 4, Module 5, Module 6, and Module 7 tables to match models.")
-
-
+        from app.database.session import engine, Base
+        Base.metadata.create_all(bind=engine)
+        print("[Database Startup] Verified database schema and tables.")
     except Exception as e:
-        print(f"[Warning] Column migration notice: {e}")
-    finally:
-        try:
-            db.close()
-        except Exception:
-            pass
+        print(f"[Warning] Table verification notice: {e}")
 
 
 def seed_database():

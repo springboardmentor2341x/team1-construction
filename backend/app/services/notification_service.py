@@ -231,6 +231,12 @@ class NotificationService:
         return count
 
     @staticmethod
+    def clear_user_notifications(db: Session, user_id: str) -> int:
+        count = db.query(Notification).filter(Notification.user_id == user_id).delete(synchronize_session=False)
+        db.commit()
+        return count
+
+    @staticmethod
     def get_notification_by_id(db: Session, notification_id: str, user_id: str) -> Optional[Notification]:
         return db.query(Notification).filter(
             Notification.id == notification_id,
@@ -240,19 +246,19 @@ class NotificationService:
     @staticmethod
     def check_and_generate_deadline_notifications(db: Session) -> int:
         """
-        Safely scans milestones and tasks for upcoming (<48h) or overdue deadlines.
-        Prevents duplicate notification creation.
+        Safely scans active milestones and tasks for upcoming (<48h) or overdue deadlines.
+        Target recipients specifically (PM for milestones, assigned user for tasks) to prevent duplicate/spam notifications.
         """
         generated_count = 0
         now = datetime.now(timezone.utc)
 
-        # 1. Milestone Deadlines
+        # 1. Milestone Deadlines (PM recipient only)
         milestones = db.query(ProjectMilestone).filter(
-            ProjectMilestone.status != "Completed"
+            ProjectMilestone.status.notin_(["Completed", "Closed"])
         ).all()
 
         for m in milestones:
-            if not m.planned_date:
+            if not m.planned_date or not m.project or not m.project.project_manager_id:
                 continue
             try:
                 target_dt = datetime.strptime(m.planned_date[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -264,41 +270,38 @@ class NotificationService:
             is_approaching = 0 <= diff.total_seconds() <= (48 * 3600)
 
             if is_overdue or is_approaching:
-                deadline_type = "OVERDUE" if is_overdue else "APPROACHING"
                 title = f"Milestone Overdue: {m.milestone_name}" if is_overdue else f"Milestone Deadline Approaching: {m.milestone_name}"
-                msg = f"Milestone '{m.milestone_name}' for project '{m.project.project_name if m.project else 'Project'}' was due on {m.planned_date}." if is_overdue else f"Milestone '{m.milestone_name}' for project '{m.project.project_name if m.project else 'Project'}' is due on {m.planned_date}."
+                msg = f"Milestone '{m.milestone_name}' for project '{m.project.project_name}' was due on {m.planned_date}." if is_overdue else f"Milestone '{m.milestone_name}' for project '{m.project.project_name}' is due on {m.planned_date}."
+                pm_id = m.project.project_manager_id
 
-                recipients = NotificationService.get_relevant_project_user_ids(db, m.project_id)
-                for uid in recipients:
-                    # Check duplicate
-                    existing = db.query(Notification).filter(
-                        Notification.user_id == uid,
-                        Notification.reference_id == m.id,
-                        Notification.reference_module == "milestones",
-                        Notification.title == title
-                    ).first()
-                    if not existing:
-                        n = NotificationService.create_notification(
-                            db=db,
-                            user_id=uid,
-                            project_id=m.project_id,
-                            title=title,
-                            message=msg,
-                            type="DEADLINE",
-                            reference_module="milestones",
-                            reference_id=m.id,
-                            category="Deadline"
-                        )
-                        if n:
-                            generated_count += 1
+                existing = db.query(Notification).filter(
+                    Notification.user_id == pm_id,
+                    Notification.reference_id == m.id,
+                    Notification.reference_module == "milestones",
+                    Notification.title == title
+                ).first()
+                if not existing:
+                    n = NotificationService.create_notification(
+                        db=db,
+                        user_id=pm_id,
+                        project_id=m.project_id,
+                        title=title,
+                        message=msg,
+                        type="DEADLINE",
+                        reference_module="milestones",
+                        reference_id=m.id,
+                        category="Deadline"
+                    )
+                    if n:
+                        generated_count += 1
 
-        # 2. Task Deadlines
+        # 2. Task Deadlines (Assigned User recipient only)
         tasks = db.query(TaskModel).filter(
-            TaskModel.status != "Completed"
+            TaskModel.status.notin_(["Completed", "Closed"])
         ).all()
 
         for t in tasks:
-            if not t.due_date:
+            if not t.due_date or not t.assigned_to_id:
                 continue
             try:
                 target_dt = datetime.strptime(t.due_date[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -309,7 +312,7 @@ class NotificationService:
             diff = target_dt - now
             is_approaching = 0 <= diff.total_seconds() <= (48 * 3600)
 
-            if (is_overdue or is_approaching) and t.assigned_to_id:
+            if is_overdue or is_approaching:
                 title = f"Task Overdue: {t.title}" if is_overdue else f"Task Deadline Approaching: {t.title}"
                 msg = f"Task '{t.title}' assigned to you was due on {t.due_date}." if is_overdue else f"Task '{t.title}' assigned to you is due on {t.due_date}."
 

@@ -29,9 +29,9 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
               </div>
               <p class="text-muted small mb-0">Daily progress logging, machinery status, site quality, and field engineering logs.</p>
             </div>
-            <button class="btn btn-bt-accent btn-sm d-flex align-items-center gap-2 shadow-sm">
+            <a routerLink="/daily-progress-reports" class="btn btn-bt-accent btn-sm d-flex align-items-center gap-2 shadow-sm text-decoration-none">
               <i class="bi bi-journal-plus"></i> Log Today's Site Progress
-            </button>
+            </a>
           </div>
 
           <!-- Top Metric Cards -->

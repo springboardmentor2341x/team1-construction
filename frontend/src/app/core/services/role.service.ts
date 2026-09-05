@@ -45,6 +45,8 @@ export class RoleService {
           { label: 'Milestone Tracking', icon: 'bi-flag-fill', route: '/milestone-tracking' },
           { label: 'Delay Tracking', icon: 'bi-exclamation-triangle-fill', route: '/delay-tracking' },
           { label: 'Weekly Reports', icon: 'bi-card-checklist', route: '/weekly-progress-reports' },
+          { label: 'Budget & Costing', icon: 'bi-cash-coin', route: '/budget' },
+          { label: 'Reports & Documentation', icon: 'bi-file-earmark-bar-graph-fill', route: '/reports' },
           { label: 'Site Activity Logs', icon: 'bi-clipboard-data', route: '/site-activity-logs' },
           { label: 'My Profile', icon: 'bi-person-circle', route: '/profile' }
         ];
@@ -75,6 +77,7 @@ export class RoleService {
           { label: 'Project Schedules', icon: 'bi-calendar3-range', route: '/projects/schedules' },
           { label: 'Tasks & Assignment', icon: 'bi-check2-square', route: '/tasks' },
           { label: 'Milestone Tracker', icon: 'bi-flag-fill', route: '/projects/milestones' },
+          { label: 'Budget & Costing', icon: 'bi-cash-coin', route: '/budget' },
           { label: 'Analytics & Reports', icon: 'bi-bar-chart-line-fill', route: '/reports' },
           { label: 'Work Completion', icon: 'bi-graph-up-arrow', route: '/work-completion-dashboard' },
           { label: 'Daily Progress Reports', icon: 'bi-journal-text', route: '/daily-progress-reports' },
@@ -106,6 +109,8 @@ export class RoleService {
           { label: 'Milestone Tracking', icon: 'bi-flag-fill', route: '/milestone-tracking' },
           { label: 'Delay Tracking', icon: 'bi-exclamation-triangle-fill', route: '/delay-tracking' },
           { label: 'Work Completion', icon: 'bi-graph-up-arrow', route: '/work-completion-dashboard' },
+          { label: 'Budget & Costing', icon: 'bi-cash-coin', route: '/budget' },
+          { label: 'Reports & Documentation', icon: 'bi-file-earmark-bar-graph-fill', route: '/reports' },
           { label: 'Site Notifications', icon: 'bi-bell-fill', route: '/notifications', badge: '5' },
           { label: 'My Profile', icon: 'bi-person-bounding-box', route: '/profile' }
         ];
@@ -123,6 +128,8 @@ export class RoleService {
           { label: 'Assigned Tasks', icon: 'bi-card-checklist', route: '/tasks' },
           { label: 'Project Inventory', icon: 'bi-boxes', route: '/inventory' },
           { label: 'Contractor Workforce', icon: 'bi-person-badge-fill', route: '/workers' },
+          { label: 'Budget & Costing', icon: 'bi-cash-coin', route: '/budget' },
+          { label: 'Reports & Documentation', icon: 'bi-file-earmark-bar-graph-fill', route: '/reports' },
           { label: 'Notifications', icon: 'bi-bell-fill', route: '/notifications' },
           { label: 'My Profile', icon: 'bi-person-vcard', route: '/profile' }
         ];
@@ -145,6 +152,7 @@ export class RoleService {
           { label: 'Project Inventory', icon: 'bi-boxes', route: '/inventory' },
           { label: 'Milestones & Timeline', icon: 'bi-check-all', route: '/projects/milestones' },
           { label: 'Executive Reports', icon: 'bi-file-earmark-pdf-fill', route: '/client-reports' },
+          { label: 'Reports & Documentation', icon: 'bi-file-earmark-bar-graph-fill', route: '/reports' },
           { label: 'Project Documents', icon: 'bi-folder2-open', route: '/documents' },
           { label: 'My Profile', icon: 'bi-person-fill', route: '/profile' }
         ];

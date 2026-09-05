@@ -39,7 +39,7 @@ import { Project } from '../../../core/models/project.model';
                 </ol>
               </nav>
               <h2 class="fw-bold text-dark mb-0"><i class="bi bi-cart-plus-fill me-2 text-warning"></i>Procurement Requests & Inventory Integration</h2>
-              <p class="text-muted small mb-0">Raise multi-item procurement requisitions, run automated Module 5 stock checks, & process approvals.</p>
+              <p class="text-muted small mb-0">Raise multi-item procurement requisitions, run automated stock checks, & process approvals.</p>
             </div>
 
             <button class="btn btn-bt-accent d-flex align-items-center gap-2 shadow-sm" (click)="openRaiseModal()">
@@ -254,7 +254,7 @@ import { Project } from '../../../core/models/project.model';
 
                       <div *ngFor="let item of reqItems; let i = index" class="row g-2 align-items-center mb-2 p-2 bg-white rounded border">
                         <div class="col-md-3">
-                          <label class="extra-small text-muted d-block">Select Material (Module 5)</label>
+                          <label class="extra-small text-muted d-block">Select Material</label>
                           <select class="form-select form-select-sm" [(ngModel)]="item.materialId" [name]="'mat_' + i" (change)="onMaterialSelect(i)">
                             <option value="">-- Custom Item / Unlinked --</option>
                             <option *ngFor="let m of masterMaterials" [value]="m.id">{{ m.name }} ({{ m.materialCode }})</option>
@@ -288,7 +288,7 @@ import { Project } from '../../../core/models/project.model';
                     <div *ngIf="stockCheckResult" class="p-3 mb-3 rounded border" [ngClass]="stockCheckResult.hasStockShortage ? 'bg-warning-subtle border-warning' : 'bg-success-subtle border-success'">
                       <div class="fw-bold small mb-2">
                         <i class="bi me-1" [ngClass]="stockCheckResult.hasStockShortage ? 'bi-exclamation-triangle-fill text-warning' : 'bi-check-circle-fill text-success'"></i>
-                        Module 5 Inventory Integration Stock Check:
+                        Inventory Integration Stock Check:
                       </div>
                       <div class="table-responsive">
                         <table class="table table-sm table-borderless extra-small mb-0">

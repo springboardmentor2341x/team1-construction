@@ -109,7 +109,7 @@ import { DailyProgressReport, ProgressPhotograph } from '../../../core/models/si
                   <input type="number" step="0.5" min="0" class="form-control form-control-sm" formControlName="workerHours" placeholder="e.g. 336">
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Cost Incurred ($)</label>
+                  <label class="form-label small fw-semibold">Cost Incurred (₹)</label>
                   <input type="number" min="0" class="form-control form-control-sm" formControlName="costIncurred" placeholder="e.g. 1500">
                 </div>
                 <div class="col-md-6">

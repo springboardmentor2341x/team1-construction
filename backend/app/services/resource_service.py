@@ -500,6 +500,25 @@ class ResourceService:
         if req.status in ["In Progress", "Scheduled"]:
             resource.status = "Under Maintenance"
 
+        # INTEGRATION WITH MODULE 11 BUDGET & COST
+        if req.maintenanceCost and req.maintenanceCost > 0 and resource.project_id:
+            from app.models.budget import ActualExpense
+            import uuid
+            exp_count = self.db.query(func.count(ActualExpense.id)).scalar() or 0
+            exp = ActualExpense(
+                id=str(uuid.uuid4()),
+                project_id=resource.project_id,
+                expense_code=f"EXP-MNT-{(exp_count + 1):04d}",
+                category="Maintenance",
+                amount=req.maintenanceCost,
+                expense_date=req.maintenanceDate or date.today().isoformat(),
+                description=f"Equipment maintenance cost for {resource.name} ({resource.equipment_code}) - {req.maintenanceType}",
+                equipment_id=resource.id,
+                source_reference=f"Maint:{maint.id}",
+                created_by=current_user.id
+            )
+            self.db.add(exp)
+
         self.db.commit()
         self.db.refresh(maint)
         return self._to_maintenance_read(maint)
