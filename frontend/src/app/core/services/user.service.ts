@@ -40,4 +40,8 @@ export class UserService {
   toggleUserStatus(id: string, active: boolean): Observable<UserRead> {
     return this.http.patch<UserRead>(`${this.apiUrl}/${id}/status`, null, { params: { active: active.toString() } });
   }
+
+  createUser(userData: any): Observable<UserRead> {
+    return this.http.post<UserRead>(`${environment.apiUrl}/auth/register`, userData);
+  }
 }

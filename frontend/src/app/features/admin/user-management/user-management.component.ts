@@ -1,7 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
@@ -144,7 +144,6 @@ import { UserRead } from '../../../core/models/user.model';
                     </td>
                     <td class="text-end">
                       <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></button>
                         <button class="btn btn-outline-warning" title="Toggle Status" (click)="toggleUserStatus(user)">
                           <i class="bi" [ngClass]="user.isActive ? 'bi-lock' : 'bi-unlock'"></i>
                         </button>
@@ -161,16 +160,122 @@ import { UserRead } from '../../../core/models/user.model';
             </div>
           </div>
 
+          <!-- Invite User Modal -->
+          <div *ngIf="showInviteModal" class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+              <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white">
+                  <h5 class="modal-title fw-bold"><i class="bi bi-person-plus-fill me-2 text-warning"></i>Invite New User</h5>
+                  <button type="button" class="btn-close btn-close-white" (click)="closeInviteModal()"></button>
+                </div>
+                <div class="modal-body p-4">
+                  <div *ngIf="inviteError" class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-exclamation-octagon-fill"></i>
+                    <span>{{ inviteError }}</span>
+                  </div>
+                  <div *ngIf="inviteSuccess" class="alert alert-success d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>{{ inviteSuccess }}</span>
+                  </div>
+
+                  <form [formGroup]="inviteForm" (ngSubmit)="submitInvite()">
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label class="form-label small fw-bold">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" formControlName="fullName" placeholder="e.g. Sarah Jenkins">
+                        <div *ngIf="inviteForm.get('fullName')?.touched && inviteForm.get('fullName')?.invalid" class="text-danger extra-small mt-1">
+                          Full name is required.
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <label class="form-label small fw-bold">Email Address <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" formControlName="email" placeholder="e.g. sarah.j@buildtrack.com">
+                        <div *ngIf="inviteForm.get('email')?.touched && inviteForm.get('email')?.invalid" class="text-danger extra-small mt-1">
+                          Valid email address is required.
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <label class="form-label small fw-bold">Role <span class="text-danger">*</span></label>
+                        <select class="form-select" formControlName="role">
+                          <option value="Administrator">Administrator</option>
+                          <option value="Project Manager">Project Manager</option>
+                          <option value="Site Engineer">Site Engineer</option>
+                          <option value="Contractor">Contractor</option>
+                          <option value="Worker">Worker</option>
+                          <option value="Client">Client</option>
+                        </select>
+                      </div>
+
+                      <div class="col-md-6">
+                        <label class="form-label small fw-bold">Temporary Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" formControlName="password" placeholder="Min 8 characters">
+                        <div *ngIf="inviteForm.get('password')?.touched && inviteForm.get('password')?.invalid" class="text-danger extra-small mt-1">
+                          Password must be at least 8 characters.
+                        </div>
+                      </div>
+
+                      <div class="col-md-4">
+                        <label class="form-label small fw-bold">Employee ID</label>
+                        <input type="text" class="form-control" formControlName="employeeId" placeholder="e.g. EMP-2026-08">
+                      </div>
+
+                      <div class="col-md-4">
+                        <label class="form-label small fw-bold">Department</label>
+                        <select class="form-select" formControlName="department">
+                          <option value="Project Management">Project Management</option>
+                          <option value="Engineering">Engineering</option>
+                          <option value="Procurement">Procurement</option>
+                          <option value="Workforce">Workforce</option>
+                          <option value="Client Operations">Client Operations</option>
+                          <option value="Executive Management">Executive Management</option>
+                        </select>
+                      </div>
+
+                      <div class="col-md-4">
+                        <label class="form-label small fw-bold">Designation</label>
+                        <input type="text" class="form-control" formControlName="designation" placeholder="e.g. Lead PM">
+                      </div>
+
+                      <div class="col-md-6">
+                        <label class="form-label small fw-bold">Mobile Number</label>
+                        <input type="text" class="form-control" formControlName="mobileNumber" placeholder="e.g. +1 555-0199">
+                      </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                      <button type="button" class="btn btn-outline-secondary" (click)="closeInviteModal()">Cancel</button>
+                      <button type="submit" class="btn btn-bt-accent px-4" [disabled]="inviteSubmitting">
+                        <span *ngIf="inviteSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                        Send Invitation
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    .extra-small { font-size: 0.76rem; }
+  `]
 })
 export class UserManagementComponent implements OnInit {
   filterForm: FormGroup;
+  inviteForm: FormGroup;
   users = signal<UserRead[]>([]);
   loading = signal(true);
   error = signal('');
+
+  showInviteModal = false;
+  inviteSubmitting = false;
+  inviteError = '';
+  inviteSuccess = '';
 
   roleStats = [
     { role: 'Admins', count: 0 },
@@ -183,6 +288,16 @@ export class UserManagementComponent implements OnInit {
 
   constructor(private fb: FormBuilder, private userService: UserService) {
     this.filterForm = this.fb.group({ search: [''], role: [''], status: [''] });
+    this.inviteForm = this.fb.group({
+      fullName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['BuildTrack@2026', [Validators.required, Validators.minLength(8)]],
+      role: ['Project Manager', Validators.required],
+      employeeId: [''],
+      department: ['Project Management'],
+      designation: [''],
+      mobileNumber: ['']
+    });
   }
 
   ngOnInit(): void { this.loadUsers(); }
@@ -224,15 +339,96 @@ export class UserManagementComponent implements OnInit {
   }
 
   toggleUserStatus(user: UserRead): void {
-    console.log('Toggle status for:', user.id);
+    this.userService.toggleUserStatus(user.id, !user.isActive).subscribe({
+      next: () => this.loadUsers(),
+      error: (err) => console.error('Failed to toggle status', err)
+    });
   }
 
-  openInviteModal(): void { console.log('Open invite modal'); }
-  exportCSV(): void { console.log('Export CSV'); }
+  openInviteModal(): void {
+    this.inviteError = '';
+    this.inviteSuccess = '';
+    this.showInviteModal = true;
+  }
+
+  closeInviteModal(): void {
+    this.showInviteModal = false;
+    this.inviteError = '';
+    this.inviteSuccess = '';
+    this.inviteForm.reset({
+      fullName: '',
+      email: '',
+      password: 'BuildTrack@2026',
+      role: 'Project Manager',
+      employeeId: '',
+      department: 'Project Management',
+      designation: '',
+      mobileNumber: ''
+    });
+  }
+
+  submitInvite(): void {
+    if (this.inviteForm.invalid) {
+      this.inviteForm.markAllAsTouched();
+      return;
+    }
+
+    this.inviteSubmitting = true;
+    this.inviteError = '';
+    this.inviteSuccess = '';
+
+    this.userService.createUser(this.inviteForm.value).subscribe({
+      next: () => {
+        this.inviteSubmitting = false;
+        this.inviteSuccess = 'User account created and invited successfully!';
+        this.loadUsers();
+        setTimeout(() => {
+          this.closeInviteModal();
+        }, 1200);
+      },
+      error: (err) => {
+        this.inviteSubmitting = false;
+        const msg = err?.error?.detail || 'Failed to create user invitation.';
+        this.inviteError = typeof msg === 'string' ? msg : JSON.stringify(msg);
+      }
+    });
+  }
+
+  exportCSV(): void {
+    const list = this.filteredUsers();
+    if (!list || list.length === 0) {
+      alert('No user data available to export.');
+      return;
+    }
+
+    const headers = ['Full Name', 'Email', 'Employee ID', 'Department', 'Designation', 'Role', 'Mobile', 'Status'];
+    const rows = list.map(u => [
+      `"${(u.fullName || '').replace(/"/g, '""')}"`,
+      `"${(u.email || '').replace(/"/g, '""')}"`,
+      `"${(u.employeeId || '').replace(/"/g, '""')}"`,
+      `"${(u.department || '').replace(/"/g, '""')}"`,
+      `"${(u.designation || '').replace(/"/g, '""')}"`,
+      `"${(u.role || '').replace(/"/g, '""')}"`,
+      `"${(u.mobileNumber || '').replace(/"/g, '""')}"`,
+      `"${u.isActive ? 'Active' : 'Inactive'}"`
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `buildtrack_users_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   resetFilters(): void { this.filterForm.reset({ search: '', role: '', status: '' }); }
 
   getInitials(name: string): string {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    return (name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   }
 
   getRoleBadgeClass(role: string): string {
@@ -244,3 +440,4 @@ export class UserManagementComponent implements OnInit {
     return map[role] || 'bg-secondary';
   }
 }
+
