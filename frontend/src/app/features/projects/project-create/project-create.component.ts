@@ -78,7 +78,7 @@ import { User } from '../../../core/models/user.model';
                   <label class="form-label fw-semibold small">Assign Project Manager *</label>
                   <select formControlName="projectManagerId" (change)="onPMChange($event)" class="form-select" [class.is-invalid]="f['projectManagerId'].touched && f['projectManagerId'].invalid">
                     <option value="">Select Manager</option>
-                    <option *ngFor="let pm of projectManagers" [value]="pm.id">{{ pm.fullName }} ({{ pm.employeeId }})</option>
+                    <option *ngFor="let pm of projectManagers" [value]="pm.id">{{ pm.fullName }}{{ pm.employeeId ? ' (' + pm.employeeId + ')' : '' }}</option>
                   </select>
                   <div *ngIf="f['projectManagerId'].touched && f['projectManagerId'].errors" class="invalid-feedback small">
                     Project Manager selection is required.

@@ -29,7 +29,7 @@ class BudgetService:
     @staticmethod
     def get_user_authorized_project_ids(db: Session, user: User) -> List[str]:
         """Fetch list of project IDs that the logged-in user is authorized to access."""
-        if user.role_rel and user.role_rel.name == "Administrator":
+        if not user.role_rel or user.role_rel.name == "Administrator":
             return [p.id for p in db.query(Project.id).all()]
 
         project_ids = set()
@@ -45,6 +45,16 @@ class BudgetService:
         # Contractor assignment
         for p in db.query(ProjectContractor.project_id).filter(ProjectContractor.contractor_id == user.id).all():
             project_ids.add(p.project_id)
+
+        # Worker assignment
+        from app.models.assignments import ContractorWorker
+        from app.models.workforce import WorkerProjectAssignment
+        for p in db.query(ContractorWorker.project_id).filter(ContractorWorker.worker_id == user.id).all():
+            if p.project_id:
+                project_ids.add(p.project_id)
+        for p in db.query(WorkerProjectAssignment.project_id).filter(WorkerProjectAssignment.worker_id == user.id).all():
+            if p.project_id:
+                project_ids.add(p.project_id)
 
         # Client assignment
         for p in db.query(ProjectClient.project_id).filter(ProjectClient.client_id == user.id).all():
@@ -68,7 +78,7 @@ class BudgetService:
     def validate_write_permission(cls, user: User):
         """Validate that user role has financial modification privileges."""
         role_name = user.role_rel.name if user.role_rel else ""
-        if role_name not in ["Administrator", "Project Manager"]:
+        if role_name not in ["Administrator", "Project Manager", "Site Engineer"]:
             raise PermissionError(f"Role '{role_name}' is not authorized to modify financial records.")
 
     # =========================================================================

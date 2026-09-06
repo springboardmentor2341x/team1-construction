@@ -14,7 +14,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 def get_users(
     role: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer", "Contractor"]))
+    current_user: User = Depends(get_current_user)
 ):
     user_service = UserService(db)
     return user_service.get_users(role)

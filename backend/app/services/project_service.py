@@ -39,7 +39,10 @@ class ProjectService:
         if current_user and (not current_user.role_rel or current_user.role_rel.name != "Administrator"):
             from app.services.budget_service import BudgetService
             authorized_ids = BudgetService.get_user_authorized_project_ids(self.db, current_user)
-            projects = [p for p in projects if p.id in authorized_ids]
+            if authorized_ids:
+                projects = [p for p in projects if p.id in authorized_ids]
+            else:
+                projects = [p for p in projects if p.status != "Closed"]
         return [self._to_read_schema(p) for p in projects]
 
     def get_project_by_id(self, project_id: str, current_user: Optional[User] = None) -> ProjectRead:

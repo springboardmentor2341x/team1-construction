@@ -55,8 +55,10 @@ import { InventoryService, InventoryItem } from '../../../core/services/inventor
                 </thead>
                 <tbody>
                   <tr *ngFor="let item of getCriticalItems()">
-                    <td class="fw-semibold">{{ item.item_name }}</td>
-                    <td class="fw-bold text-danger">{{ item.quantity }}</td>
+                    <td class="fw-semibold">{{ item.materialName || item.item_name || 'N/A' }}</td>
+                    <td class="fw-bold text-danger">
+                      {{ item.availableStock !== undefined ? item.availableStock : (item.quantity !== undefined ? item.quantity : 0) }} {{ item.unitOfMeasure || '' }}
+                    </td>
                     <td>
                       <span class="badge" [ngClass]="{'bg-warning text-dark': item.status === 'Low Stock', 'bg-danger': item.status === 'Out of Stock'}">
                         {{ item.status }}

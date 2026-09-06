@@ -151,6 +151,7 @@ app.include_router(resources.router, prefix=settings.API_V1_STR)
 app.include_router(inventory.router, prefix=settings.API_V1_STR)
 app.include_router(materials.router, prefix=settings.API_V1_STR)
 app.include_router(procurement.router, prefix=settings.API_V1_STR)
+app.include_router(procurement.legacy_router, prefix=settings.API_V1_STR)
 app.include_router(contractors.router, prefix=settings.API_V1_STR)
 app.include_router(workforce.router, prefix=settings.API_V1_STR)
 app.include_router(dashboard.router, prefix=settings.API_V1_STR)
@@ -163,7 +164,10 @@ def ensure_columns():
     """Ensure database tables exist using SQLAlchemy metadata without dropping existing tables."""
     try:
         from app.database.session import engine, Base
+        from sqlalchemy import text
         Base.metadata.create_all(bind=engine)
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE progress_photographs ALTER COLUMN photo_url TYPE TEXT;"))
         print("[Database Startup] Verified database schema and tables.")
     except Exception as e:
         print(f"[Warning] Table verification notice: {e}")

@@ -4,9 +4,14 @@ from typing import Optional, List
 # Standard project categories defined by the platform specification.
 PROJECT_CATEGORIES = [
     "Residential",
+    "Residential Complex",
     "Commercial",
+    "Commercial High-Rise",
     "Industrial",
+    "Industrial Plant",
     "Infrastructure",
+    "Infrastructure & Transit",
+    "Healthcare Facility",
     "Government",
 ]
 

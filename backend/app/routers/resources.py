@@ -83,7 +83,7 @@ def get_resources(
 def create_resource(
     req: ResourceCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
 ):
     """Create a new equipment resource with a unique Equipment Code."""
     service = ResourceService(db)
@@ -106,7 +106,7 @@ def update_resource(
     resource_id: str,
     req: ResourceUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
 ):
     """Update equipment details."""
     service = ResourceService(db)
@@ -157,7 +157,7 @@ def get_allocations(
 def create_allocation(
     req: ResourceAllocationCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
 ):
     """Allocate equipment to a project with overlap & maintenance conflict prevention."""
     service = ResourceService(db)
@@ -232,7 +232,7 @@ def get_maintenances(
 def create_maintenance(
     req: ResourceMaintenanceCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
 ):
     """Schedule or log maintenance for a resource."""
     service = ResourceService(db)

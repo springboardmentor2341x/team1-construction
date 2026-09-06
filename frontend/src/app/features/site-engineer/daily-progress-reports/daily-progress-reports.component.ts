@@ -42,8 +42,9 @@ import { DailyProgressReport, ProgressPhotograph } from '../../../core/models/si
             <div class="row align-items-center">
               <div class="col-md-6">
                 <label class="form-label fw-semibold small mb-1">Select Project</label>
-                <select (change)="onProjectSelect($event)" class="form-select">
-                  <option *ngFor="let p of projects" [value]="p.id">{{ p.projectName }} ({{ p.projectCode }})</option>
+                <select [value]="selectedProjectId" (change)="onProjectSelect($event)" class="form-select">
+                  <option value="" *ngIf="!projects.length">-- Select Project --</option>
+                  <option *ngFor="let p of projects" [value]="p.id" [selected]="p.id === selectedProjectId">{{ p.projectName }} ({{ p.projectCode }})</option>
                 </select>
               </div>
             </div>
@@ -128,9 +129,17 @@ import { DailyProgressReport, ProgressPhotograph } from '../../../core/models/si
                   <label class="form-label small fw-semibold">Quality Inspection Remarks</label>
                   <input type="text" class="form-control form-control-sm" formControlName="qualityInspectionRemarks">
                 </div>
-                <div class="col-md-4" *ngIf="!editingReportId()">
-                  <label class="form-label small fw-semibold">Photo URL</label>
-                  <input type="text" class="form-control form-control-sm" formControlName="photoUrl" placeholder="https://... (optional)">
+                <div class="col-md-6" *ngIf="!editingReportId()">
+                  <label class="form-label small fw-semibold"><i class="bi bi-paperclip me-1 text-primary"></i>Attach Progress Photo</label>
+                  <input type="file" accept="image/*" class="form-control form-control-sm" (change)="onFormFileSelected($event)" #formFileInput>
+                  <div *ngIf="formPhotoPreview" class="mt-2 d-flex align-items-center gap-2 p-2 bg-light rounded border">
+                    <img [src]="formPhotoPreview" class="rounded border shadow-sm" style="height: 45px; width: 45px; object-fit: cover;" alt="Photo Preview">
+                    <div class="flex-grow-1 overflow-hidden">
+                      <span class="d-block extra-small text-truncate fw-semibold">{{ formPhotoFileName || 'Selected Photo' }}</span>
+                      <span class="extra-small text-success"><i class="bi bi-check-circle-fill me-1"></i>Attached to report</span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" (click)="clearFormPhoto(formFileInput)"><i class="bi bi-x-lg"></i></button>
+                  </div>
                 </div>
                 <div class="col-md-4">
                   <div class="form-check form-switch mt-4">
@@ -277,14 +286,42 @@ import { DailyProgressReport, ProgressPhotograph } from '../../../core/models/si
             <!-- Upload / Add Photo Section -->
             <div class="card p-3 mb-4 bg-light border-0" *ngIf="canManage()">
               <h6 class="fw-bold mb-2 small"><i class="bi bi-cloud-upload me-1 text-primary"></i>Attach Progress Photo</h6>
-              <div class="row g-2">
-                <div class="col-md-8">
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="newPhotoUrl" placeholder="Image URL (e.g. https://images.unsplash.com/photo-...)">
+              <div class="row g-2 align-items-center">
+                <div class="col-md-6">
+                  <label class="form-label extra-small text-muted mb-1 fw-semibold">Select Photo File from Device</label>
+                  <input type="file" accept="image/*" class="form-control form-control-sm" (change)="onModalFileSelected($event)" #modalFileInput>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
+                  <label class="form-label extra-small text-muted mb-1 fw-semibold">Caption (Optional)</label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="newPhotoCaption" placeholder="e.g. Column pour inspection">
+                </div>
+
+                <!-- File Preview thumbnail if loaded -->
+                <div class="col-12" *ngIf="photoPreviewUrl">
+                  <div class="d-flex align-items-center gap-2 p-2 bg-white rounded border">
+                    <img [src]="photoPreviewUrl" class="rounded border shadow-sm" style="height: 48px; width: 48px; object-fit: cover;" alt="Preview">
+                    <div class="flex-grow-1 overflow-hidden">
+                      <span class="d-block small text-truncate fw-semibold">{{ newPhotoFileName || 'Uploaded Photo' }}</span>
+                      <span class="extra-small text-success"><i class="bi bi-check-circle-fill me-1"></i>Ready to attach</span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="clearModalPhoto(modalFileInput)"><i class="bi bi-x-lg"></i> Clear</button>
+                  </div>
+                </div>
+
+                <!-- Alternative URL input toggle -->
+                <div class="col-12 mt-1">
+                  <button type="button" class="btn btn-link p-0 extra-small text-decoration-none text-muted" (click)="showUrlInput = !showUrlInput">
+                    <i class="bi" [ngClass]="showUrlInput ? 'bi-dash-circle' : 'bi-plus-circle'"></i> {{ showUrlInput ? 'Hide Image URL Option' : 'Or attach via Image URL link...' }}
+                  </button>
+                  <div class="mt-2" *ngIf="showUrlInput">
+                    <input type="text" class="form-control form-control-sm" [(ngModel)]="newPhotoUrl" (input)="onUrlInputChanged()" placeholder="https://images.unsplash.com/photo-...">
+                  </div>
+                </div>
+
+                <div class="col-12 mt-2">
                   <button (click)="addPhotoToReport()" class="btn btn-sm btn-bt-accent w-100" [disabled]="!newPhotoUrl || submittingPhoto()">
                     <span *ngIf="submittingPhoto()" class="spinner-border spinner-border-sm me-1"></span>
-                    Attach Photo
+                    <i class="bi bi-paperclip me-1"></i>Attach Photo to Report
                   </button>
                 </div>
               </div>
@@ -329,7 +366,14 @@ export class DailyProgressReportsComponent implements OnInit {
   selectedReportForPhotos: DailyProgressReport | null = null;
   reportPhotos = signal<ProgressPhotograph[]>([]);
   newPhotoUrl = '';
+  newPhotoCaption = '';
+  photoPreviewUrl = '';
+  newPhotoFileName = '';
+  showUrlInput = false;
   submittingPhoto = signal(false);
+
+  formPhotoPreview = '';
+  formPhotoFileName = '';
 
   constructor(
     private fb: FormBuilder,
@@ -382,9 +426,92 @@ export class DailyProgressReportsComponent implements OnInit {
     this.siteProgressService.getDailyReports(this.selectedProjectId).subscribe(r => this.reports.set(r));
   }
 
+  compressImage(file: File, maxDimension = 1200, quality = 0.8): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxDimension) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            }
+          } else {
+            if (height > maxDimension) {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(dataUrl);
+        };
+        img.onerror = () => resolve(e.target.result);
+        img.src = e.target.result;
+      };
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async onFormFileSelected(event: any): Promise<void> {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      const dataUrl = await this.compressImage(file);
+      this.reportForm.patchValue({ photoUrl: dataUrl });
+      this.formPhotoPreview = dataUrl;
+      this.formPhotoFileName = file.name;
+    } catch (err) {
+      console.error('Error processing image:', err);
+    }
+  }
+
+  clearFormPhoto(fileInput?: HTMLInputElement): void {
+    this.reportForm.patchValue({ photoUrl: '' });
+    this.formPhotoPreview = '';
+    this.formPhotoFileName = '';
+    if (fileInput) fileInput.value = '';
+  }
+
+  async onModalFileSelected(event: any): Promise<void> {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      const dataUrl = await this.compressImage(file);
+      this.newPhotoUrl = dataUrl;
+      this.photoPreviewUrl = dataUrl;
+      this.newPhotoFileName = file.name;
+    } catch (err) {
+      console.error('Error processing image:', err);
+    }
+  }
+
+  onUrlInputChanged(): void {
+    this.photoPreviewUrl = this.newPhotoUrl;
+    this.newPhotoFileName = 'URL Image Link';
+  }
+
+  clearModalPhoto(fileInput?: HTMLInputElement): void {
+    this.newPhotoUrl = '';
+    this.photoPreviewUrl = '';
+    this.newPhotoFileName = '';
+    if (fileInput) fileInput.value = '';
+  }
+
   openCreateForm(): void {
     this.editingReportId.set(null);
     this.showForm.set(true);
+    this.clearFormPhoto();
     this.reportForm.reset({
       reportDate: new Date().toISOString().split('T')[0],
       progressCategory: 'Foundation',
@@ -402,6 +529,7 @@ export class DailyProgressReportsComponent implements OnInit {
   openEditForm(report: DailyProgressReport): void {
     this.editingReportId.set(report.id);
     this.showForm.set(true);
+    this.clearFormPhoto();
     this.reportForm.patchValue({
       reportDate: report.reportDate,
       progressCategory: report.progressCategory,
@@ -426,6 +554,7 @@ export class DailyProgressReportsComponent implements OnInit {
   cancelForm(): void {
     this.showForm.set(false);
     this.editingReportId.set(null);
+    this.clearFormPhoto();
   }
 
   submitReport(): void {
@@ -490,6 +619,10 @@ export class DailyProgressReportsComponent implements OnInit {
   openPhotoModal(report: DailyProgressReport): void {
     this.selectedReportForPhotos = report;
     this.newPhotoUrl = '';
+    this.newPhotoCaption = '';
+    this.photoPreviewUrl = '';
+    this.newPhotoFileName = '';
+    this.showUrlInput = false;
     this.loadPhotosForReport(report.id);
   }
 
@@ -502,10 +635,14 @@ export class DailyProgressReportsComponent implements OnInit {
     this.submittingPhoto.set(true);
     this.siteProgressService.addPhotograph({
       reportId: this.selectedReportForPhotos.id,
-      photoUrl: this.newPhotoUrl
+      photoUrl: this.newPhotoUrl,
+      caption: this.newPhotoCaption || undefined
     }).subscribe({
       next: () => {
         this.newPhotoUrl = '';
+        this.newPhotoCaption = '';
+        this.photoPreviewUrl = '';
+        this.newPhotoFileName = '';
         this.loadPhotosForReport(this.selectedReportForPhotos!.id);
         this.loadReports();
         this.submittingPhoto.set(false);

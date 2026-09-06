@@ -41,8 +41,9 @@ import { UserRole } from '../../../core/models/role.enum';
             <div class="row align-items-center">
               <div class="col-md-6">
                 <label class="form-label fw-semibold small mb-1">Select Active Project</label>
-                <select (change)="onProjectSelect($event)" class="form-select">
-                  <option *ngFor="let p of projects" [value]="p.id">{{ p.projectName }} ({{ p.projectCode }})</option>
+                <select [value]="selectedProjectId" (change)="onProjectSelect($event)" class="form-select">
+                  <option value="" *ngIf="!projects.length">-- Select Project --</option>
+                  <option *ngFor="let p of projects" [value]="p.id" [selected]="p.id === selectedProjectId">{{ p.projectName }} ({{ p.projectCode }})</option>
                 </select>
               </div>
             </div>

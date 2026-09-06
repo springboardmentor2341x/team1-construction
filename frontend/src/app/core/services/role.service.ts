@@ -91,6 +91,7 @@ export class RoleService {
       case UserRole.SITE_ENGINEER:
         return [
           { label: 'Engineering Hub', icon: 'bi-tools', route: '/dashboard/site-engineer' },
+          { label: 'Vendor Directory', icon: 'bi-shop', route: '/procurement/vendors' },
           { label: 'Procurement Requests', icon: 'bi-cart-fill', route: '/procurement/requests' },
           { label: 'Purchase Orders', icon: 'bi-receipt-cutoff', route: '/procurement/purchase-orders' },
           { label: 'Site Workforce', icon: 'bi-people-fill', route: '/workforce/workers' },
@@ -98,7 +99,10 @@ export class RoleService {
           { label: 'Shift Roster', icon: 'bi-clock-history', route: '/workforce/shifts' },
           { label: 'Assigned Site Projects', icon: 'bi-building-fill-check', route: '/projects' },
           { label: 'Resource Management', icon: 'bi-truck-front-fill', route: '/resource/allocation' },
+          { label: 'Materials Master', icon: 'bi-box-seam-fill', route: '/materials' },
           { label: 'Inventory Stock', icon: 'bi-boxes', route: '/inventory' },
+          { label: 'Stock Monitoring', icon: 'bi-graph-up', route: '/inventory/stock' },
+          { label: 'Procurement Requisition', icon: 'bi-bag-plus', route: '/inventory/procurement' },
           { label: 'Material Requests', icon: 'bi-file-earmark-text-fill', route: '/material-requests' },
           { label: 'Material Allocations', icon: 'bi-box-arrow-right', route: '/material-allocations' },
           { label: 'Stock Movements Log', icon: 'bi-clock-history', route: '/stock-movements' },

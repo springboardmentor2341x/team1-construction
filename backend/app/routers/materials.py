@@ -40,7 +40,7 @@ def get_categories(
 def create_category(
     req: MaterialCategoryCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
 ):
     return MaterialService(db).create_category(req)
 
@@ -66,7 +66,7 @@ def get_material(
 def create_material(
     req: MaterialCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
 ):
     return MaterialService(db).create_material(req, current_user)
 
@@ -75,6 +75,6 @@ def update_material(
     material_id: str,
     req: MaterialUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
 ):
     return MaterialService(db).update_material(material_id, req)

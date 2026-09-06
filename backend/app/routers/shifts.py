@@ -75,7 +75,7 @@ def get_shifts(
 def create_shift(
     req: ShiftCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer", "Contractor", "Subcontractor", "Sub-Contractor", "Worker"]))
 ):
     new_s = ShiftModel(
         worker_name=req.workerName,
@@ -98,7 +98,7 @@ def update_shift(
     shift_id: str,
     updates: ShiftUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer", "Contractor", "Subcontractor", "Sub-Contractor", "Worker"]))
 ):
     s = db.query(ShiftModel).filter(ShiftModel.id == shift_id).first()
     if not s:
@@ -120,7 +120,7 @@ def update_shift(
 def delete_shift(
     shift_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer", "Contractor", "Subcontractor", "Sub-Contractor", "Worker"]))
 ):
     s = db.query(ShiftModel).filter(ShiftModel.id == shift_id).first()
     if not s:
