@@ -166,6 +166,15 @@ export class NavbarComponent implements OnInit {
       this.router.navigate(['/procurement/requests']);
     } else if (n.referenceModule === 'attendance') {
       this.router.navigate(['/workforce/attendance']);
+    } else if (n.referenceModule === 'tasks') {
+      const role = this.authService.getRole();
+      if (role === 'Worker') {
+        this.router.navigate(['/worker-tasks']);
+      } else {
+        this.router.navigate(['/tasks']);
+      }
+    } else if (n.referenceModule === 'budget') {
+      this.router.navigate(['/budget']);
     } else {
       this.router.navigate(['/notifications']);
     }

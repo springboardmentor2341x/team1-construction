@@ -137,7 +137,7 @@ class ProgressPhotograph(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     report_id: Mapped[str] = mapped_column(String(36), ForeignKey("daily_progress_reports.id", ondelete="CASCADE"), nullable=False)
-    photo_url: Mapped[str] = mapped_column(String(500), nullable=False)
+    photo_url: Mapped[str] = mapped_column(Text, nullable=False)
     caption: Mapped[str] = mapped_column(String(200), nullable=True)
     uploaded_by: Mapped[str] = mapped_column(String(100), nullable=False, default="Site Engineer")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

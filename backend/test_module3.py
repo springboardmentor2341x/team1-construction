@@ -1,5 +1,8 @@
 import sys
 import json
+import warnings
+warnings.simplefilter("ignore")
+
 from fastapi.testclient import TestClient
 
 sys.path.insert(0, '.')

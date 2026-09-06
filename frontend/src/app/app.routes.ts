@@ -135,8 +135,8 @@ export const routes: Routes = [
   {
     path: 'reports',
     canActivate: [authGuard, roleGuard],
-    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.CLIENT] },
-    loadComponent: () => import('./features/project-manager/analytics-reports/analytics-reports.component').then(m => m.AnalyticsReportsComponent)
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR, UserRole.CLIENT] },
+    loadComponent: () => import('./features/reports/reports-dashboard.component').then(m => m.ReportsDashboardComponent)
   },
 
   // === MODULE 3 : SITE PROGRESS MONITORING ===
@@ -393,6 +393,18 @@ export const routes: Routes = [
     loadComponent: () => import('./features/procurement/procurement-request-list/procurement-request-list.component').then(m => m.ProcurementRequestListComponent)
   },
   {
+    path: 'procurement/workflow/:id',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR, UserRole.CLIENT] },
+    loadComponent: () => import('./features/procurement/procurement-detail/procurement-detail.component').then(m => m.ProcurementDetailComponent)
+  },
+  {
+    path: 'procurement/requests/:id',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR, UserRole.CLIENT] },
+    loadComponent: () => import('./features/procurement/procurement-detail/procurement-detail.component').then(m => m.ProcurementDetailComponent)
+  },
+  {
     path: 'procurement/purchase-orders',
     canActivate: [authGuard, roleGuard],
     data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR] },
@@ -404,10 +416,37 @@ export const routes: Routes = [
     data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.CONTRACTOR] },
     loadComponent: () => import('./features/procurement/invoice-list/invoice-list.component').then(m => m.InvoiceListComponent)
   },
+
+  // === MODULE 11: BUDGET & COST MANAGEMENT ===
   {
-    path: 'procurement/workflow/:id',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/procurement/procurement-detail/procurement-detail.component').then(m => m.ProcurementDetailComponent)
+    path: 'budget',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR, UserRole.CLIENT] },
+    loadComponent: () => import('./features/budget/budget-dashboard.component').then(m => m.BudgetDashboardComponent)
+  },
+  {
+    path: 'budget/planning',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER] },
+    loadComponent: () => import('./features/budget/budget-planning.component').then(m => m.BudgetPlanningComponent)
+  },
+  {
+    path: 'budget/estimates',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER] },
+    loadComponent: () => import('./features/budget/cost-estimation.component').then(m => m.CostEstimationComponent)
+  },
+  {
+    path: 'budget/expenses',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CONTRACTOR] },
+    loadComponent: () => import('./features/budget/expense-management.component').then(m => m.ExpenseManagementComponent)
+  },
+  {
+    path: 'budget/monitoring',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [UserRole.ADMINISTRATOR, UserRole.PROJECT_MANAGER, UserRole.SITE_ENGINEER, UserRole.CLIENT] },
+    loadComponent: () => import('./features/budget/budget-monitoring.component').then(m => m.BudgetMonitoringComponent)
   },
 
   // Wildcard Route

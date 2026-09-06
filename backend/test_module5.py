@@ -1,5 +1,8 @@
 import unittest
 import uuid
+import warnings
+warnings.simplefilter("ignore")
+
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from fastapi import HTTPException

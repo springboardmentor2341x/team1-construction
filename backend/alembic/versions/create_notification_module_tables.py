@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.engine.reflection import Inspector
 
 
-revision = '008_notification_module'
-down_revision = None
+revision = '008_notifications_module'
+down_revision = '007_procurement_module'
 branch_labels = None
 depends_on = None
 

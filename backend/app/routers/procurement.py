@@ -15,6 +15,7 @@ from app.schemas.procurement import (
     InventoryCheckItemRequest,
     InventoryCheckResponse,
     ProcurementRequestCreate,
+    ProcurementRequestItemCreate,
     ProcurementRequestApproveReject,
     ProcurementRequestRead,
     PaginatedProcurementRequestsResponse,
@@ -334,3 +335,77 @@ def get_procurement_workflow_detail(
 ):
     service = ProcurementService(db)
     return service.get_procurement_lifecycle_detail(request_id, current_user)
+
+
+# ---------------------------------------------------------
+# Legacy Procurement Route Aliases (/procurements)
+# ---------------------------------------------------------
+legacy_router = APIRouter(prefix="/procurements", tags=["Procurement Management (Legacy)"])
+
+@legacy_router.get("")
+def get_legacy_procurements(
+    project_id: Optional[str] = Query(None, alias="project_id"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    res = service.get_procurement_requests(projectId=project_id, pageSize=1000, current_user=current_user)
+    return res.items
+
+@legacy_router.post("", status_code=status.HTTP_201_CREATED)
+def create_legacy_procurement(
+    req: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    from app.models.project import Project
+    from datetime import datetime, timezone
+    service = ProcurementService(db)
+
+    project_id = req.get("project_id") or req.get("projectId")
+    if not project_id:
+        first_proj = db.query(Project).first()
+        project_id = first_proj.id if first_proj else ""
+
+    if "items" in req and isinstance(req["items"], list) and len(req["items"]) > 0 and "itemDescription" in req["items"][0]:
+        pr_req = ProcurementRequestCreate(**req)
+    else:
+        req_date = req.get("required_date") or req.get("requiredDate") or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        item_data = ProcurementRequestItemCreate(
+            materialId=req.get("materialId") or req.get("material_id"),
+            itemDescription=req.get("item_name") or req.get("materialName") or req.get("itemDescription") or "General Procurement Item",
+            categoryName=req.get("category") or req.get("categoryName") or "Civil",
+            requiredQuantity=float(req.get("quantity") or req.get("requiredQuantity") or 1.0),
+            unit=req.get("unit") or "Units",
+            requiredDate=req_date,
+            remarks=req.get("remarks") or req.get("notes")
+        )
+        pr_req = ProcurementRequestCreate(
+            projectId=project_id,
+            categoryName=req.get("category") or req.get("categoryName") or "Civil",
+            purpose=req.get("justification") or req.get("purpose") or "Procurement Request",
+            priority=req.get("priority") or "Medium",
+            remarks=req.get("remarks") or req.get("notes"),
+            items=[item_data]
+        )
+    return service.create_procurement_request(pr_req, current_user)
+
+@legacy_router.put("/{procurement_id}")
+def update_legacy_procurement(
+    procurement_id: str,
+    req: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.get_request_by_id(procurement_id, current_user)
+
+@legacy_router.put("/{procurement_id}/issue-po")
+def issue_legacy_po(
+    procurement_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ProcurementService(db)
+    return service.approve_procurement_request(procurement_id, "PO Issued", current_user)
+

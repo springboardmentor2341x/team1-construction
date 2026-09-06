@@ -1,6 +1,9 @@
 import sys
 import unittest
 import uuid
+import warnings
+warnings.simplefilter("ignore")
+
 from fastapi.testclient import TestClient
 from main import app
 from app.database.session import SessionLocal

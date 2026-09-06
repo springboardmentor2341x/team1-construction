@@ -7,6 +7,7 @@ import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.com
 import { RoleSimulatorComponent } from '../../../shared/components/role-simulator/role-simulator.component';
 import { ProjectService } from '../../../core/services/project.service';
 import { MilestoneService } from '../../../core/services/milestone.service';
+import { ReportService } from '../../../core/services/report.service';
 import { Project } from '../../../core/models/project.model';
 import { Milestone } from '../../../core/models/milestone.model';
 
@@ -33,7 +34,10 @@ import { Milestone } from '../../../core/models/milestone.model';
             </div>
             <div class="d-flex gap-2">
               <button class="btn btn-sm btn-outline-secondary" (click)="printPage()"><i class="bi bi-printer me-1"></i>Print</button>
-              <button class="btn btn-bt-accent shadow-sm" (click)="downloadReport()"><i class="bi bi-download me-1"></i>Download PDF</button>
+              <button class="btn btn-bt-accent shadow-sm" (click)="downloadReport()" [disabled]="isDownloadingPdf()">
+                <i class="bi me-1" [ngClass]="isDownloadingPdf() ? 'bi-hourglass-split' : 'bi-download'"></i>
+                {{ isDownloadingPdf() ? 'Generating PDF...' : 'Download PDF' }}
+              </button>
             </div>
           </div>
 
@@ -124,6 +128,7 @@ import { Milestone } from '../../../core/models/milestone.model';
 export class ExecutiveReportComponent implements OnInit {
   projects = signal<Project[]>([]);
   milestones: Milestone[] = [];
+  isDownloadingPdf = signal<boolean>(false);
 
   kpis = [
     { label: 'Active Projects', value: '—', colorClass: 'text-primary', icon: 'bi-building', bgClass: 'bg-primary-subtle text-primary' },
@@ -134,7 +139,8 @@ export class ExecutiveReportComponent implements OnInit {
 
   constructor(
     private projectService: ProjectService,
-    private milestoneService: MilestoneService
+    private milestoneService: MilestoneService,
+    private reportService: ReportService
   ) {}
 
   ngOnInit(): void {
@@ -159,11 +165,10 @@ export class ExecutiveReportComponent implements OnInit {
     return this.projects().find(p => p.id === id)?.projectName || '—';
   }
 
-getStatusBadge = (s: string) => ({ 'In Progress': 'bg-success', 'Planning': 'bg-primary', 'On Hold': 'bg-warning text-dark', 'Completed': 'bg-info text-dark', 'Closed': 'bg-secondary' }[s] || 'bg-secondary');
+  getStatusBadge = (s: string) => ({ 'In Progress': 'bg-success', 'Planning': 'bg-primary', 'On Hold': 'bg-warning text-dark', 'Completed': 'bg-info text-dark', 'Closed': 'bg-secondary' }[s] || 'bg-secondary');
   getMilestoneBadge = (s: string) => ({ 'Completed': 'bg-success', 'In Progress': 'bg-warning text-dark', 'Pending': 'bg-primary', 'Delayed': 'bg-danger' }[s] || 'bg-secondary');
 
   getProgressPct(status: string): string {
-    // Derive progress from real milestone completion data when available.
     if (this.milestones.length) {
       const completed = this.milestones.filter(m => m.status === 'Completed').length;
       const inProgress = this.milestones.filter(m => m.status === 'In Progress').length;
@@ -177,5 +182,32 @@ getStatusBadge = (s: string) => ({ 'In Progress': 'bg-success', 'Planning': 'bg-
   }
 
   printPage(): void { window.print(); }
-  downloadReport(): void { console.log('Download PDF triggered (API integration pending)'); }
+
+  downloadReport(): void {
+    const list = this.projects();
+    if (!list.length) {
+      window.print();
+      return;
+    }
+    const targetProject = list[0];
+    this.isDownloadingPdf.set(true);
+
+    this.reportService.downloadPdfReport(targetProject.id, 'progress').subscribe({
+      next: (blob: Blob) => {
+        this.isDownloadingPdf.set(false);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Executive_Report_${targetProject.projectCode || 'BuildTrack'}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.isDownloadingPdf.set(false);
+        window.print();
+      }
+    });
+  }
 }

@@ -779,7 +779,27 @@ class WorkforceService:
         self.db.add(new_att)
         self.db.commit()
         self.db.refresh(new_att)
+        self._emit_attendance_notification(new_att, worker.worker_name, current_user.id)
         return self._build_attendance_read(new_att)
+
+    def _emit_attendance_notification(self, att: AttendanceModel, worker_name: str, current_user_id: str):
+        if att.status in ["Absent", "Late", "Requires Review", "Pending Review"]:
+            from app.services.notification_service import NotificationService
+            recipients = NotificationService.get_relevant_project_user_ids(
+                self.db, att.project_id, exclude_user_id=current_user_id, roles_filter=["Administrator", "Project Manager", "Site Engineer"]
+            )
+            if recipients:
+                NotificationService.create_bulk_notifications(
+                    db=self.db,
+                    user_ids=recipients,
+                    title=f"Attendance Alert: {worker_name} ({att.status})",
+                    message=f"Attendance issue reported for worker '{worker_name}' on {att.date}. Status: {att.status}.",
+                    type="ATTENDANCE",
+                    project_id=att.project_id,
+                    reference_module="attendance",
+                    reference_id=att.id,
+                    category="Attendance"
+                )
 
     def update_attendance(self, attendance_id: str, req: AttendanceUpdate, current_user: User) -> AttendanceRead:
         self.verify_permission(current_user)
@@ -803,6 +823,8 @@ class WorkforceService:
 
         self.db.commit()
         self.db.refresh(att)
+        w_name = att.worker.worker_name if att.worker else "Worker"
+        self._emit_attendance_notification(att, w_name, current_user.id)
         return self._build_attendance_read(att)
 
     def get_attendance_summary(

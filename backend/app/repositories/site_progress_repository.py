@@ -190,6 +190,13 @@ class PhotographRepository:
     def __init__(self, db: Session):
         self.db = db
 
+    def get_by_id(self, photo_id: str) -> Optional[ProgressPhotograph]:
+        return (
+            self.db.query(ProgressPhotograph)
+            .filter(ProgressPhotograph.id == photo_id)
+            .first()
+        )
+
     def get_by_report(self, report_id: str) -> List[ProgressPhotograph]:
         return (
             self.db.query(ProgressPhotograph)
@@ -208,4 +215,5 @@ class PhotographRepository:
         if photo:
             self.db.delete(photo)
             self.db.commit()
+
 

@@ -64,7 +64,7 @@ import { User } from '../../../core/models/user.model';
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label fw-semibold small">Estimated Budget ($ USD)</label>
+                  <label class="form-label fw-semibold small">Estimated Budget (₹ INR)</label>
                   <input type="number" formControlName="estimatedBudget" class="form-control">
                 </div>
 

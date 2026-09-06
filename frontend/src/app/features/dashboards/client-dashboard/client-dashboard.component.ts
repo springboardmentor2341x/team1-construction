@@ -31,9 +31,9 @@ import { Milestone } from '../../../core/models/milestone.model';
               </div>
               <p class="text-muted small mb-0">Executive visibility into construction milestones, completion %, inspection reports & timeline.</p>
             </div>
-            <button class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2 shadow-sm">
+            <a routerLink="/reports" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2 shadow-sm text-decoration-none">
               <i class="bi bi-file-earmark-pdf"></i> Download Executive Progress Report
-            </button>
+            </a>
           </div>
 
           <!-- Top Stats -->
@@ -106,7 +106,7 @@ import { Milestone } from '../../../core/models/milestone.model';
                       <i class="bi bi-file-earmark-pdf text-danger me-2 fs-5"></i>
                       <strong class="text-dark">{{ d.name }}</strong>
                     </div>
-                    <button class="btn btn-sm btn-light"><i class="bi bi-download"></i></button>
+                    <a routerLink="/reports" class="btn btn-sm btn-light" title="Download Report"><i class="bi bi-download"></i></a>
                   </div>
                   <div *ngIf="documents.length === 0" class="text-center py-4 text-muted">
                     No documents available yet.

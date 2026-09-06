@@ -78,7 +78,7 @@ import { User } from '../../../core/models/user.model';
                   <label class="form-label fw-semibold small">Assign Project Manager *</label>
                   <select formControlName="projectManagerId" (change)="onPMChange($event)" class="form-select" [class.is-invalid]="f['projectManagerId'].touched && f['projectManagerId'].invalid">
                     <option value="">Select Manager</option>
-                    <option *ngFor="let pm of projectManagers" [value]="pm.id">{{ pm.fullName }} ({{ pm.employeeId }})</option>
+                    <option *ngFor="let pm of projectManagers" [value]="pm.id">{{ pm.fullName }}{{ pm.employeeId ? ' (' + pm.employeeId + ')' : '' }}</option>
                   </select>
                   <div *ngIf="f['projectManagerId'].touched && f['projectManagerId'].errors" class="invalid-feedback small">
                     Project Manager selection is required.
@@ -113,7 +113,7 @@ import { User } from '../../../core/models/user.model';
 
                 <!-- Estimated Budget -->
                 <div class="col-md-6">
-                  <label class="form-label fw-semibold small">Estimated Budget ($ USD) *</label>
+                  <label class="form-label fw-semibold small">Estimated Budget (₹ INR) *</label>
                   <input type="number" formControlName="estimatedBudget" class="form-control" placeholder="45000000"
                     [class.is-invalid]="f['estimatedBudget'].touched && f['estimatedBudget'].invalid">
                   <div *ngIf="f['estimatedBudget'].touched && f['estimatedBudget'].errors" class="invalid-feedback small">

@@ -65,9 +65,9 @@ import { Project } from '../../../core/models/project.model';
                 </thead>
                 <tbody>
                   <tr *ngFor="let item of inventory">
-                    <td class="fw-semibold">{{ item.item_name }}</td>
-                    <td>{{ getProjectName(item.project_id) }}</td>
-                    <td class="fw-bold">{{ item.quantity }}</td>
+                    <td class="fw-semibold">{{ item.materialName || item.item_name || 'N/A' }}</td>
+                    <td>{{ item.warehouseLocation || getProjectName(item.project_id) }}</td>
+                    <td class="fw-bold">{{ item.availableStock !== undefined ? item.availableStock : (item.quantity !== undefined ? item.quantity : 0) }} {{ item.unitOfMeasure || '' }}</td>
                     <td>
                       <span class="badge" [ngClass]="{'bg-success': item.status === 'In Stock', 'bg-warning': item.status === 'Low Stock', 'bg-danger': item.status === 'Out of Stock'}">
                         {{ item.status }}

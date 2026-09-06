@@ -100,6 +100,7 @@ def create_material_request(
     return MaterialService(db).create_request(req, current_user)
 
 @router.put("/material-requests/{request_id}/approve", response_model=MaterialRequestRead)
+@router.put("/material-requests/{request_id}/review", response_model=MaterialRequestRead)
 def review_material_request(
     request_id: str,
     req: MaterialRequestReview,
@@ -122,7 +123,7 @@ def get_material_allocations(
 def create_material_allocation(
     req: MaterialAllocationCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
 ):
     return MaterialService(db).create_allocation(req, current_user)
 

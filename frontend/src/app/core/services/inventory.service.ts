@@ -5,10 +5,22 @@ import { environment } from '../../../environments/environment';
 
 export interface InventoryItem {
   id: string;
-  item_name: string;
-  quantity: number;
+  item_name?: string;
+  materialId?: string;
+  materialCode?: string;
+  materialName?: string;
+  categoryName?: string;
+  unitOfMeasure?: string;
+  warehouseLocation?: string;
+  quantity?: number;
+  totalStock?: number;
+  allocatedStock?: number;
+  consumedStock?: number;
+  availableStock?: number;
+  minStockLevel?: number;
   project_id?: string;
   status: string;
+  lastUpdated?: string;
 }
 
 @Injectable({

@@ -1,4 +1,5 @@
 import math
+import uuid
 from datetime import datetime, timezone
 from typing import List, Optional, Tuple
 from fastapi import HTTPException, status
@@ -820,6 +821,14 @@ class ProcurementService:
             if added_qty <= 0:
                 continue
 
+            # Prevent over-receiving
+            remaining_allowed = max(0.0, po_item.quantity - po_item.received_quantity)
+            if added_qty > remaining_allowed:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Cannot receive {added_qty} units for '{po_item.description}'. Maximum remaining quantity allowed is {remaining_allowed}."
+                )
+
             po_item.received_quantity += added_qty
 
             # INTEGRATION WITH MODULE 5 INVENTORY
@@ -858,6 +867,25 @@ class ProcurementService:
                 )
                 self.db.add(sm)
 
+            # INTEGRATION WITH MODULE 11 BUDGET & COST
+            cost = round(added_qty * po_item.unit_price, 2)
+            if cost > 0:
+                from app.models.budget import ActualExpense
+                exp_count = self.db.query(func.count(ActualExpense.id)).scalar() or 0
+                exp = ActualExpense(
+                    id=str(uuid.uuid4()),
+                    project_id=po.project_id,
+                    expense_code=f"EXP-MAT-{(exp_count + 1):04d}",
+                    category="Material",
+                    amount=cost,
+                    expense_date=today_str,
+                    description=f"Material received for PO {po.purchase_order_id}: {po_item.description} ({added_qty} {po_item.unit})",
+                    purchase_order_id=po.id,
+                    source_reference=f"PO:{po.purchase_order_id}",
+                    created_by=current_user.id
+                )
+                self.db.add(exp)
+
         # Check overall PO completion status
         all_completed = True
         any_received = False
@@ -874,6 +902,20 @@ class ProcurementService:
                 po.procurement_request.request_status = "Completed"
         elif any_received:
             po.purchase_order_status = "Partially Received"
+
+        # Emit Notification for PO Goods Receipt
+        from app.services.notification_service import NotificationService
+        NotificationService.create_notification(
+            db=self.db,
+            user_id=current_user.id,
+            project_id=po.project_id,
+            title=f"Goods Received for PO {po.purchase_order_id}",
+            message=f"Material items received for PO {po.purchase_order_id}. Status is now {po.purchase_order_status}.",
+            type="PROCUREMENT_RECEIVING",
+            reference_module="procurement",
+            reference_id=po.id,
+            category="Procurement"
+        )
 
         self.db.commit()
         self.db.refresh(po)

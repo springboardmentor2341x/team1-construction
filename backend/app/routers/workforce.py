@@ -205,7 +205,7 @@ def get_shifts(
 def create_shift(
     req: ShiftCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer", "Contractor", "Subcontractor", "Sub-Contractor", "Worker"]))
 ):
     service = WorkforceService(db)
     return service.create_shift(req, current_user)
@@ -216,7 +216,7 @@ def update_shift(
     shift_id: str,
     req: ShiftUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer", "Contractor", "Subcontractor", "Sub-Contractor", "Worker"]))
 ):
     service = WorkforceService(db)
     return service.update_shift(shift_id, req, current_user)
@@ -227,7 +227,7 @@ def assign_workers_to_shift(
     shift_id: str,
     req: ShiftWorkerAssignRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer", "Contractor", "Subcontractor", "Sub-Contractor", "Worker"]))
 ):
     service = WorkforceService(db)
     return service.assign_workers_to_shift(shift_id, req, current_user)
@@ -238,7 +238,7 @@ def remove_worker_from_shift(
     shift_id: str,
     worker_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer", "Contractor", "Subcontractor", "Sub-Contractor", "Worker"]))
 ):
     service = WorkforceService(db)
     return service.remove_worker_from_shift(shift_id, worker_id, current_user)
@@ -338,7 +338,7 @@ def get_payrolls(
 def create_or_update_payroll(
     req: WorkforcePayrollCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Contractor"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer", "Contractor", "Subcontractor", "Sub-Contractor"]))
 ):
     service = WorkforceService(db)
     return service.create_or_update_payroll(req, current_user)
@@ -349,7 +349,7 @@ def update_payroll_status(
     payroll_id: str,
     status_value: str = Query(..., alias="status"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(RequireRole(["Administrator", "Project Manager"]))
+    current_user: User = Depends(RequireRole(["Administrator", "Project Manager", "Site Engineer", "Contractor", "Subcontractor", "Sub-Contractor"]))
 ):
     service = WorkforceService(db)
     return service.update_payroll_status(payroll_id, status_value, current_user)

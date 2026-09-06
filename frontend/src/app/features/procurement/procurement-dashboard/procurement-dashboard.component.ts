@@ -27,7 +27,7 @@ import { Project } from '../../../core/models/project.model';
           <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
             <div>
               <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-warning text-dark px-2 py-1 uppercase fw-bold">Module 7</span>
+                <span class="badge bg-warning text-dark px-2 py-1 uppercase fw-bold">Procurement</span>
                 <h2 class="fw-bold text-dark mb-0">Procurement Management Dashboard</h2>
               </div>
               <p class="text-muted small mb-0">Centralized oversight for material requests, approvals, vendor POs, goods receiving, & invoice tracking.</p>
